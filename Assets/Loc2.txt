@@ -1,0 +1,30 @@
+{"captions":[],"textsDescriptions":[],"buttonsData":[],
+
+
+
+
+
+
+"switchesData":
+[
+{"cases":[
+	{"inscription":"1","description":"Цельное ребро"},
+	{"inscription":"4","description":"Разбить ребро на 4 части"},
+	{"inscription":"8","description":"Разбить ребро на 8 частей"},
+	{"inscription":"8","description":"Разбить ребро на 16 частей"},
+	{"inscription":"32","description":"Разбить ребро на 32 части"},
+	{"inscription":"Copy","description":"Скопированный воксель"}
+]},
+
+{"cases":
+[
+	{"inscription":"Build","description":"scd"},
+	{"inscription":"Red","description":"sc"}
+]}
+
+],
+
+
+
+
+"flagsData":[]}

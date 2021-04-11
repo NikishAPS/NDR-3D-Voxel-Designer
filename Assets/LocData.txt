@@ -1,0 +1,103 @@
+{
+
+"captions":
+[
+"Scene",
+"Voxel settings",
+"Mode",
+"Build",
+"Voxel transform",
+"Vertices settings",
+"OBJ transform",
+"Mirror",
+"Project settings",
+"Helper",
+"Color",
+"Project settings"
+],
+
+
+
+
+
+"textsDescriptions":
+[
+"Width",
+"Depth",
+"Height",
+"Position",
+"Rotation",
+"Scale",
+"Description",
+"Q - Build mode\n\rW - Select mode\n\rE - Edit mode\n\rTab - switch mode\n\rShift  + LMB - select/deselect voxel\n\rH - open/close helper\n\rCrtl + C - copy voxel\n\rCrtl + V - past\n\rCrtl + S - save project\n\rCrtl + O - open project\n\rCrtl + E - export selected part\n\rCrtl + I - import part"
+],
+
+
+
+
+
+"buttonsData":
+[
+{"inscription":"Set","description":"Установить размер сетки"},
+{"inscription":"Clear","description":"Очистить сцену"},
+{"inscription":"","description":"Задать цвет"},
+{"inscription":"","description":"Задать цвет"},
+{"inscription":"Transform","description":"Трансформация выделенного вокселя"},
+{"inscription":"Fit vertices","description":"Склеивание соседних вершин"},
+{"inscription":"Center","description":"Центрировать выделенный воксель"},
+{"inscription":"Reset","description":"Сбросить"},
+{"inscription":"Apply","description":"Применить"},
+{"inscription":"","description":"Настройки"},
+{"inscription":"Save","description":"Сохранить проект"},
+{"inscription":"Load","description":"Загрузить проект"},
+{"inscription":"Export part","description":"Экспортировать выделенные воксели"},
+{"inscription":"Import part","description":"Импортировать воксели"},
+{"inscription":"Import OBJ","description":"Импортировать OBJ"},
+{"inscription":"Close","description":"Закрыть (H)"},
+{"inscription":"Ruler","description":"Настройки линейки"},
+{"inscription":"<","description":"Назад"},
+{"inscription":"Close","description":"Закрыть"}
+],
+
+
+
+
+
+"switchesData":
+[
+{"cases":[
+	{"inscription":"1","description":"Цельное ребро"},
+	{"inscription":"4","description":"Разбить ребро на 4 части"},
+	{"inscription":"8","description":"Разбить ребро на 8 частей"},
+	{"inscription":"8","description":"Разбить ребро на 16 частей"},
+	{"inscription":"32","description":"Разбить ребро на 32 части"},
+	{"inscription":"Copy","description":"Скопированный воксель"}
+]},
+
+{"cases":[
+	{"inscription":"Build","description":"Режим создания вокселей"},
+	{"inscription":"Select","description":"Режим выделения вокселей"},
+	{"inscription":"Edit","description":"Редим редактирования вершин"},
+	{"inscription":"OBJ","description":"Редим OBJ"}
+]}
+],
+
+
+
+
+
+"flagsData":
+[
+	{"inscription":"Show bounds","description":"Показать границы"},
+	{"inscription":"Auto","description":"Автоматическое соединение соседних вершин"},
+	{"inscription":"Mirror","description":"Зеркало"}
+]
+
+
+
+
+
+
+
+
+}

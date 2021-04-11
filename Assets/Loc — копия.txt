@@ -1,0 +1,70 @@
+{"captions":[
+
+"Scene",
+"Voxel settings","Mode",
+"Build",
+"Voxel transform",
+"Vertices settings",
+"OBJ transform",
+"Mirror",
+"Project settings"
+
+],
+
+
+
+
+
+"textsDescriptions":[
+
+"Width",
+"Depth",
+"Height",
+"Position",
+
+]
+
+
+
+
+
+"buttonData":[
+
+{"inscription":"Set","description":"Установить размер сетки"},
+{"inscription":"Clear","description":"Очистить сцену"},
+{"inscription":"","description":"Задать цвет"},
+{"inscription":"Transform","description":"Трансформация выделенного вокселя"},
+{"inscription":"Fit vertices","description":"Склеивание соседних вершин"},
+{"inscription":"Center","description":"Центрировать выделенный воксель"},
+{"inscription":"Reset","description":"Сбросить"},
+{"inscription":"","description":"Настройки"},
+{"inscription":"Apply","description":"Применить"},
+{"inscription":"Save","description":"Сохранить проект"},
+{"inscription":"Load","description":"Загрузить проект"},
+{"inscription":"Export part","description":"Экспортировать выделенные воксели"},
+{"inscription":"Import part","description":"Импортировать воксели"},
+{"inscription":"Import OBJ","description":"Импортировать OBJ"},
+{"inscription":"Close","description":"Закрыть (H)"}
+
+]
+
+
+
+
+
+"switchData":[
+
+{"cases":[
+	{"inscription":"1","description":"ddfsdfsdf"},
+	{"inscription":"2","description":"ddfsdsdfsdf"}
+]},
+
+{"cases":[
+	{"inscription":"EEE","description":"ddfsdfsdf"},
+	{"inscription":"FFF","description":"ddfsdsdfsdf"}
+]},
+
+]
+
+
+}
