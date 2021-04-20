@@ -6,12 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/OBJ/objDemo.unity
-    guid: c2928dc95c2894d28936ccb0ea1d0987
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 0
-    path: Assets/OBJImport/Samples/ObjFromFile.unity
-    guid: e96535515ee47d04589da7981f6650a2
-  - enabled: 1
-    path: Assets/Source/Voxel.unity
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: Assets/Source/Scenes/Voxel.unity
     guid: ef94ef9667310c34ebb59b6cc5b02063
+  - enabled: 1
+    path: Assets/Source/Scenes/Voxel-Designer.unity
+    guid: 7db9910e748710c4198981907ebbb07c
   m_configObjects: {}

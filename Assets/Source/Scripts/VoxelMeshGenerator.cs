@@ -67,16 +67,16 @@ namespace Voxelator
             vertices = new Vector3[]
             {
                 //Rear
-                new Vector3 (0.5f, -0.5f, 0.5f),
-                new Vector3 (0.5f, 0.5f, 0.5f),
-                new Vector3 (-0.5f, 0.5f, 0.5f),
-                new Vector3 (-0.5f, -0.5f, 0.5f),
-
-                //Front
                 new Vector3 (-0.5f, -0.5f, -0.5f),
                 new Vector3 (-0.5f, 0.5f, -0.5f),
                 new Vector3 (0.5f, 0.5f, -0.5f),
                 new Vector3 (0.5f, -0.5f, -0.5f),
+
+                //Front
+                new Vector3 (0.5f, -0.5f, 0.5f),
+                new Vector3 (0.5f, 0.5f, 0.5f),
+                new Vector3 (-0.5f, 0.5f, 0.5f),
+                new Vector3 (-0.5f, -0.5f, 0.5f),
 
                 //Left
                 new Vector3 (-0.5f, -0.5f, 0.5f),

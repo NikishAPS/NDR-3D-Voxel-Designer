@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class ModeControl : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public int mode { get; set; }
+
+    MonoBehaviour[] employees;
+
     void Start()
     {
-        
+        employees = new MonoBehaviour[]
+        {
+            GetComponent<Builder>(),
+            new Mover(),
+            new Editor()
+        };
     }
 
-    // Update is called once per frame
     void Update()
     {
         

@@ -6,33 +6,35 @@ using UnityEngine.UI;
 public class ControlGUI : MonoBehaviour
 {
 
-    public Panel[] panels;
+    private Panel[] _panels;
 
-    private bool cursorInGameScene;
+
+    public bool IsPanel { get; private set; }
 
     private void Awake()
     {
-        panels = FindObjectsOfType<Panel>();
+        _panels = FindObjectsOfType<Panel>();
     }
 
     private void Update()
     {
-        
+        IsPanel = IsPanels();
     }
 
 
-    private void SetCursorInGameScene()
+    private bool IsPanels()
     {
-        cursorInGameScene = false;
-        for (int i = 0; i < panels.Length; i++)
+        for (int i = 0; i < _panels.Length; i++)
         {
-            if (panels[i].gameObject.activeSelf && InPanel(panels[i].rectTransform))
+            if (_panels[i].gameObject.activeSelf && _panels[i].IsPanel)
             {
-                cursorInGameScene = false;
-                break;
+                return true;
             }
         }
+        return false;
     }
+
+    
 
     private bool InPanel(RectTransform rectTransform)
     {

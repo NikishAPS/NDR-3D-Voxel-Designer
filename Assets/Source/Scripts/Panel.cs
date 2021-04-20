@@ -4,15 +4,101 @@ using UnityEngine;
 
 public class Panel : MonoBehaviour
 {
-    public RectTransform rectTransform { get; private set; }
+    [SerializeField]
+    private RectTransform _rectTransform;
 
-    void Start()
+    [SerializeField]
+    private Widget[] widgets;
+
+    [SerializeField]
+    private bool isActive = true;
+    [SerializeField]
+    private bool openStart = false;
+
+    public bool IsPanel { get; private set; }
+
+
+    public void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
+        widgets = GetComponentsInChildren<Widget>();
+        foreach (Widget widget in widgets)
+        {
+            widget.Init();
+        }
     }
 
-    void Update()
+    public void Start()
     {
-        
+        if(openStart)
+        {
+            transform.localScale = Vector3.zero;
+
+            isActive = true;
+        }
+    }
+
+
+    public void Update()
+    {
+        IsPanel = InRect();
+
+        if(isActive)
+        {
+            transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.one, Time.deltaTime * 10f);
+
+            if (IsPanel)
+            {
+                foreach (Widget widget in widgets)
+                {
+                    widget.Tick();
+                }
+            }
+
+        }
+        else
+        {
+            transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.zero, Time.deltaTime * 10f);
+
+            if (transform.localScale == Vector3.zero)
+                gameObject.SetActive(false);
+        }
+
+    }
+
+    private bool InRect()
+    {
+        Vector2 mousePos = Input.mousePosition;
+
+
+        return mousePos.x > _rectTransform.position.x - _rectTransform.rect.width * 0.5f &&
+            mousePos.x < _rectTransform.position.x + _rectTransform.rect.width * 0.5f &&
+            mousePos.y > _rectTransform.position.y - _rectTransform.rect.height * 0.5f &&
+            mousePos.y < _rectTransform.position.y + _rectTransform.rect.height * 0.5f;
+    }
+
+
+    public void Close()
+    {
+        isActive = false;
+        //StartCoroutine(Resize(Vector3.zero));
+    }
+
+    public void Open()
+    {
+        isActive = true;
+        gameObject.SetActive(true);
+        //StartCoroutine(Resize(Vector3.one));
+    }
+
+    private IEnumerator Resize(Vector3 size)
+    {
+        while (transform.localScale != size)
+        {
+            transform.localScale = Vector3.MoveTowards(transform.localScale, size, Time.deltaTime * 0.1f);
+            yield return null;
+        }
+
+        if (size == Vector3.zero)
+            gameObject.SetActive(false);
     }
 }

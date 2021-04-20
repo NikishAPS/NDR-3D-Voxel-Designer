@@ -6,39 +6,40 @@ using UnityEngine.Events;
 
 namespace MyGUI
 {
-    public class MyButton : MonoBehaviour
+    public class MyButton : MonoBehaviour //С хуя ли она твоя?
     {
         public string description;
-        public Color hover, selected, notSelected;
+        [SerializeField]
+        private Color _default, _hover, _selected;
 
         public UnityEvent eventsButton;
 
-        private RectTransform rectTransform;
-        private Image image;
+        private RectTransform _rectTransform;
+        private Image _image;
 
         public bool press;
 
-        private DescriptionWidgets descriptionWidgets;
+       // private DescriptionWidgets descriptionWidgets;
 
         void Start()
         {
-            rectTransform = GetComponent<RectTransform>();
-            image = GetComponent<Image>();
+            _rectTransform = GetComponent<RectTransform>();
+            _image = GetComponent<Image>();
 
-            descriptionWidgets = GameObject.Find("Canvas").transform.Find("DescriptionWidgets").GetComponent<DescriptionWidgets>();
+            //descriptionWidgets = GameObject.Find("Canvas").transform.Find("DescriptionWidgets").GetComponent<DescriptionWidgets>();
         }
 
         void Update()
         {
             if (InRect())
             {
-                descriptionWidgets.SetTarget(description, transform);
+                //descriptionWidgets.SetTarget(description, transform);
 
                 if (!press)
-                    image.color = hover;
+                    _image.color = _hover;
                 if (Input.GetMouseButtonDown(0))
                 {
-                    image.color = selected;
+                    _image.color = _selected;
                     press = true;
                 }
                 if (Input.GetMouseButtonUp(0))
@@ -52,8 +53,8 @@ namespace MyGUI
             }
             else
             {
-                descriptionWidgets.Hide(transform);
-                image.color = notSelected;
+                //descriptionWidgets.Hide(transform);
+                _image.color = _default;
                 if (!Input.GetMouseButton(0))
                 {
                     press = false;
@@ -65,10 +66,10 @@ namespace MyGUI
         {
             Vector2 mousePos = Input.mousePosition;
 
-            return mousePos.x > transform.position.x - rectTransform.rect.width * 0.5f &&
-                mousePos.x < transform.position.x + rectTransform.rect.width * 0.5f &&
-                mousePos.y > transform.position.y - rectTransform.rect.height * 0.5f &&
-                mousePos.y < transform.position.y + rectTransform.rect.height * 0.5f;
+            return mousePos.x > transform.position.x - _rectTransform.rect.width * 0.5f &&
+                mousePos.x < transform.position.x + _rectTransform.rect.width * 0.5f &&
+                mousePos.y > transform.position.y - _rectTransform.rect.height * 0.5f &&
+                mousePos.y < transform.position.y + _rectTransform.rect.height * 0.5f;
         }
         
     }

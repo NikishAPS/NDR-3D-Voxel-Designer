@@ -12,28 +12,22 @@ namespace Voxelator
 
         public Vector3 offset;//, offsetTarget;
 
+        [SerializeField]
         private Vector3 _target;
 
         private Vector2 angles, lastMouse;
 
         private bool viewNormal;
 
-        private VoxelsControl voxelsControl;
-
         private float speedView;
-
-        private Transform grid;
 
 
         void Start()
         {
-            voxelsControl = GetComponent<VoxelsControl>();
+            _target = SceneData.chunk.Center;
+            _target.y = 0;
 
-            grid = GameObject.Find("Grid").transform;
-
-            _target = new Vector3(grid.localScale.x, 0, grid.localScale.z) * 5f;
             offset.z = -15;
-
             angles = new Vector2(320f, -50f);
         }
 
@@ -79,47 +73,47 @@ namespace Voxelator
                 float mul = 1; //Смещене цели наблюдения при выделении нескольких объектов
 
 
-                if (voxelsControl.selectedVoxels.Count > 0)
+                //if (voxelsControl.selectedVoxels.Count > 0)
+                //{
+                //    target = Vector3.zero;
+                //    for (int i = 0; i < voxelsControl.selectedVoxels.Count; i++)
+                //    {
+                //        target += voxelsControl.selectedVoxels[i].transform.position;
+                //    }
+
+                //    target /= voxelsControl.selectedVoxels.Count;
+
+
+                //    //Если выделено несколько вокселей, то камеру надо настроить так, чтобы видеть их все
+                //    if (voxelsControl.selectedVoxels.Count > 1)
+                //    {
+                //        for (int i = 0; i < voxelsControl.selectedVoxels.Count; i++)
+                //        {
+                //            for (int j = 0; j < voxelsControl.selectedVoxels.Count; j++)
+                //            {
+                //                if (Vector3.Distance(voxelsControl.selectedVoxels[i].transform.position, voxelsControl.selectedVoxels[j].transform.position) > mul)
+                //                {
+                //                    mul = Vector3.Distance(voxelsControl.selectedVoxels[i].transform.position, voxelsControl.selectedVoxels[j].transform.position);
+                //                }
+                //            }
+                //        }
+
+                //        mul *= 0.3f;
+                //        if (mul < 1f) mul = 1f;
+                //    }
+
+                //    //target = voxelsControl.selectedVoxels[voxelsControl.selectedVoxels.Count - 1].transform.position;
+                //    speedView = Vector3.Distance(transform.position, target);
+                //}
+                //else if(voxelsControl.selectedImported == null)
                 {
-                    target = Vector3.zero;
-                    for (int i = 0; i < voxelsControl.selectedVoxels.Count; i++)
-                    {
-                        target += voxelsControl.selectedVoxels[i].transform.position;
-                    }
 
-                    target /= voxelsControl.selectedVoxels.Count;
-
-
-                    //Если выделено несколько вокселей, то камеру надо настроить так, чтобы видеть их все
-                    if (voxelsControl.selectedVoxels.Count > 1)
-                    {
-                        for (int i = 0; i < voxelsControl.selectedVoxels.Count; i++)
-                        {
-                            for (int j = 0; j < voxelsControl.selectedVoxels.Count; j++)
-                            {
-                                if (Vector3.Distance(voxelsControl.selectedVoxels[i].transform.position, voxelsControl.selectedVoxels[j].transform.position) > mul)
-                                {
-                                    mul = Vector3.Distance(voxelsControl.selectedVoxels[i].transform.position, voxelsControl.selectedVoxels[j].transform.position);
-                                }
-                            }
-                        }
-
-                        mul *= 0.3f;
-                        if (mul < 1f) mul = 1f;
-                    }
-
-                    //target = voxelsControl.selectedVoxels[voxelsControl.selectedVoxels.Count - 1].transform.position;
-                    speedView = Vector3.Distance(transform.position, target);
-                }
-                else if(voxelsControl.selectedImported == null)
-                {
-
-                    target = grid.localScale * 5f;
+                    target = SceneData.chunk.Size;
 
                     mul = 0;
-                    if (grid.localScale.x > mul) mul = grid.localScale.x;
-                    if (grid.localScale.y > mul) mul = grid.localScale.y;
-                    if (grid.localScale.z > mul) mul = grid.localScale.z;
+                    if (target.x > mul) mul = target.x;
+                    else if (target.y > mul) mul = target.y;
+                    else if (target.z > mul) mul = target.z;
 
 
 
@@ -128,11 +122,6 @@ namespace Voxelator
                     speedView = Vector3.Distance(transform.position, Vector3.zero);
 
                    
-                }
-                else if(voxelsControl.mode == 4)
-                {
-                    target = voxelsControl.selectedImported.position;
-                    speedView = Vector3.Distance(transform.position, target);
                 }
 
                 _target += transform.forward * (offset.z + 4f * mul);
@@ -227,17 +216,5 @@ namespace Voxelator
         {
             return Mathf.Cos(angle * Mathf.Deg2Rad);
         }
-
-        private int QuarterDefinition(float angle)
-        {
-            if (angle < 0 && angle > -90)
-                return 1;
-            else if (angle < -90 && angle > -180)
-                return 2;
-            else if (angle < -180 && angle > -270)
-                return 3;
-            else return 4;
-        }
-
     }
 }
