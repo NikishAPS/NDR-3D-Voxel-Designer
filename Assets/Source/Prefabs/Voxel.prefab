@@ -106,6 +106,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b7cbf8059499af4888ad9f52164aff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vertices: []
-  triangles: 000000000000000000000000000000000000000000000000000000000000000000000000
-  triangleCount: 0
+  _availabilityVertices: 000000000000
+  _faceCount: 0

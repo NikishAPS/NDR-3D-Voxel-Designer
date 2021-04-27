@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Editor : Mode
+public class LoadCheker : MonoBehaviour
 {
-    public override void Invoke()
+
+    public void SetFieldCheck(int value)
     {
 
     }

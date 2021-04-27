@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class ScreenSelector : MonoBehaviour
 {
-
     private RectTransform rectTransform;
     private Image image;
 

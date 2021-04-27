@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Extractor : MonoBehaviour
 {
+    public void SetActive(bool value)
+    {
+        gameObject.SetActive(value);
+    }
+
     public void SetPosition(Vector3 pos)
     {
         transform.position = pos;
