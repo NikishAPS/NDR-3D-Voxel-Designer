@@ -8,4 +8,14 @@ public class Editor : Mode
     {
 
     }
+
+    public override void Disable()
+    {
+
+    }
+
+    public override void Enable()
+    {
+
+    }
 }

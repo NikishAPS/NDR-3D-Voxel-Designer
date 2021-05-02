@@ -22,7 +22,7 @@ public class Builder : Mode
                     SceneData.extractor.SetActive(true);
                     SceneData.extractor.transform.position = castResult.lastPoint;
 
-                    if (SceneData.eventInput.Mouse0)
+                    if (SceneData.eventInput.MouseDown0)
                     {
                         int id = SceneData.colorTest.id;
                         SceneData.chunk.CreateVoxel(SceneData.colorTest.id, castResult.lastPoint);
@@ -30,6 +30,16 @@ public class Builder : Mode
                 }
             }
         }
+    }
+
+    public override void Disable()
+    {
+
+    }
+
+    public override void Enable()
+    {
+
     }
 
 

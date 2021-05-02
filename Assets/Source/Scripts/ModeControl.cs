@@ -31,32 +31,38 @@ public class ModeControl : MonoBehaviour
 
     }
 
-    private void OnAlpha1()
-    {
-        mode = 0;
-    }
+   
 
-    private void OnAlpha2()
+    public void ChangeMode(int value)
     {
-        mode = 1;
-    }
-
-    private void OnAlpha3()
-    {
-        mode = 2;
+        employees[mode].Disable();
+        mode = value;
+        employees[mode].Enable();
     }
 
     private void Update()
     {
-        // print(SceneData.debug);
-
-            print(SceneData.chunk.gameObject.name);
         if (mode >= 0 && mode < employees.Length)
         {
             employees[mode].Invoke();
         }
 
         //print(SceneData.debug);
+    }
+
+    private void OnAlpha1()
+    {
+        ChangeMode(0);
+    }
+
+    private void OnAlpha2()
+    {
+        ChangeMode(1);
+    }
+
+    private void OnAlpha3()
+    {
+        ChangeMode(2);
     }
 
     public void SetMode(int value)

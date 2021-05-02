@@ -54,9 +54,10 @@ public class Button : Widget
         else
         {
             //descriptionWidgets.Hide(transform);
-            _image.color = _default;
+            _image.color = _selected;
             if (!Input.GetMouseButton(0))
             {
+                _image.color = _default;
                 press = false;
             }
         }

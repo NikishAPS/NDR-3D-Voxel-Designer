@@ -13,6 +13,7 @@ public class SceneDataInit : MonoBehaviour
         SceneData.extractor = FindObjectOfType<Extractor>();
         SceneData.controlGUI = FindObjectOfType<ControlGUI>();
         SceneData.eventInput = FindObjectOfType<EventInput>();
+        SceneData.dragSystem = FindObjectOfType<DragSystem>();
 
         SceneData.colorTest = FindObjectOfType<ColorTest>();
 

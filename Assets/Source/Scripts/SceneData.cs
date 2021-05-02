@@ -17,6 +17,7 @@ public static class SceneData
     public static Extractor extractor;
     public static ControlGUI controlGUI;
     public static EventInput eventInput;
+    public static DragSystem dragSystem;
 
     public static ColorTest colorTest;
 
