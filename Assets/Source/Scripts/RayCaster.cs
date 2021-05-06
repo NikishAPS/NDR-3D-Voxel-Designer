@@ -13,7 +13,7 @@ public static class RayCaster
         Vector3 dir = SceneData.camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.camera.transform.position;
         dir.Normalize();
 
-        for (float f = 0; f < length; f += 0.1f)
+        for (float f = 0; f < length; f += SceneData.rayStep)
         {
             Vector3 direction = dir * f;
             Vector3 point = pos + direction;

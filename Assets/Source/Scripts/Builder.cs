@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Builder : Mode
 {
-    public override void Invoke()
+    public override void Tick()
     {
         SceneData.extractor.SetActive(false);
 

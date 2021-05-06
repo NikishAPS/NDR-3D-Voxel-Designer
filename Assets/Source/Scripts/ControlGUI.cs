@@ -5,11 +5,12 @@ using UnityEngine.UI;
 
 public class ControlGUI : MonoBehaviour
 {
-
+    [SerializeField]
+    private int _curIndexPanel;
     private Panel[] _panels;
 
 
-    public bool IsPanel { get; private set; }
+    public bool IsPanel => _curIndexPanel != -1;
 
     private void Awake()
     {
@@ -18,7 +19,14 @@ public class ControlGUI : MonoBehaviour
 
     private void Update()
     {
-        IsPanel = IsPanels();
+        //IsPanel = IsPanels();
+        _curIndexPanel = -1;
+
+        for(int i = 0; i < _panels.Length; i++)
+        {
+            _panels[i].Tick();
+            if (_panels[i].IsPanel) _curIndexPanel = i;
+        }
     }
 
 

@@ -6,6 +6,7 @@ public static class SceneData
 {
     //parameters
     public static readonly float rayLength = 500;
+    public static readonly float rayStep = 0.5f;
     public static readonly int textureSize = 5;
     public static readonly float textureMul = 1.0f / textureSize;
 
@@ -37,6 +38,11 @@ public static class SceneData
         return new Vector3Int((int)value.x, (int)value.y, (int)value.z);
     }
 
+    public static Vector3Int Vector3FloatRound(Vector3 value)
+    {
+        return new Vector3Int((int)Mathf.Round(value.x), (int)Mathf.Round(value.y), (int)Mathf.Round(value.z));
+    }
+
     public static Point3Int Vector3IntToPoint3Int(Vector3Int pos)
     {
         return new Point3Int(pos.x, pos.y, pos.z);
@@ -45,5 +51,10 @@ public static class SceneData
     public static Vector3 Point3IntToVector3(Point3Int pos)
     {
         return new Vector3(pos.x, pos.y, pos.z);
+    }
+
+    public static Vector3Int Point3IntToVector3Int(Point3Int pos)
+    {
+        return new Vector3Int(pos.x, pos.y, pos.z);
     }
 }

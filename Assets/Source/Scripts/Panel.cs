@@ -15,6 +15,7 @@ public class Panel : MonoBehaviour
     [SerializeField]
     private bool openStart = false;
 
+    private bool _isPanel = false;
     public bool IsPanel { get; private set; }
 
 
@@ -38,8 +39,10 @@ public class Panel : MonoBehaviour
     }
 
 
-    public void Update()
+    public void Tick()
     {
+        if(!gameObject.activeSelf) { IsPanel = false; return; }
+
         IsPanel = InRect();
 
         if(isActive)

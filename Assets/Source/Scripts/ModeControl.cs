@@ -44,7 +44,7 @@ public class ModeControl : MonoBehaviour
     {
         if (mode >= 0 && mode < employees.Length)
         {
-            employees[mode].Invoke();
+            employees[mode].Tick();
         }
 
         //print(SceneData.debug);

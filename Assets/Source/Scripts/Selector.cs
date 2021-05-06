@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Selector : Mode
 {
-    public override void Invoke()
+    public override void Tick()
     {
         SceneData.extractor.SetActive(false);
         if (!SceneData.controlGUI.IsPanel)
         {
-            if (!DragSystemInvoke()) RayCastInvoke();
+            if (!IsDrag()) RayCastInvoke();
         }
     }
 
@@ -17,16 +17,18 @@ public class Selector : Mode
     {
         SceneData.chunk.transform.GetChild(0).gameObject.SetActive(false);
         SceneData.dragSystem.SetActive(false);
+        SceneData.dragSystem.drag -= SceneData.chunk.MoveVoxels;
     }
 
     public override void Enable()
     {
         SceneData.chunk.transform.GetChild(0).gameObject.SetActive(true);
+        SceneData.dragSystem.drag += SceneData.chunk.MoveVoxels;
     }
 
-    private bool DragSystemInvoke()
+    private bool IsDrag()
     {
-        if (Input.GetKeyDown(KeyCode.Delete)) SceneData.chunk.DeleteVoxel();
+        if (SceneData.eventInput.Delete) SceneData.chunk.DeleteVoxel();
 
         if (SceneData.chunk.SelectedIndecesCount == 0)
         {
@@ -36,12 +38,15 @@ public class Selector : Mode
         else
         {
             SceneData.dragSystem.SetActive(true);
-            SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
+            //SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
 
             if (!SceneData.dragSystem.CheckCapture())
             {
                 return false;
             }
+
+            //if (SceneData.dragSystem.GetDragValue() != Vector3Int.zero)
+            //    SceneData.chunk.MoveVoxels(SceneData.dragSystem.GetDragValue());
             //SceneData.chunk.MoveVoxel();
 
 
@@ -65,6 +70,7 @@ public class Selector : Mode
             {
                 if (!SceneData.eventInput.LShift) SceneData.chunk.ResetSelection();
                 SceneData.chunk.SelectVoxel(castResult.point);
+                SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
             }
         }
     }
