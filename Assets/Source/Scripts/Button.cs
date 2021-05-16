@@ -15,7 +15,8 @@ public class Button : Widget
     private RectTransform _rectTransform;
     private Image _image;
 
-    public bool press;
+    [SerializeField]
+    private bool _press;
 
     // private DescriptionWidgets descriptionWidgets;
 
@@ -34,32 +35,37 @@ public class Button : Widget
         if (InRect())
         {
             //descriptionWidgets.SetTarget(description, transform);
-
-            if (!press)
+            if (!_press)
                 _image.color = _hover;
             if (Input.GetMouseButtonDown(0))
             {
                 _image.color = _selected;
-                press = true;
+                _press = true;
             }
             if (Input.GetMouseButtonUp(0))
             {
-                if (press)
+                if (_press)
                 {
                     eventsButton.Invoke();
                 }
-                press = false;
+                _press = false;
             }
         }
         else
         {
             //descriptionWidgets.Hide(transform);
-            _image.color = _selected;
-            if (!Input.GetMouseButton(0))
-            {
-                _image.color = _default;
-                press = false;
-            }
+
+            if (!Input.GetMouseButton(0)) _press = false;
+
+
+            _image.color = _press ? _selected : _default;
+
+            //_image.color = _selected;
+            //if (!Input.GetMouseButton(0))
+            //{
+            //    _image.color = _default;
+            //    _press = false;
+            //}
         }
     }
 
@@ -71,6 +77,11 @@ public class Button : Widget
             mousePos.x < transform.position.x + _rectTransform.rect.width * 0.5f &&
             mousePos.y > transform.position.y - _rectTransform.rect.height * 0.5f &&
             mousePos.y < transform.position.y + _rectTransform.rect.height * 0.5f;
+    }
+
+    public void SetDefaultColor(Color color)
+    {
+        _default = color;
     }
 
 }

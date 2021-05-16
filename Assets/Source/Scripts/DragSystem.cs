@@ -90,13 +90,15 @@ public class DragSystem : MonoBehaviour
         if (_axisYZ.enabled) captures.y = captures.z = 1;
 
         //capturePos = SceneData.eventInput.MousePos;
-        capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos);
+        //capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos);
+        capturePos = SceneData.eventInput.MousePos;
         captureSize = Vector3.Distance(transform.position, SceneData.camera.transform.position) * size * 0.01f;
     }
 
     private void OnMouse0()
     {
-        Vector3 dragDir = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - capturePos;
+        //Vector3 dragDir = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - capturePos;
+        Vector3 dragDir = SceneData.camera.transform.TransformDirection(SceneData.eventInput.MousePos - capturePos);
         dragValue.x = dragDir.x * captures.x;
         dragValue.y = dragDir.y * captures.y;
         dragValue.z = dragDir.z * captures.z;
@@ -140,7 +142,8 @@ public class DragSystem : MonoBehaviour
     {
         dragValue -= value;
         position += value;
-        capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - dragValue / captureSize;
+        //capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - dragValue / captureSize;
+        capturePos = SceneData.eventInput.MousePos - SceneData.camera.transform.InverseTransformDirection(dragValue / captureSize);
     }
 
     public void SetActive(bool value)

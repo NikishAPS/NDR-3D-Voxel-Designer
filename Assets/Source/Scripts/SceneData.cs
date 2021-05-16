@@ -6,7 +6,7 @@ public static class SceneData
 {
     //parameters
     public static readonly float rayLength = 500;
-    public static readonly float rayStep = 0.5f;
+    public static readonly float rayStep = 0.1f;
     public static readonly int textureSize = 5;
     public static readonly float textureMul = 1.0f / textureSize;
 
@@ -22,11 +22,12 @@ public static class SceneData
 
     public static ColorTest colorTest;
 
-
     public static int debug;
 
     public static Vector3[] voxelVertices;
     public static Vector2[] uvVertices;
+
+    public static Vector3[] sphereVertices;
 
     public static Vector3 Vector3IntToFloat(Vector3Int value)
     {

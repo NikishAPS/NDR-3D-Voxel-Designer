@@ -18,6 +18,7 @@ public class Selector : Mode
         SceneData.chunk.transform.GetChild(0).gameObject.SetActive(false);
         SceneData.dragSystem.SetActive(false);
         SceneData.dragSystem.drag -= SceneData.chunk.MoveVoxels;
+        SceneData.extractor.SetActive(false);
     }
 
     public override void Enable()
@@ -57,7 +58,7 @@ public class Selector : Mode
 
     private void RayCastInvoke()
     {
-        CastResult castResult = RayCaster.CastByMouse(SceneData.rayLength);
+        CastResult castResult = VoxelRayCast.CastByMouse(SceneData.rayLength);
         if (castResult != null)
         {
             if (castResult.voxel != null)

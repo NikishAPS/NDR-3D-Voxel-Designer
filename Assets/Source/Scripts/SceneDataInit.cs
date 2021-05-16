@@ -56,6 +56,10 @@ public class SceneDataInit : MonoBehaviour
             new Vector3(-0.5f, -0.5f, 0.5f)
     };
 
+        SceneData.sphereVertices = new Vector3[]
+        {
+
+        };
     }
 
     private void Start()

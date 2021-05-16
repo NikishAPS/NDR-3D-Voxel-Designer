@@ -13,7 +13,7 @@ public class Builder : Mode
             //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             //RaycastHit hit;
 
-            CastResult castResult = RayCaster.CastByMouse(SceneData.rayLength);
+            CastResult castResult = VoxelRayCast.CastByMouse(SceneData.rayLength);
             if (castResult != null)
             {
 
@@ -34,7 +34,7 @@ public class Builder : Mode
 
     public override void Disable()
     {
-
+        SceneData.extractor.SetActive(false);
     }
 
     public override void Enable()

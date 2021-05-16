@@ -7,7 +7,13 @@ public class ModeControl : MonoBehaviour
     [SerializeField]
     private int mode = -1;
 
+    [SerializeField]
+    private Switcher switcherMode;
+
+
     private Mode[] employees = new Mode[0];
+
+
 
     private void Start()
     {
@@ -33,11 +39,13 @@ public class ModeControl : MonoBehaviour
 
    
 
-    public void ChangeMode(int value)
+    public void SwitchMode(int value)
     {
         employees[mode].Disable();
         mode = value;
         employees[mode].Enable();
+
+        switcherMode.SwitchMode(value);
     }
 
     private void Update()
@@ -52,21 +60,24 @@ public class ModeControl : MonoBehaviour
 
     private void OnAlpha1()
     {
-        ChangeMode(0);
+        SwitchMode(0);
+        switcherMode.UpdateButtons();
     }
 
     private void OnAlpha2()
     {
-        ChangeMode(1);
+        SwitchMode(1);
+        switcherMode.UpdateButtons();
     }
 
     private void OnAlpha3()
     {
-        ChangeMode(2);
+        SwitchMode(2);
+        switcherMode.UpdateButtons();
     }
 
-    public void SetMode(int value)
+    private void UpdateSwitch()
     {
-        mode = value;
+        switcherMode.UpdateButtons();
     }
 }

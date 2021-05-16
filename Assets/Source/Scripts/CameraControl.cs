@@ -62,7 +62,7 @@ public class CameraControl : MonoBehaviour
 
 
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && false)
         {
             //speedView = Vector3.Distance(transform.position, voxelsControl.selectedVoxel.transform.position);
             viewNormal = true;

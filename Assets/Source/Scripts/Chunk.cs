@@ -12,15 +12,16 @@ public class Chunk : MonoBehaviour
 
     private Voxel[] _voxels;
     private Voxel[] _selectedVoxels;
-    private Vector3[] _offsetsVertices;
+    private Vector3?[] _offsetsVertices;
 
-    [SerializeField]
+
     private List<int> _buildedIndeces = new List<int>();
-    [SerializeField]
     private List<int> _selectedIndeces = new List<int>();
+    private List<int> _verticesIndeces = new List<int>();
 
     private Mesh _mesh;
     private Mesh _selectedMesh;
+    private Mesh _verticesMesh;
 
     [SerializeField]
     private int _faceCount;
@@ -29,6 +30,12 @@ public class Chunk : MonoBehaviour
 
     [SerializeField]
     private Vector3 middleSelectedPos;
+
+    [SerializeField]
+    private MeshFilter _selectedMeshFilter;
+
+    [SerializeField]
+    private MeshFilter _verticesMeshFilter;
 
     public Vector3 Center
     {
@@ -50,14 +57,24 @@ public class Chunk : MonoBehaviour
         GetComponent<MeshFilter>().mesh = _mesh;
 
         _selectedMesh = new Mesh();
-        transform.GetChild(0).GetComponent<MeshFilter>().mesh = _selectedMesh;
+        _selectedMeshFilter.mesh = _selectedMesh;
+
+        _verticesMesh = new Mesh();
+        _verticesMeshFilter.mesh = _verticesMesh;
     }
 
     public bool InChunk(Vector3Int pos)
     {
-        return pos.x >= 0 && pos.x < Size.x &&
-            pos.y >= 0 && pos.y < Size.y &&
-            pos.z >= 0 && pos.z < Size.z;
+        return pos.x >= 0 && pos.x < _size.x &&
+            pos.y >= 0 && pos.y < _size.y &&
+            pos.z >= 0 && pos.z < _size.z;
+    }
+
+    public bool InChunk(Vector3Int size, Vector3Int pos)
+    {
+        return pos.x >= 0 && pos.x < size.x &&
+            pos.y >= 0 && pos.y < size.y &&
+            pos.z >= 0 && pos.z < size.z;
     }
 
     public void Resize()
@@ -66,7 +83,7 @@ public class Chunk : MonoBehaviour
 
         _voxels = new Voxel[size];
         _selectedVoxels = new Voxel[size];
-        _offsetsVertices = new Vector3[size];
+        _offsetsVertices = new Vector3?[(_size.x + 1) * (_size.y + 1) * (_size.z + 1)];
 
         SceneData.grid.Resize(_size);
     }
@@ -98,6 +115,11 @@ public class Chunk : MonoBehaviour
         return (pos.x * _size.y + pos.y) * _size.z + pos.z;
     }
 
+    public int GetIndexByPos(Vector3Int size, Vector3Int pos)
+    {
+        return (pos.x * size.y + pos.y) * size.z + pos.z;
+    }
+
     public Voxel GetVoxelByPos(Vector3Int pos)
     {
         int index = GetIndexByPos(pos);
@@ -110,6 +132,33 @@ public class Chunk : MonoBehaviour
         int index = GetIndexByPos(pos);
         if (index >= _voxels.Length || index < 0) return null;
         return voxels[index];
+    }
+
+    public int GetVertexIndexByPos(Vector3 pos)
+    {
+        //    Vector3Int posCheck = new Vector3Int(pos.x > 0 ? pos.x - 1 : pos.x,
+        //        pos.y > 0 ? pos.y - 1 : pos.y,
+        //        pos.z > 0 ? pos.z - 1 : pos.z);
+
+        Vector3Int posInt = SceneData.Vector3FloatToInt(pos + Vector3.one * 0.5f);
+        Vector3Int size = _size + Vector3Int.one;
+        //if ((pos + Vector3.one * 0.5f - (Vector3)posInt).magnitude > 0.0001f) { print("2"); return -1; }
+        //else { print(pos + Vector3.one * 0.5f ); print(posInt); }
+        if (!InChunk(new Vector3Int(_size.x, _size.y, _size.z) + Vector3Int.one, posInt)) return -1;
+        return (posInt.x * size.y + posInt.y) * size.z + posInt.z;
+    }
+
+    public Vector3? GetOffsetVertexByPos(Vector3 pos)
+    {
+        Vector3? offsetVertex = null;
+        int index = GetVertexIndexByPos(pos);
+        if (index != -1) offsetVertex = _offsetsVertices[index];
+        return offsetVertex;
+    }
+
+    public void OffsetVertexByPos(Vector3 pos, Vector3 value)
+    {
+        _offsetsVertices[GetVertexIndexByPos(pos)] += value;
     }
 
     private void CreateVoxelMesh(Voxel[] voxels, List<int> indeces, ref int faceCount, int id, Vector3Int pos)
@@ -176,6 +225,59 @@ public class Chunk : MonoBehaviour
 
     }
 
+    public void CreateVertexOffsetByIndex(int index)
+    {
+        if (_offsetsVertices[index] == null)
+        {
+            _offsetsVertices[index] = Vector3.zero;
+            _verticesIndeces.Add(index);
+        }
+    }
+
+    public void DeleteVertexOffsetByPos(Vector3 pos)
+    {
+        if (GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(-0.5f, -0.5f, -0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(+0.5f, -0.5f, -0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(-0.5f, +0.5f, -0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(+0.5f, +0.5f, -0.5f))) == null &&
+
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(-0.5f, -0.5f, +0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(+0.5f, -0.5f, +0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(-0.5f, +0.5f, +0.5f))) == null &&
+            GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(+0.5f, +0.5f, +0.5f))) == null)
+        {
+            _offsetsVertices[GetVertexIndexByPos(pos)] = null;
+        }
+    }
+
+    private void CreateOffsetsVerticesByIndex(int voxelIndex)
+    {
+        Vector3 pos = _voxels[voxelIndex].position;
+
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(-0.5f, -0.5f, -0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(+0.5f, -0.5f, -0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(+0.5f, +0.5f, -0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(-0.5f, +0.5f, -0.5f)));
+
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(-0.5f, -0.5f, +0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(+0.5f, -0.5f, +0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(+0.5f, +0.5f, +0.5f)));
+        CreateVertexOffsetByIndex(GetVertexIndexByPos(pos + new Vector3(-0.5f, +0.5f, +0.5f)));
+    }
+
+    private void DeleteOffsetsVerticesByPos(Vector3 voxelPos)
+    {
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(-0.5f, -0.5f, -0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(+0.5f, -0.5f, -0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(+0.5f, +0.5f, -0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(-0.5f, +0.5f, -0.5f));
+
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(-0.5f, -0.5f, +0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(+0.5f, -0.5f, +0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(+0.5f, +0.5f, +0.5f));
+        DeleteVertexOffsetByPos(voxelPos + new Vector3(-0.5f, +0.5f, +0.5f));
+    }
+
     public void CreateVoxel(int id, Vector3Int pos)
     {
         if (GetVoxelByPos(_voxels, pos) != null) return;
@@ -222,7 +324,10 @@ public class Chunk : MonoBehaviour
         if (adjacentVoxel == null) { newVoxel.SetFrontFace(true); _faceCount++; }
         else { adjacentVoxel.SetRearFace(false); _faceCount--; }
 
+        CreateOffsetsVerticesByIndex(index);
+
         UpdateMesh();
+        UpdateVerticesMesh();
     }
 
     public void SelectVoxel(Vector3Int pos)
@@ -266,6 +371,7 @@ public class Chunk : MonoBehaviour
                 }
             }
 
+
             for (int j = 0; j < _buildedIndeces.Count; j++)
             {
                 if (_selectedIndeces[i] == _buildedIndeces[j])
@@ -294,11 +400,21 @@ public class Chunk : MonoBehaviour
                     if (adjacentVoxel != null) { adjacentVoxel.SetRearFace(true); _faceCount++; };
                 }
             }
-                _voxels[_selectedIndeces[i]] = null;
+
+            Vector3 posToDeleteOffsetsVertices = _voxels[_selectedIndeces[i]].position;
+            _voxels[_selectedIndeces[i]] = null;
+            DeleteOffsetsVerticesByPos(posToDeleteOffsetsVertices);
+
+        }
+
+        for (int i = 0; i < _selectedVoxels.Length; i++)
+        {
+            //DeleteOffsetsVerticesByIndex(_selectedIndeces[i]);
         }
 
         _selectedFaceCount = 0;
         _selectedIndeces.Clear();
+
 
 
         UpdateMesh();
@@ -360,6 +476,7 @@ public class Chunk : MonoBehaviour
 
             offsetBuildedVoxels[i] = new Voxel(_voxels[curIndex].id, newPos, _voxels[curIndex].availabilityVertices);
             _voxels[curIndex] = null;
+            DeleteOffsetsVerticesByPos(curPos);
 
             offsetSelectedPoss[i] = newPos;
             _selectedVoxels[curIndex] = null;
@@ -388,9 +505,10 @@ public class Chunk : MonoBehaviour
         for(int i = 0; i < _buildedIndeces.Count; i++)
         {
             UpdateVoxelByIndex(_buildedIndeces[i]);
+            CreateOffsetsVerticesByIndex(_buildedIndeces[i]);
         }
 
-        for(int i = 0; i < offsetSelectedPoss.Length; i++)
+        for (int i = 0; i < offsetSelectedPoss.Length; i++)
         {
             SelectVoxel(offsetSelectedPoss[i]);
         }
@@ -401,12 +519,18 @@ public class Chunk : MonoBehaviour
         //SceneData.dragSystem.SetPosition(middleSelectedPos);
         SceneData.dragSystem.OffsetPosition(offsetInt);
 
-
         UpdateMesh();
         UpdateSelectedMesh();
     }
 
-    private void UpdateMesh()
+    private void OffsetVertexByPos(ref Vector3 vertex)
+    {
+        //Vector3Int pos = SceneData.Vector3FloatToInt(vertex + Vector3.one * 0.5f);
+        int index = GetVertexIndexByPos(vertex);
+        vertex += (Vector3)_offsetsVertices?[index];
+    }
+
+    public void UpdateMesh()
     {
         _mesh.Clear();
 
@@ -427,10 +551,20 @@ public class Chunk : MonoBehaviour
                 {
                     int _i = j * 4;
                     Vector3 verPos = curVoxel.position;
-                    vertices[i4 + 0] = SceneData.voxelVertices[_i + 0] + verPos;
-                    vertices[i4 + 1] = SceneData.voxelVertices[_i + 1] + verPos;
-                    vertices[i4 + 2] = SceneData.voxelVertices[_i + 2] + verPos;
-                    vertices[i4 + 3] = SceneData.voxelVertices[_i + 3] + verPos;
+                    //vertices[i4 + 0] = SceneData.voxelVertices[_i + 0] + verPos;
+                    //vertices[i4 + 1] = SceneData.voxelVertices[_i + 1] + verPos;
+                    //vertices[i4 + 2] = SceneData.voxelVertices[_i + 2] + verPos;
+                    //vertices[i4 + 3] = SceneData.voxelVertices[_i + 3] + verPos;
+
+                    //OffsetVertexByPos(ref vertices[i4 + 0]);
+                    //OffsetVertexByPos(ref vertices[i4 + 1]);
+                    //OffsetVertexByPos(ref vertices[i4 + 2]);
+                    //OffsetVertexByPos(ref vertices[i4 + 3]);
+                    for (int v = 0; v <= 3; v++)
+                    {
+                        vertices[i4 + v] = SceneData.voxelVertices[_i + v] + verPos;
+                        OffsetVertexByPos(ref vertices[i4 + v]);
+                    }
 
                     float v1 = SceneData.textureMul * (curVoxel.id % SceneData.textureSize);
                     float v2 = 1 - SceneData.textureMul * (curVoxel.id / (SceneData.textureSize + 1));
@@ -481,11 +615,12 @@ public class Chunk : MonoBehaviour
                 {
                     int _i = j * 4;
                     Vector3 verPos = curVoxel.position;
-                    float mul = 1.0f;
-                    vertices[i4 + 0] = (SceneData.voxelVertices[_i + 0] + verPos) * mul;
-                    vertices[i4 + 1] = (SceneData.voxelVertices[_i + 1] + verPos) * mul;
-                    vertices[i4 + 2] = (SceneData.voxelVertices[_i + 2] + verPos) * mul;
-                    vertices[i4 + 3] = (SceneData.voxelVertices[_i + 3] + verPos) * mul;
+
+                    for (int v = 0; v <= 3; v++)
+                    {
+                        vertices[i4 + v] = (SceneData.voxelVertices[_i + v] + verPos);
+                        OffsetVertexByPos(ref vertices[i4 + v]);
+                    }
 
                     triangles[i6 + 0] = i4 + 0;
                     triangles[i6 + 1] = i4 + 1;
@@ -505,5 +640,64 @@ public class Chunk : MonoBehaviour
 
         _selectedMesh.Optimize();
         _selectedMesh.RecalculateNormals();
+    }
+
+    private void UpdateVerticesMesh()
+    {
+        _verticesMesh.Clear();
+
+        Vector3[] vertices = new Vector3[0];
+        int[] triangles = new int[0];
+
+        _verticesMesh.vertices = vertices;
+        _verticesMesh.triangles = triangles;
+
+        _verticesMesh.Optimize();
+        _verticesMesh.RecalculateNormals();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        if (_offsetsVertices != null)
+        for(float x = -0.5f; x < _size.x - 0.5f; x++)
+            {
+                for (float y = -0.5f; y < _size.y - 0.5f; y++)
+                {
+                    for (float z = -0.5f; z < _size.z - 0.5f; z++)
+                    {
+                        if (GetOffsetVertexByPos(new Vector3(x,y,z)) != null)
+                        {
+                            Gizmos.DrawSphere(new Vector3(x, y, z), 0.1f);
+                        }
+                    }
+                }
+            }
+        return;
+            if (_offsetsVertices != null)
+            for (int i = 0; i < _buildedIndeces.Count; i++)
+            {
+                Vector3 pos = _voxels[_buildedIndeces[i]].position;
+                
+                if(_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(-0.5f, -0.5f, -0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(-0.5f, -0.5f, -0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(+0.5f, -0.5f, -0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(+0.5f, -0.5f, -0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(+0.5f, +0.5f, -0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(+0.5f, +0.5f, -0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(-0.5f, +0.5f, -0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(-0.5f, +0.5f, -0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(-0.5f, -0.5f, +0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(-0.5f, -0.5f, +0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(+0.5f, -0.5f, +0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(+0.5f, -0.5f, +0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(+0.5f, +0.5f, +0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(+0.5f, +0.5f, +0.5f), 0.1f);
+                if (_offsetsVertices[GetVertexIndexByPos(pos + new Vector3(-0.5f, +0.5f, +0.5f))] != null)
+                    Gizmos.DrawSphere(pos + new Vector3(-0.5f, +0.5f, +0.5f), 0.1f);
+
+
+
+            }
     }
 }
