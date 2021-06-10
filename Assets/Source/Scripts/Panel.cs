@@ -30,7 +30,14 @@ public class Panel : MonoBehaviour
 
     public void Start()
     {
-        if(openStart)
+        if (!isActive)
+        {
+            transform.localScale = Vector3.zero;
+            gameObject.SetActive(false);
+            return;
+        }
+
+        if (openStart)
         {
             transform.localScale = Vector3.zero;
 
@@ -56,7 +63,6 @@ public class Panel : MonoBehaviour
                     widget.Tick();
                 }
             }
-
         }
         else
         {
