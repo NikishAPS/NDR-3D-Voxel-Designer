@@ -2735,18 +2735,7 @@ MonoBehaviour:
   eventsButton:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1608558572}
-        m_MethodName: Close
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2079436745}
         m_MethodName: Save
         m_Mode: 6
         m_Arguments:
@@ -4741,6 +4730,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _size: {x: 0, y: 0, z: 0}
+  _buildedIndices: 
+  _selectedIndices: 
   _faceCount: 0
   _selectedFaceCount: 0
   middleSelectedPos: {x: 0, y: 0, z: 0}
@@ -5687,7 +5678,7 @@ MonoBehaviour:
   eventsButton:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2079436745}
         m_MethodName: Load
         m_Mode: 1
         m_Arguments:
@@ -6432,7 +6423,18 @@ MonoBehaviour:
   _selected: {r: 0.9058824, g: 0.9058824, b: 0.9058824, a: 1}
   eventsButton:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2079436745}
+        m_MethodName: Save
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _press: 0
 --- !u!114 &1969710734
 MonoBehaviour:
@@ -6780,7 +6782,7 @@ MonoBehaviour:
   eventsButton:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2079436745}
         m_MethodName: ApplicationQuit
         m_Mode: 1
         m_Arguments:
@@ -6951,8 +6953,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data:
-    _gridSize: {x: 0, y: 0, z: 0}
-    _chunkSize: {x: 0, y: 0, z: 0}
+    chunkData:
+      _size: {x: 0, y: 0, z: 0}
+      _buildedIndices: 
+      _verticesIndices: 
+      _offsetsVertices: []
+      _faceCount: 0
+      _voxelData: []
   exitPanel: {fileID: 1608558572}
 --- !u!4 &2079436746
 Transform:

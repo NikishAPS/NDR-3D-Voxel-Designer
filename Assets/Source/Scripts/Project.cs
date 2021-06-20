@@ -12,24 +12,17 @@ public class Project : MonoBehaviour
     {
         public void Collect()
         {
-            _gridSize = SceneData.grid.Size;
-
-            _chunkSize = SceneData.chunk.Size;
+            chunkData = SceneData.chunk.GetData();
         }
 
         public void Distribute()
         {
-            SceneData.grid.Resize(_gridSize);
-
-
-            SceneData.chunk.Resize(_chunkSize);
+            SceneData.chunk.SetData(chunkData);
         }
 
+        //chunk data
         [SerializeField]
-        private Vector3 _gridSize;
-
-        [SerializeField]
-        private Vector3Int _chunkSize;
+        private ChunkData chunkData;
     }
 
     [SerializeField]
@@ -72,7 +65,6 @@ public class Project : MonoBehaviour
         {
             data.Collect();
             File.WriteAllText(path, JsonUtility.ToJson(data));
-
 
             if (exit)
                 ApplicationQuit();

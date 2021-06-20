@@ -15,7 +15,7 @@ public class Selector : Mode
 
     public override void Disable()
     {
-        SceneData.chunk.transform.GetChild(0).gameObject.SetActive(false);
+        SceneData.chunk.SetSelectedMeshActive(false);
         SceneData.dragSystem.SetActive(false);
         SceneData.dragSystem.drag -= SceneData.chunk.MoveVoxels;
         SceneData.extractor.SetActive(false);
@@ -23,7 +23,7 @@ public class Selector : Mode
 
     public override void Enable()
     {
-        SceneData.chunk.transform.GetChild(0).gameObject.SetActive(true);
+        SceneData.chunk.SetSelectedMeshActive(true);
         SceneData.dragSystem.drag += SceneData.chunk.MoveVoxels;
     }
 
@@ -31,7 +31,7 @@ public class Selector : Mode
     {
         if (SceneData.eventInput.Delete) SceneData.chunk.DeleteVoxel();
 
-        if (SceneData.chunk.SelectedIndecesCount == 0)
+        if (SceneData.chunk.SelectedIndicesCount == 0)
         {
             SceneData.dragSystem.SetActive(false);
             return false;
