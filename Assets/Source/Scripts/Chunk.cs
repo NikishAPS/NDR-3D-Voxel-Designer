@@ -42,9 +42,9 @@ public class Chunk : MonoBehaviour
         get { return SceneData.Vector3IntToFloat(_size) * 0.5f; }
     }
 
-    public Vector3 Size
+    public Vector3Int Size
     {
-        get { return SceneData.Vector3IntToFloat(_size); }
+        get { return (_size); }
     }
 
     public int SelectedIndecesCount => _selectedIndeces.Count;
@@ -75,6 +75,12 @@ public class Chunk : MonoBehaviour
         return pos.x >= 0 && pos.x < size.x &&
             pos.y >= 0 && pos.y < size.y &&
             pos.z >= 0 && pos.z < size.z;
+    }
+
+    public void Resize(Vector3Int size)
+    {
+        _size = size;
+        Resize();
     }
 
     public void Resize()

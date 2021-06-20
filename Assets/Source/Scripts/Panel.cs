@@ -89,25 +89,11 @@ public class Panel : MonoBehaviour
     public void Close()
     {
         isActive = false;
-        //StartCoroutine(Resize(Vector3.zero));
     }
 
     public void Open()
     {
         isActive = true;
         gameObject.SetActive(true);
-        //StartCoroutine(Resize(Vector3.one));
-    }
-
-    private IEnumerator Resize(Vector3 size)
-    {
-        while (transform.localScale != size)
-        {
-            transform.localScale = Vector3.MoveTowards(transform.localScale, size, Time.deltaTime * 0.1f);
-            yield return null;
-        }
-
-        if (size == Vector3.zero)
-            gameObject.SetActive(false);
     }
 }
