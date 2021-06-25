@@ -17,6 +17,7 @@ public class Chunk : MonoBehaviour
 
     private List<int> _buildedIndices = new List<int>();
     private List<int> _selectedIndices = new List<int>();
+    [SerializeField]
     private List<int> _verticesIndices = new List<int>();
 
     private Mesh _mesh;
@@ -297,11 +298,13 @@ public class Chunk : MonoBehaviour
             GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(-0.5f, +0.5f, +0.5f))) == null &&
             GetVoxelByPos(SceneData.Vector3FloatToInt(pos + new Vector3(+0.5f, +0.5f, +0.5f))) == null)
         {
+
+            _verticesIndices.Remove(GetVertexIndexByPos(pos));
             _offsetsVertices[GetVertexIndexByPos(pos)] = null;
         }
     }
 
-    private void CreateOffsetsVerticesByIndex(int voxelIndex)
+    private void CreateOffsetsVerticesByVoxelIndex(int voxelIndex)
     {
         Vector3 pos = _voxels[voxelIndex].Position;
 
@@ -375,7 +378,7 @@ public class Chunk : MonoBehaviour
         if (adjacentVoxel == null) { newVoxel.SetFrontFace(true); _faceCount++; }
         else { adjacentVoxel.SetRearFace(false); _faceCount--; }
 
-        CreateOffsetsVerticesByIndex(index);
+        CreateOffsetsVerticesByVoxelIndex(index);
 
         UpdateMesh();
         UpdateVerticesMesh();
@@ -556,7 +559,7 @@ public class Chunk : MonoBehaviour
         for(int i = 0; i < _buildedIndices.Count; i++)
         {
             UpdateVoxelByIndex(_buildedIndices[i]);
-            CreateOffsetsVerticesByIndex(_buildedIndices[i]);
+            CreateOffsetsVerticesByVoxelIndex(_buildedIndices[i]);
         }
 
         for (int i = 0; i < offsetSelectedPoss.Length; i++)

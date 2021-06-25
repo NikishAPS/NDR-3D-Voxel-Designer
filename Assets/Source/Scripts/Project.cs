@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Project : MonoBehaviour
 {
@@ -27,10 +28,17 @@ public class Project : MonoBehaviour
 
     [SerializeField]
     Data data = new Data();
-    
 
     [SerializeField]
-    private Panel exitPanel;
+    private bool _saved = false;
+
+    [SerializeField]
+    private string _fileName = "Name";
+    [SerializeField]
+    private string _fileExtension = "nrd";
+
+    [SerializeField]
+    private Panel _exitPanel;
 
     private bool isExit = false;
 
@@ -43,12 +51,39 @@ public class Project : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             ExitProcessing();
+
+        if(Input.GetKeyDown(KeyCode.S))
+        {
+            Save(false);
+        }
+    }
+
+    private void OnChange()
+    {
+        _saved = false;
     }
 
     private bool ExitProcessing()
     {
-        exitPanel.Open();
+        _exitPanel.Open();
         return isExit;
+    }
+
+    private bool TryToSave()
+    {
+        string path = StandaloneFileBrowser.SaveFilePanel("Save", Application.dataPath, _fileName, _fileExtension);
+
+        if (!string.IsNullOrEmpty(path))
+        {
+            data.Collect();
+            File.WriteAllText(path, JsonUtility.ToJson(data));
+
+            //_saved = true;
+
+            return true;
+        }
+
+        return false;
     }
 
     public void ApplicationQuit()
@@ -57,15 +92,30 @@ public class Project : MonoBehaviour
         Application.Quit();
     }
 
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void Create()
+    {
+        if (_saved)
+        {
+            Restart();
+        }
+        else
+        {
+            if(TryToSave())
+            {
+                Restart();
+            }
+        }
+    }
+
     public void Save(bool exit)
     {
-        string path = StandaloneFileBrowser.SaveFilePanel("Save", Application.dataPath, "Name", "txt");
-        
-        if(!string.IsNullOrEmpty(path))
+        if(TryToSave())
         {
-            data.Collect();
-            File.WriteAllText(path, JsonUtility.ToJson(data));
-
             if (exit)
                 ApplicationQuit();
         }
@@ -73,7 +123,7 @@ public class Project : MonoBehaviour
 
     public void Load()
     {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", Application.dataPath, "txt", false);
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", Application.dataPath, _fileExtension, false);
 
         if(paths.Length > 0)
         {
