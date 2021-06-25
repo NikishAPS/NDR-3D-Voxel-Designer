@@ -61,8 +61,6 @@ public static class SceneData
         {
 
         };
-
-        MonoBehaviour.print("aaaa");
     }
     
     //parameters

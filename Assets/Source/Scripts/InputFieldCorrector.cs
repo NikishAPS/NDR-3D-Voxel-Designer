@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InputFieldControl : MonoBehaviour
+public class InputFieldCorrector : MonoBehaviour
 {
-    private InputField inputField;
-
-    private void Awake()
-    {
-        inputField = GetComponent<InputField>();
-    }
-
-    private void LateUpdate()
+    public void CorrectIntegerInputField(InputField inputField)
     {
         if (inputField.text.Length > 0 && inputField.text[0] == '-')
         {
