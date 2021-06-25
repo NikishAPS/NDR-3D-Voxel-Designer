@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +10,7 @@ public class SceneDataInit : MonoBehaviour
         SceneData.mainCamera = Camera.main.transform;
         SceneData.chunk = FindObjectOfType<Chunk>();
         SceneData.grid = FindObjectOfType<Grid>();
+        SceneData.modeControl = FindObjectOfType<ModeControl>();
         SceneData.extractor = FindObjectOfType<Extractor>();
         SceneData.controlGUI = FindObjectOfType<ControlGUI>();
         SceneData.eventInput = FindObjectOfType<EventInput>();

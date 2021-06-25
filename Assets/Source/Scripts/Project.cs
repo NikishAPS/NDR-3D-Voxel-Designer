@@ -47,6 +47,70 @@ public class Project : MonoBehaviour
         Application.wantsToQuit += ExitProcessing;
     }
 
+    private void OnEnable()
+    {
+        Init();
+    }
+
+    private void Init()
+    {
+        SceneData.camera = Camera.main;
+        SceneData.mainCamera = Camera.main.transform;
+        SceneData.chunk = FindObjectOfType<Chunk>();
+        SceneData.grid = FindObjectOfType<Grid>();
+        SceneData.modeControl = FindObjectOfType<ModeControl>();
+        SceneData.extractor = FindObjectOfType<Extractor>();
+        SceneData.controlGUI = FindObjectOfType<ControlGUI>();
+        SceneData.eventInput = FindObjectOfType<EventInput>();
+        SceneData.dragSystem = FindObjectOfType<DragSystem>();
+
+        SceneData.colorTest = FindObjectOfType<ColorTest>();
+
+        SceneData.voxelVertices = new Vector3[]
+        {
+            //left
+            new Vector3(-0.5f, -0.5f, 0.5f),
+            new Vector3(-0.5f, 0.5f, 0.5f),
+            new Vector3(-0.5f, 0.5f, -0.5f),
+            new Vector3(-0.5f, -0.5f, -0.5f),
+
+            //right
+            new Vector3(0.5f, -0.5f, -0.5f),
+            new Vector3(0.5f, 0.5f, -0.5f),
+            new Vector3(0.5f, 0.5f, 0.5f),
+            new Vector3(0.5f, -0.5f, 0.5f),
+
+            //bottom
+            new Vector3(-0.5f, -0.5f, 0.5f),
+            new Vector3(-0.5f, -0.5f, -0.5f),
+            new Vector3(0.5f, -0.5f, -0.5f),
+            new Vector3(0.5f, -0.5f, 0.5f),
+
+            //top
+            new Vector3(-0.5f, 0.5f, -0.5f),
+            new Vector3(-0.5f, 0.5f, 0.5f),
+            new Vector3(+0.5f, 0.5f, 0.5f),
+            new Vector3(0.5f, 0.5f, -0.5f),
+
+            //rear
+            new Vector3(-0.5f, -0.5f, -0.5f),
+            new Vector3(-0.5f, 0.5f, -0.5f),
+            new Vector3(0.5f, 0.5f, -0.5f),
+            new Vector3(0.5f, -0.5f, -0.5f),
+
+            //front
+            new Vector3(0.5f, -0.5f, 0.5f),
+            new Vector3(0.5f, 0.5f, 0.5f),
+            new Vector3(-0.5f, 0.5f, 0.5f),
+            new Vector3(-0.5f, -0.5f, 0.5f)
+    };
+
+        SceneData.sphereVertices = new Vector3[]
+        {
+
+        };
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -95,6 +159,12 @@ public class Project : MonoBehaviour
     public void Restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void StartScene()
+    {
+        SceneData.chunk.Resize();
+        SceneData.modeControl.enabled = true;
     }
 
     public void Create()

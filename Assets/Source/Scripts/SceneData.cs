@@ -15,6 +15,7 @@ public static class SceneData
     public static Transform mainCamera;
     public static Chunk chunk;
     public static Grid grid;
+    public static ModeControl modeControl;
     public static Extractor extractor;
     public static ControlGUI controlGUI;
     public static EventInput eventInput;
