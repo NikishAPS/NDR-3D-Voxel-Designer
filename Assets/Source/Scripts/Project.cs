@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Project : MonoBehaviour
 {
@@ -13,34 +14,51 @@ public class Project : MonoBehaviour
     {
         public void Collect()
         {
-            chunkData = SceneData.chunk.GetData();
+            _chunkData = SceneData.chunk.GetData();
         }
-
         public void Distribute()
         {
-            SceneData.chunk.SetData(chunkData);
+            SceneData.chunk.SetData(_chunkData);
         }
+
+        public string GetSavePath()
+        {
+            return _savePath;
+        }
+
+        public void SetSavePath(string path)
+        {
+            _savePath = path;
+        }
+
+
+        //project data
+        [SerializeField]
+        private string _savePath;
 
         //chunk data
         [SerializeField]
-        private ChunkData chunkData;
+        private ChunkData _chunkData;
     }
 
     [SerializeField]
-    Data data = new Data();
+    Data _data = new Data();
+
+    [SerializeField]
+    private string _name;
+
+    [SerializeField]
+    private string _fileExtension = "nrd";
 
     [SerializeField]
     private bool _saved = false;
 
     [SerializeField]
-    private string _fileName = "Name";
-    [SerializeField]
-    private string _fileExtension = "nrd";
-
-    [SerializeField]
     private Panel _exitPanel;
 
     private bool isExit = false;
+
+
 
     private void Awake()
     {
@@ -52,39 +70,13 @@ public class Project : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             ExitProcessing();
 
-        if(Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.S))
         {
             Save(false);
         }
     }
 
-    private void OnChange()
-    {
-        _saved = false;
-    }
 
-    private bool ExitProcessing()
-    {
-        _exitPanel.Open();
-        return isExit;
-    }
-
-    private bool TryToSave()
-    {
-        string path = StandaloneFileBrowser.SaveFilePanel("Save", Application.dataPath, _fileName, _fileExtension);
-
-        if (!string.IsNullOrEmpty(path))
-        {
-            data.Collect();
-            File.WriteAllText(path, JsonUtility.ToJson(data));
-
-            //_saved = true;
-
-            return true;
-        }
-
-        return false;
-    }
 
     public void ApplicationQuit()
     {
@@ -97,7 +89,17 @@ public class Project : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void StartScene()
+    public void SetName(InputField inputField)
+    {
+        _name = inputField.text;
+    }
+
+    public void SetSavePath(InputField inputField)
+    {
+        _data.SetSavePath(inputField.text);
+    }
+
+    public void StartNewProject()
     {
         SceneData.chunk.Resize();
         SceneData.modeControl.enabled = true;
@@ -133,9 +135,40 @@ public class Project : MonoBehaviour
 
         if(paths.Length > 0)
         {
-            data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
-            data.Distribute();
+            _data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
+            _data.Distribute();
         }
+    }
+
+
+
+    private void OnChange()
+    {
+        _saved = false;
+    }
+
+    private bool ExitProcessing()
+    {
+        _exitPanel.Open();
+        return isExit;
+    }
+
+    private bool TryToSave()
+    {
+        string path = StandaloneFileBrowser.SaveFilePanel("Save", _data.GetSavePath(), _name, _fileExtension);
+
+        if (!string.IsNullOrEmpty(path))
+        {
+            _data.Collect();
+            _data.SetSavePath(path);
+            File.WriteAllText(path, JsonUtility.ToJson(_data));
+
+            //_saved = true;
+
+            return true;
+        }
+
+        return false;
     }
 }
 
