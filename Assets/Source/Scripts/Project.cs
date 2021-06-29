@@ -140,6 +140,14 @@ public class Project : MonoBehaviour
         }
     }
 
+    public void LoadAndClose(Panel panel)
+    {
+        if(TryToLoad())
+        {
+            panel.Close();
+        }
+    }
+
 
 
     private void OnChange()
@@ -164,6 +172,20 @@ public class Project : MonoBehaviour
             File.WriteAllText(path, JsonUtility.ToJson(_data));
 
             //_saved = true;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryToLoad()
+    {
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _data.GetSavePath(), _fileExtension, false);
+        if (paths.Length > 0)
+        {
+            _data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
+            _data.Distribute();
 
             return true;
         }
