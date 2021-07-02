@@ -9,11 +9,13 @@ public class Chunk : MonoBehaviour
     private Voxel _voxel;
 
     private Vector3Int _size;
+    private int voxelIncrement;
 
     private Voxel[] _voxels;
     private Voxel[] _selectedVoxels;
 
     private Vector3?[] _offsetsVertices;
+    private Vector3[] _offsetsVertices2;
 
     private List<int> _buildedIndices = new List<int>();
     private List<int> _selectedIndices = new List<int>();
