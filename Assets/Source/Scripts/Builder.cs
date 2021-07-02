@@ -6,26 +6,26 @@ public class Builder : Mode
 {
     public override void Tick()
     {
-        SceneData.extractor.SetActive(false);
+        SceneData.Extractor.SetActive(false);
 
-        if (!SceneData.controlGUI.IsPanel)
+        if (!SceneData.ControlGUI.IsPanel)
         {
             //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             //RaycastHit hit;
 
-            CastResult castResult = VoxelRayCast.CastByMouse(SceneData.rayLength);
+            CastResult castResult = VoxelRayCast.CastByMouse(SceneData.RayLength);
             if (castResult != null)
             {
 
-                if (SceneData.chunk.InChunk(SceneData.Vector3FloatToInt(castResult.lastPoint)))
+                if (SceneData.Chunk.InChunk(SceneData.Vector3FloatToInt(castResult.lastPoint)))
                 {
-                    SceneData.extractor.SetActive(true);
-                    SceneData.extractor.transform.position = castResult.lastPoint;
+                    SceneData.Extractor.SetActive(true);
+                    SceneData.Extractor.transform.position = castResult.lastPoint;
 
-                    if (SceneData.eventInput.MouseDown0)
+                    if (SceneData.EventInput.MouseDown0)
                     {
-                        int id = SceneData.colorTest.id;
-                        SceneData.chunk.CreateVoxel(SceneData.colorTest.id, castResult.lastPoint);
+                        int id = SceneData.ColorTest.id;
+                        SceneData.Chunk.CreateVoxel(SceneData.ColorTest.id, castResult.lastPoint);
                     }
                 }
             }
@@ -34,7 +34,7 @@ public class Builder : Mode
 
     public override void Disable()
     {
-        SceneData.extractor.SetActive(false);
+        SceneData.Extractor.SetActive(false);
     }
 
     public override void Enable()

@@ -139,7 +139,7 @@ public class Chunk : MonoBehaviour
         _selectedVoxels = new Voxel[size];
         _offsetsVertices = new Vector3?[(_size.x + 1) * (_size.y + 1) * (_size.z + 1)];
 
-        SceneData.grid.Resize(_size);
+        SceneData.Grid.Resize(_size);
     }
 
     public void SetSizeX(InputField inputField)
@@ -573,7 +573,7 @@ public class Chunk : MonoBehaviour
 
         //SceneData.dragSystem.ResetDragValue();
         //SceneData.dragSystem.SetPosition(middleSelectedPos);
-        SceneData.dragSystem.OffsetPosition(offsetInt);
+        SceneData.DragSystem.OffsetPosition(offsetInt);
 
         UpdateMesh();
         UpdateSelectedMesh();
@@ -618,16 +618,16 @@ public class Chunk : MonoBehaviour
                     //OffsetVertexByPos(ref vertices[i4 + 3]);
                     for (int v = 0; v <= 3; v++)
                     {
-                        vertices[i4 + v] = SceneData.voxelVertices[_i + v] + verPos;
+                        vertices[i4 + v] = SceneData.VoxelVertices[_i + v] + verPos;
                         OffsetVertexByPos(ref vertices[i4 + v]);
                     }
 
-                    float v1 = SceneData.textureMul * (curVoxel.Id % SceneData.textureSize);
-                    float v2 = 1 - SceneData.textureMul * (curVoxel.Id / (SceneData.textureSize + 1));
-                    uv[i4 + 0] = new Vector2(v1, v2 - SceneData.textureMul);
+                    float v1 = SceneData.TextureMul * (curVoxel.Id % SceneData.TextureSize);
+                    float v2 = 1 - SceneData.TextureMul * (curVoxel.Id / (SceneData.TextureSize + 1));
+                    uv[i4 + 0] = new Vector2(v1, v2 - SceneData.TextureMul);
                     uv[i4 + 1] = new Vector2(v1, v2);
-                    uv[i4 + 2] = new Vector2(v1 - SceneData.textureMul, v2);
-                    uv[i4 + 3] = new Vector2(v1 - SceneData.textureMul, v2 - SceneData.textureMul);
+                    uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul, v2);
+                    uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul, v2 - SceneData.TextureMul);
 
                     triangles[i6 + 0] = i4 + 0;
                     triangles[i6 + 1] = i4 + 1;
@@ -674,7 +674,7 @@ public class Chunk : MonoBehaviour
 
                     for (int v = 0; v <= 3; v++)
                     {
-                        vertices[i4 + v] = (SceneData.voxelVertices[_i + v] + verPos);
+                        vertices[i4 + v] = (SceneData.VoxelVertices[_i + v] + verPos);
                         OffsetVertexByPos(ref vertices[i4 + v]);
                     }
 

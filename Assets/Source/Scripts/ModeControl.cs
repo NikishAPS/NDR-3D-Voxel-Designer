@@ -25,11 +25,11 @@ public class ModeControl : MonoBehaviour
             new Editor()
         };
 
-        SceneData.eventInput.alpha1 += OnAlpha1;
-        SceneData.eventInput.alpha2 += OnAlpha2;
-        SceneData.eventInput.alpha3 += OnAlpha3;
+        SceneData.EventInput.alpha1 += OnAlpha1;
+        SceneData.EventInput.alpha2 += OnAlpha2;
+        SceneData.EventInput.alpha3 += OnAlpha3;
 
-        SceneData.eventInput.tab += OnTab;
+        SceneData.EventInput.tab += OnTab;
     }
 
     void OnTab()

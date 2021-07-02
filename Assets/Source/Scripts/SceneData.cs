@@ -6,19 +6,19 @@ public static class SceneData
 {
     static SceneData()
     {
-        camera = Camera.main;
-        mainCamera = Camera.main.transform;
-        chunk = Object.FindObjectOfType<Chunk>();
-        grid = Object.FindObjectOfType<Grid>();
-        modeControl = Object.FindObjectOfType<ModeControl>();
-        extractor = Object.FindObjectOfType<Extractor>();
-        controlGUI = Object.FindObjectOfType<ControlGUI>();
-        eventInput = Object.FindObjectOfType<EventInput>();
-        dragSystem = Object.FindObjectOfType<DragSystem>();
+        Camera = Camera.main;
+        MainCamera = Camera.main.transform;
+        Chunk = Object.FindObjectOfType<Chunk>();
+        Grid = Object.FindObjectOfType<Grid>();
+        ModeControl = Object.FindObjectOfType<ModeControl>();
+        Extractor = Object.FindObjectOfType<Extractor>();
+        ControlGUI = Object.FindObjectOfType<ControlGUI>();
+        EventInput = Object.FindObjectOfType<EventInput>();
+        DragSystem = Object.FindObjectOfType<DragSystem>();
 
-        colorTest = Object.FindObjectOfType<ColorTest>();
+        ColorTest = Object.FindObjectOfType<ColorTest>();
 
-        voxelVertices = new Vector3[]
+        VoxelVertices = new Vector3[]
         {
             //left
             new Vector3(-0.5f, -0.5f, 0.5f),
@@ -64,28 +64,28 @@ public static class SceneData
     }
     
     //parameters
-    public static readonly float rayLength = 500;
-    public static readonly float rayStep = 0.1f;
-    public static readonly int textureSize = 5;
-    public static readonly float textureMul = 1.0f / textureSize;
+    public static readonly float RayLength = 500;
+    public static readonly float RayStep = 0.1f;
+    public static readonly int TextureSize = 5;
+    public static readonly float TextureMul = 1.0f / TextureSize;
 
 
-    public static readonly Camera camera;
-    public static readonly Transform mainCamera;
-    public static readonly Chunk chunk;
-    public static readonly Grid grid;
-    public static readonly ModeControl modeControl;
-    public static readonly Extractor extractor;
-    public static readonly ControlGUI controlGUI;
-    public static readonly EventInput eventInput;
-    public static readonly DragSystem dragSystem;
+    public static readonly Camera Camera;
+    public static readonly Transform MainCamera;
+    public static readonly Chunk Chunk;
+    public static readonly Grid Grid;
+    public static readonly ModeControl ModeControl;
+    public static readonly Extractor Extractor;
+    public static readonly ControlGUI ControlGUI;
+    public static readonly EventInput EventInput;
+    public static readonly DragSystem DragSystem;
 
-    public static readonly ColorTest colorTest;
+    public static readonly ColorTest ColorTest;
 
     public static readonly int debug;
 
-    public static readonly Vector3[] voxelVertices;
-    public static readonly Vector2[] uvVertices;
+    public static readonly Vector3[] VoxelVertices;
+    public static readonly Vector2[] VoxelUV;
 
     public static readonly Vector3[] sphereVertices;
 

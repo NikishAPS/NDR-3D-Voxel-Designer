@@ -8,24 +8,24 @@ public class Editor : Mode
 
     public override void Tick()
     {
-        if (SceneData.eventInput.MouseDown0)
+        if (SceneData.EventInput.MouseDown0)
         {
-            if (!SceneData.dragSystem.CheckCapture())
+            if (!SceneData.DragSystem.CheckCapture())
             {
-                if (!SceneData.controlGUI.IsPanel)
+                if (!SceneData.ControlGUI.IsPanel)
                 {
-                    CastResult castResult = VoxelRayCast.CastVerticesByMouse(SceneData.rayLength);
+                    CastResult castResult = VoxelRayCast.CastVerticesByMouse(SceneData.RayLength);
 
                     if (castResult != null)
                     {
                         if (castResult.vertex != null)
                         {
                             Vector3 verPos = castResult.point + Vector3.one * 0.5f;
-                            Vector3 offsetPos = (Vector3)SceneData.chunk.GetOffsetVertexByPos(verPos);
+                            Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
                             _vertexPos = verPos;
 
-                            SceneData.dragSystem.SetPosition(verPos + offsetPos);
-                            SceneData.dragSystem.SetActive(true);
+                            SceneData.DragSystem.SetPosition(verPos + offsetPos);
+                            SceneData.DragSystem.SetActive(true);
                         }
                     }
                 }
@@ -37,20 +37,20 @@ public class Editor : Mode
     {
         if (_vertexPos != null && offset != Vector3.zero)
         {
-            SceneData.chunk.OffsetVertexByPos((Vector3)_vertexPos, offset);
-            SceneData.chunk.UpdateMesh();
-            SceneData.dragSystem.OffsetPosition(offset);
+            SceneData.Chunk.OffsetVertexByPos((Vector3)_vertexPos, offset);
+            SceneData.Chunk.UpdateMesh();
+            SceneData.DragSystem.OffsetPosition(offset);
         }
     }
 
     public override void Disable()
     {
-        SceneData.dragSystem.SetActive(false);
-        SceneData.dragSystem.drag -= Tesss;
+        SceneData.DragSystem.SetActive(false);
+        SceneData.DragSystem.drag -= Tesss;
     }
 
     public override void Enable()
     {
-        SceneData.dragSystem.drag += Tesss;
+        SceneData.DragSystem.drag += Tesss;
     }
 }

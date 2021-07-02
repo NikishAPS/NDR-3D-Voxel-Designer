@@ -8,9 +8,9 @@ public static class VoxelRayCast
     {
         Vector3Int lastPointInt = new Vector3Int(-1, -1, -1);
 
-        Vector2 mousePos = SceneData.eventInput.MousePos;
-        Vector3 pos = SceneData.camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
-        Vector3 dir = SceneData.camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.camera.transform.position;
+        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
+        Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
         dir.Normalize();
 
         Vector3 direction = Vector3.zero;
@@ -18,7 +18,7 @@ public static class VoxelRayCast
         Vector3Int pointInt = Vector3Int.zero;
         Voxel curVoxel = null;
         Voxel lastVoxel = null;
-        for (float f = 0; f < length; f += SceneData.rayStep)
+        for (float f = 0; f < length; f += SceneData.RayStep)
         {
             direction = dir * f;
             point = pos + direction;
@@ -30,11 +30,11 @@ public static class VoxelRayCast
                 return new CastResult(null, null, lastPointInt, pointInt);
             }
 
-            curVoxel = SceneData.chunk.GetVoxelByPos(pointInt);
+            curVoxel = SceneData.Chunk.GetVoxelByPos(pointInt);
 
             if (curVoxel != null)
             {
-                lastVoxel = SceneData.chunk.GetVoxelByPos(lastPointInt);
+                lastVoxel = SceneData.Chunk.GetVoxelByPos(lastPointInt);
 
                 return new CastResult(lastVoxel, curVoxel, lastPointInt, pointInt);
 
@@ -51,9 +51,9 @@ public static class VoxelRayCast
 
     public static CastResult CastVerticesByMouse(float length)
     {
-        Vector2 mousePos = SceneData.eventInput.MousePos;
-        Vector3 pos = SceneData.camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
-        Vector3 dir = SceneData.camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.camera.transform.position;
+        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
+        Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
         dir.Normalize();
 
         Vector3 direction = Vector3.zero;
@@ -62,7 +62,7 @@ public static class VoxelRayCast
         int index = 0;
         Vector3? vertex = null;
         bool isVoxel = false;
-        for (float f = 0; f < length; f += SceneData.rayStep * 0.1f)
+        for (float f = 0; f < length; f += SceneData.RayStep * 0.1f)
         {
             direction = dir * f;
             point = pos + direction;
@@ -74,8 +74,8 @@ public static class VoxelRayCast
             point = pointInt + Vector3.one * 0.5f;
 
 
-            index = SceneData.chunk.GetVertexIndexByPos(point);
-            vertex = SceneData.chunk.GetOffsetVertexByPos(point);
+            index = SceneData.Chunk.GetVertexIndexByPos(point);
+            vertex = SceneData.Chunk.GetOffsetVertexByPos(point);
 
             if (index != -1 && vertex != null)
             {
@@ -111,11 +111,11 @@ public static class VoxelRayCast
                 return new CastResult(null, null, lastPointInt, pointInt);
             }
 
-            Voxel curVoxel = SceneData.chunk.GetVoxelByPos(pointInt);
+            Voxel curVoxel = SceneData.Chunk.GetVoxelByPos(pointInt);
 
             if (curVoxel != null)
             {
-                Voxel lastVoxel = SceneData.chunk.GetVoxelByPos(lastPointInt);
+                Voxel lastVoxel = SceneData.Chunk.GetVoxelByPos(lastPointInt);
 
                 return new CastResult(lastVoxel, curVoxel, lastPointInt, pointInt);
 

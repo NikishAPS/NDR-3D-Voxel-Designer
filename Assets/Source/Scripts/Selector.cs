@@ -6,8 +6,8 @@ public class Selector : Mode
 {
     public override void Tick()
     {
-        SceneData.extractor.SetActive(false);
-        if (!SceneData.controlGUI.IsPanel)
+        SceneData.Extractor.SetActive(false);
+        if (!SceneData.ControlGUI.IsPanel)
         {
             if (!IsDrag()) RayCastInvoke();
         }
@@ -15,33 +15,33 @@ public class Selector : Mode
 
     public override void Disable()
     {
-        SceneData.chunk.SetSelectedMeshActive(false);
-        SceneData.dragSystem.SetActive(false);
-        SceneData.dragSystem.drag -= SceneData.chunk.MoveVoxels;
-        SceneData.extractor.SetActive(false);
+        SceneData.Chunk.SetSelectedMeshActive(false);
+        SceneData.DragSystem.SetActive(false);
+        SceneData.DragSystem.drag -= SceneData.Chunk.MoveVoxels;
+        SceneData.Extractor.SetActive(false);
     }
 
     public override void Enable()
     {
-        SceneData.chunk.SetSelectedMeshActive(true);
-        SceneData.dragSystem.drag += SceneData.chunk.MoveVoxels;
+        SceneData.Chunk.SetSelectedMeshActive(true);
+        SceneData.DragSystem.drag += SceneData.Chunk.MoveVoxels;
     }
 
     private bool IsDrag()
     {
-        if (SceneData.eventInput.Delete) SceneData.chunk.DeleteVoxel();
+        if (SceneData.EventInput.Delete) SceneData.Chunk.DeleteVoxel();
 
-        if (SceneData.chunk.SelectedIndicesCount == 0)
+        if (SceneData.Chunk.SelectedIndicesCount == 0)
         {
-            SceneData.dragSystem.SetActive(false);
+            SceneData.DragSystem.SetActive(false);
             return false;
         }
         else
         {
-            SceneData.dragSystem.SetActive(true);
+            SceneData.DragSystem.SetActive(true);
             //SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
 
-            if (!SceneData.dragSystem.CheckCapture())
+            if (!SceneData.DragSystem.CheckCapture())
             {
                 return false;
             }
@@ -58,20 +58,20 @@ public class Selector : Mode
 
     private void RayCastInvoke()
     {
-        CastResult castResult = VoxelRayCast.CastByMouse(SceneData.rayLength);
+        CastResult castResult = VoxelRayCast.CastByMouse(SceneData.RayLength);
         if (castResult != null)
         {
             if (castResult.voxel != null)
             {
-                SceneData.extractor.SetActive(true);
-                SceneData.extractor.SetPosition(castResult.point);
+                SceneData.Extractor.SetActive(true);
+                SceneData.Extractor.SetPosition(castResult.point);
             }
 
-            if (SceneData.eventInput.MouseDown0)
+            if (SceneData.EventInput.MouseDown0)
             {
-                if (!SceneData.eventInput.LShift) SceneData.chunk.ResetSelection();
-                SceneData.chunk.SelectVoxel(castResult.point);
-                SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
+                if (!SceneData.EventInput.LShift) SceneData.Chunk.ResetSelection();
+                SceneData.Chunk.SelectVoxel(castResult.point);
+                SceneData.DragSystem.SetPosition(SceneData.Chunk.MiddleSelectedPosition);
             }
         }
     }

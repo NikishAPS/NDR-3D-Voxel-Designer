@@ -30,10 +30,10 @@ public class DragSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        SceneData.eventInput.mouseDown0 += OnMouseDown0;
-        SceneData.eventInput.mouse0 += OnMouse0;
-        SceneData.eventInput.mouseUp0 += OnMouseUp0;
-        SceneData.eventInput.notMouse0 += OnNotMouse0;
+        SceneData.EventInput.mouseDown0 += OnMouseDown0;
+        SceneData.EventInput.mouse0 += OnMouse0;
+        SceneData.EventInput.mouseUp0 += OnMouseUp0;
+        SceneData.EventInput.notMouse0 += OnNotMouse0;
     }
 
     private void Start()
@@ -43,9 +43,9 @@ public class DragSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        SceneData.eventInput.mouseDown0 -= OnMouseDown0;
-        SceneData.eventInput.mouse0 -= OnMouse0;
-        SceneData.eventInput.mouseUp0 -= OnMouseUp0;
+        SceneData.EventInput.mouseDown0 -= OnMouseDown0;
+        SceneData.EventInput.mouse0 -= OnMouse0;
+        SceneData.EventInput.mouseUp0 -= OnMouseUp0;
     }
  
     public Vector3Int GetDragValue()
@@ -67,9 +67,9 @@ public class DragSystem : MonoBehaviour
 
         _axisX.enabled = _axisY.enabled = _axisZ.enabled =
             _axisXY.enabled = _axisXZ.enabled = _axisYZ.enabled = false;
-        Ray ray = SceneData.camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = SceneData.Camera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, SceneData.rayLength))
+        if (Physics.Raycast(ray, out hit, SceneData.RayLength))
         {
             if (hit.transform.gameObject == _axisX.gameObject) { _axisX.enabled = true; }
             else if (hit.transform.gameObject == _axisY.gameObject) { _axisY.enabled = true; }
@@ -91,14 +91,14 @@ public class DragSystem : MonoBehaviour
 
         //capturePos = SceneData.eventInput.MousePos;
         //capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos);
-        capturePos = SceneData.eventInput.MousePos;
-        captureSize = Vector3.Distance(transform.position, SceneData.camera.transform.position) * size * 0.01f;
+        capturePos = SceneData.EventInput.MousePos;
+        captureSize = Vector3.Distance(transform.position, SceneData.Camera.transform.position) * size * 0.01f;
     }
 
     private void OnMouse0()
     {
         //Vector3 dragDir = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - capturePos;
-        Vector3 dragDir = SceneData.camera.transform.TransformDirection(SceneData.eventInput.MousePos - capturePos);
+        Vector3 dragDir = SceneData.Camera.transform.TransformDirection(SceneData.EventInput.MousePos - capturePos);
         dragValue.x = dragDir.x * captures.x;
         dragValue.y = dragDir.y * captures.y;
         dragValue.z = dragDir.z * captures.z;
@@ -122,7 +122,7 @@ public class DragSystem : MonoBehaviour
     {
         transform.position = position + dragValue;
 
-        float distance = Vector3.Distance(SceneData.camera.transform.position, transform.position);
+        float distance = Vector3.Distance(SceneData.Camera.transform.position, transform.position);
         transform.localScale = Vector3.one * distance * size;
     }
 
@@ -135,7 +135,7 @@ public class DragSystem : MonoBehaviour
     public void ResetDragValue()
     {
         position += dragValue;
-        capturePos = SceneData.eventInput.MousePos;
+        capturePos = SceneData.EventInput.MousePos;
     }
 
     public void OffsetPosition(Vector3 value)
@@ -143,7 +143,7 @@ public class DragSystem : MonoBehaviour
         dragValue -= value;
         position += value;
         //capturePos = SceneData.camera.transform.TransformPoint(SceneData.eventInput.MousePos) - dragValue / captureSize;
-        capturePos = SceneData.eventInput.MousePos - SceneData.camera.transform.InverseTransformDirection(dragValue / captureSize);
+        capturePos = SceneData.EventInput.MousePos - SceneData.Camera.transform.InverseTransformDirection(dragValue / captureSize);
     }
 
     public void SetActive(bool value)

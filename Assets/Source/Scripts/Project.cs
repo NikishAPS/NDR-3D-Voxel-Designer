@@ -14,11 +14,11 @@ public class Project : MonoBehaviour
     {
         public void Collect()
         {
-            _chunkData = SceneData.chunk.GetData();
+            _chunkData = SceneData.Chunk.GetData();
         }
         public void Distribute()
         {
-            SceneData.chunk.SetData(_chunkData);
+            SceneData.Chunk.SetData(_chunkData);
         }
 
         public string GetSavePath()
@@ -101,8 +101,8 @@ public class Project : MonoBehaviour
 
     public void StartNewProject()
     {
-        SceneData.chunk.Resize();
-        SceneData.modeControl.enabled = true;
+        SceneData.Chunk.Resize();
+        SceneData.ModeControl.enabled = true;
     }
 
     public void Create()
