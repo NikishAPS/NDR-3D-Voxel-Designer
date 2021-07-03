@@ -10,7 +10,8 @@ namespace NDR.UI
     {
         private UnityEngine.UI.InputField _inputField;
 
-        public EventFloat InitEvent;
+        public EventInt InitIntFields;
+        public EventFloat InitFloatFields;
 
         public void SetValue(string text)
         {
@@ -22,12 +23,21 @@ namespace NDR.UI
             _inputField = gameObject.GetComponentInParent<UnityEngine.UI.InputField>();
         }
 
-        public void InitIntField()
+        public void OnInitIntFields()
         {
             int value;
             if (TryParseInt(out value))
             {
-                InitEvent?.Invoke(value);
+                InitIntFields?.Invoke(value);
+            }
+        }
+
+        public void OnInitFloatFields()
+        {
+            float value;
+            if(TryParseFloat(out value))
+            {
+                InitFloatFields?.Invoke(value);
             }
         }
 
