@@ -21,7 +21,7 @@ namespace NDR.UI
 
         private void Awake()
         {
-            _inputField = gameObject.GetComponentInParent<UnityEngine.UI.InputField>();
+            _inputField = GetComponentInChildren<UnityEngine.UI.InputField>();
         }
 
         public void OnInitIntFields()
