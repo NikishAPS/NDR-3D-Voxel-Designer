@@ -9,4 +9,7 @@ namespace CustomUnityEvents
 
     [Serializable]
     public class EventFloat : UnityEvent<float> { }
+
+    [Serializable]
+    public class EventString : UnityEvent<string> { }
 }
