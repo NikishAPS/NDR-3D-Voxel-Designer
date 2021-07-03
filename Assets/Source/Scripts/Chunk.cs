@@ -142,19 +142,19 @@ public class Chunk : MonoBehaviour
         SceneData.Grid.Resize(_size);
     }
 
-    public void SetSizeX(InputField inputField)
+    public void SetSizeX(int value)
     {
-        _size.x = int.Parse(inputField.text);
+        _size.x = value;
     }
 
-    public void SetSizeY(InputField inputField)
+    public void SetSizeY(int value)
     {
-        _size.y = int.Parse(inputField.text);
+        _size.y = value;
     }
 
-    public void SetSizeZ(InputField inputField)
+    public void SetSizeZ(int value)
     {
-        _size.z = int.Parse(inputField.text);
+        _size.z = value;
     }
 
     public int GetIndexByPos(int x, int y, int z)
