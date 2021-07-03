@@ -12,6 +12,7 @@ namespace NDR.UI
 
         public EventInt InitIntFields;
         public EventFloat InitFloatFields;
+        public EventString InitStringFields;
 
         public void SetValue(string text)
         {
@@ -39,6 +40,11 @@ namespace NDR.UI
             {
                 InitFloatFields?.Invoke(value);
             }
+        }
+
+        public void OnInitStringFields()
+        {
+            InitStringFields?.Invoke(_inputField.text);
         }
 
         private bool TryParseInt(out int value)
