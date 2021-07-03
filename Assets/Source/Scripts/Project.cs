@@ -89,14 +89,14 @@ public class Project : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void SetName(InputField inputField)
+    public void SetName(string name)
     {
-        _name = inputField.text;
+        _name = name;
     }
 
-    public void SetSavePath(InputField inputField)
+    public void SetSavePath(string path)
     {
-        _data.SetSavePath(inputField.text);
+        _data.SetSavePath(path);
     }
 
     public void StartNewProject()
