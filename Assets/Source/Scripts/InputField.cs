@@ -22,13 +22,19 @@ namespace NDR.UI
             _inputField = gameObject.GetComponentInParent<UnityEngine.UI.InputField>();
         }
 
-        public void InitFloatField()
+        public void InitIntField()
         {
-            float value;
-            if (TryParseFloat(out value))
+            int value;
+            if (TryParseInt(out value))
             {
                 InitEvent?.Invoke(value);
             }
+        }
+
+        private bool TryParseInt(out int value)
+        {
+            value = 0;
+            return int.TryParse(_inputField.text, out value);
         }
 
         private bool TryParseFloat(out float value)
@@ -37,10 +43,6 @@ namespace NDR.UI
             return float.TryParse(_inputField.text, out value);
         }
 
-        private bool TryParseInt(out int value)
-        {
-            value = 0;
-            return int.TryParse(_inputField.text, out value);
-        }
+       
     }
 }
