@@ -1,12 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomUnityEvents;
 
 namespace NDR.UI
 {
     public class InputField : MonoBehaviour
     {
-        UnityEngine.UI.InputField _inputField;
+        private UnityEngine.UI.InputField _inputField;
+
+        public EventFloat InitEvent;
 
         public void SetValue(string text)
         {
@@ -16,6 +20,27 @@ namespace NDR.UI
         private void Awake()
         {
             _inputField = gameObject.GetComponentInParent<UnityEngine.UI.InputField>();
+        }
+
+        public void InitFloatField()
+        {
+            float value;
+            if (TryParseFloat(out value))
+            {
+                InitEvent?.Invoke(value);
+            }
+        }
+
+        private bool TryParseFloat(out float value)
+        {
+            value = 0;
+            return float.TryParse(_inputField.text, out value);
+        }
+
+        private bool TryParseInt(out int value)
+        {
+            value = 0;
+            return int.TryParse(_inputField.text, out value);
         }
     }
 }
