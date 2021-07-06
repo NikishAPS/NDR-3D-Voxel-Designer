@@ -20,9 +20,9 @@ public class ModeControl : MonoBehaviour
         mode = 0;
         employees = new Mode[]
         {
-            new Builder(),
-            new Selector(),
-            new Editor()
+            new BuildMode(),
+            new SelectMode(),
+            new EditMode()
         };
 
         SceneData.EventInput.alpha1 += OnAlpha1;
