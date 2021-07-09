@@ -21,10 +21,10 @@ public class EditMode : Mode
                         if (castResult.vertex != null)
                         {
                             Vector3 verPos = castResult.point + Vector3.one * 0.5f;
-                            Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
+                           // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
                             _vertexPos = verPos;
 
-                            SceneData.DragSystem.SetPosition(verPos + offsetPos);
+                           // SceneData.DragSystem.SetPosition(verPos + offsetPos);
                             SceneData.DragSystem.SetActive(true);
                         }
                     }

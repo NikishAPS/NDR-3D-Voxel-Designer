@@ -9,6 +9,8 @@ public class SelectMode : Mode
         SceneData.Extractor.SetActive(false);
         if (!SceneData.ControlGUI.IsPanel)
         {
+            if (SceneData.EventInput.Delete) SceneData.Chunk.DeleteSelectedVoxels();
+
             if (!IsDrag()) RayCastInvoke();
         }
     }
@@ -17,21 +19,19 @@ public class SelectMode : Mode
     {
         SceneData.Chunk.SetSelectedMeshActive(false);
         SceneData.DragSystem.SetActive(false);
-        SceneData.DragSystem.drag -= SceneData.Chunk.MoveVoxels;
+        SceneData.DragSystem.drag -= SceneData.Chunk.MoveSelectedVoxels;
         SceneData.Extractor.SetActive(false);
     }
 
     public override void Enable()
     {
         SceneData.Chunk.SetSelectedMeshActive(true);
-        SceneData.DragSystem.drag += SceneData.Chunk.MoveVoxels;
+        SceneData.DragSystem.drag += SceneData.Chunk.MoveSelectedVoxels;
     }
 
     private bool IsDrag()
     {
-        if (SceneData.EventInput.Delete) SceneData.Chunk.DeleteVoxel();
-
-        if (SceneData.Chunk.SelectedIndicesCount == 0)
+        if (SceneData.Chunk.Selector.SelectedVoxelIndices.Count == 0)
         {
             SceneData.DragSystem.SetActive(false);
             return false;
@@ -71,7 +71,7 @@ public class SelectMode : Mode
             {
                 if (!SceneData.EventInput.LShift) SceneData.Chunk.ResetSelection();
                 SceneData.Chunk.SelectVoxel(castResult.point);
-                SceneData.DragSystem.SetPosition(SceneData.Chunk.MiddleSelectedPosition);
+                SceneData.DragSystem.SetPosition(SceneData.Chunk.Selector.MiddleSelectedPos);
             }
         }
     }

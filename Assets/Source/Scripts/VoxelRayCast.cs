@@ -51,42 +51,42 @@ public static class VoxelRayCast
 
     public static CastResult CastVerticesByMouse(float length)
     {
-        Vector2 mousePos = SceneData.EventInput.MousePos;
-        Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
-        Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
-        dir.Normalize();
+        //Vector2 mousePos = SceneData.EventInput.MousePos;
+        //Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
+        //Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
+        //dir.Normalize();
 
-        Vector3 direction = Vector3.zero;
-        Vector3 point = Vector3.zero;
-        Vector3Int pointInt = Vector3Int.zero;
-        int index = 0;
-        Vector3? vertex = null;
-        bool isVoxel = false;
-        for (float f = 0; f < length; f += SceneData.RayStep * 0.1f)
-        {
-            direction = dir * f;
-            point = pos + direction;
+        //Vector3 direction = Vector3.zero;
+        //Vector3 point = Vector3.zero;
+        //Vector3Int pointInt = Vector3Int.zero;
+        //int index = 0;
+        //Vector3? vertex = null;
+        //bool isVoxel = false;
+        //for (float f = 0; f < length; f += SceneData.RayStep * 0.1f)
+        //{
+        //    direction = dir * f;
+        //    point = pos + direction;
 
-            //Round 
-            //1.2 -> 1.5
-            //0.9 -> 0.5
-            pointInt = SceneData.Vector3FloatRound(point - Vector3.one * 0.5f);
-            point = pointInt + Vector3.one * 0.5f;
+        //    //Round 
+        //    //1.2 -> 1.5
+        //    //0.9 -> 0.5
+        //    pointInt = SceneData.Vector3FloatRound(point - Vector3.one * 0.5f);
+        //    point = pointInt + Vector3.one * 0.5f;
 
 
-            index = SceneData.Chunk.GetVertexIndexByPos(point);
-            vertex = SceneData.Chunk.GetOffsetVertexByPos(point);
+        //    index = SceneData.Chunk.GetVertexIndexByPos(point);
+        //    vertex = SceneData.Chunk.GetOffsetVertexByPos(point);
 
-            if (index != -1 && vertex != null)
-            {
-                isVoxel = true;
-                if ((pos + direction - point).magnitude > 0.25f) continue;
+        //    if (index != -1 && vertex != null)
+        //    {
+        //        isVoxel = true;
+        //        if ((pos + direction - point).magnitude > 0.25f) continue;
 
-                return new CastResult(null, null, Vector3Int.zero, pointInt, vertex);
-            }
-            else if (isVoxel) return null;
+        //        return new CastResult(null, null, Vector3Int.zero, pointInt, vertex);
+        //    }
+        //    else if (isVoxel) return null;
 
-        }
+        //}
 
         return null;
     }

@@ -82,8 +82,6 @@ public static class SceneData
 
     public static readonly ColorTest ColorTest;
 
-    public static readonly int debug;
-
     public static readonly Vector3[] VoxelVertices;
     public static readonly Vector2[] VoxelUV;
 
@@ -102,20 +100,5 @@ public static class SceneData
     public static Vector3Int Vector3FloatRound(Vector3 value)
     {
         return new Vector3Int((int)Mathf.Round(value.x), (int)Mathf.Round(value.y), (int)Mathf.Round(value.z));
-    }
-
-    public static Point3Int Vector3IntToPoint3Int(Vector3Int pos)
-    {
-        return new Point3Int(pos.x, pos.y, pos.z);
-    }
-
-    public static Vector3 Point3IntToVector3(Point3Int pos)
-    {
-        return new Vector3(pos.x, pos.y, pos.z);
-    }
-
-    public static Vector3Int Point3IntToVector3Int(Point3Int pos)
-    {
-        return new Vector3Int(pos.x, pos.y, pos.z);
     }
 }
