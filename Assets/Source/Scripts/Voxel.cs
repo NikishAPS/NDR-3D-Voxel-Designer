@@ -7,6 +7,7 @@ public class Voxel
     public readonly int Id;
     public readonly Vector3Int Position;
     public readonly bool[] Faces = new bool[0];
+    public int FaceCount { get; private set; }
 
     public Voxel()
     {
@@ -17,16 +18,16 @@ public class Voxel
 
     public Voxel(int id, Vector3Int position)
     {
-        this.Id = id;
-        this.Position = position;
+        Id = id;
+        Position = position;
         Faces = new bool[6];
     }
 
     public Voxel(int id, Vector3Int position, bool[] availabilityVertices)
     {
-        this.Id = id;
-        this.Position = position;
-        this.Faces = new bool[6];
+        Id = id;
+        Position = position;
+        Faces = new bool[6];
         for (int i = 0; i < availabilityVertices.Length; i++) this.Faces[i] = availabilityVertices[i];
     }
 
@@ -34,37 +35,59 @@ public class Voxel
     {
         Id = voxel.Id;
         Position = voxel.Position;
+        FaceCount = voxel.FaceCount;
         Faces = new bool[6];
         for (int i = 0; i < Faces.Length; i++) Faces[i] = voxel.Faces[i];
     }
 
-    public void SetLeftFace(bool flag)
+    public void SetLeftFace(bool active)
     {
-        Faces[0] = flag;
+        if (Faces[0] != active) CheckFace(active);
+        Faces[0] = active;
     }
 
-    public void SetRightFace(bool flag)
+    public void SetRightFace(bool active)
     {
-        Faces[1] = flag;
+        if (Faces[1] != active) CheckFace(active);
+        Faces[1] = active;
     }
 
-    public void SetBottomFace(bool flag)
+    public void SetBottomFace(bool active)
     {
-        Faces[2] = flag;
+        if (Faces[2] != active) CheckFace(active);
+        Faces[2] = active;
     }
 
-    public void SetTopFace(bool flag)
+    public void SetTopFace(bool active)
     {
-        Faces[3] = flag;
+        if (Faces[3] != active) CheckFace(active);
+        Faces[3] = active;
     }
 
-    public void SetRearFace(bool flag)
+    public void SetRearFace(bool active)
     {
-        Faces[4] = flag;
+        if (Faces[4] != active) CheckFace(active);
+        Faces[4] = active;
     }
 
-    public void SetFrontFace(bool flag)
+    public void SetFrontFace(bool active)
     {
-        Faces[5] = flag;
+        if (Faces[5] != active) CheckFace(active);
+        Faces[5] = active;
+    }
+
+    public void SetFaceActive(int faceIndex, bool active)
+    {
+        if (faceIndex < 0 || faceIndex > Faces.Length) return;
+
+        if (active != Faces[faceIndex])
+            FaceCount += active ? +1 : -1;
+
+        Faces[faceIndex] = active;
+    }
+
+    private void CheckFace(bool active)
+    {
+        FaceCount += active ? 1 : -1;
     }
 }
