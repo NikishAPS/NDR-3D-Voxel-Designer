@@ -12,9 +12,9 @@ public class Builder : ChunkEmployee
         BuildedVoxelIndices = new List<int>();
     }
 
-    public void CreateVoxel(int id, Vector3Int pos)
+    public bool TryCreateVoxel(int id, Vector3Int pos)
     {
-        if (_chunk.GetVoxelByPos(pos) != null) return;
+        if (_chunk.GetVoxelByPos(pos) != null) return false;
 
         int index = _chunk.GetIndexByPos(pos);
         Voxel newVoxel = new Voxel(id, pos);
@@ -26,6 +26,8 @@ public class Builder : ChunkEmployee
 
         //updating adjacent Voxels
         UpdateVoxelsAround(pos);
+
+        return true;
     }
 
     public void UpdateVoxelsAround(Vector3Int pos)
@@ -71,17 +73,6 @@ public class Builder : ChunkEmployee
         else voxel.SetFrontFace(false);
 
         FaceCount += voxel.FaceCount;
-    }
-
-    public void OffsetBuildedIndices(Vector3Int offset)
-    {
-        for (int i = 0; i < BuildedVoxelIndices.Count; i++)
-        {
-            if(GetVoxelByBuildedIndex(i) == null)
-            {
-                BuildedVoxelIndices[i] = _chunk.GetIndexByPos(_chunk.GetPosByIndex(BuildedVoxelIndices[i]) + offset);
-            }
-        }
     }
 
     public void DeleteVoxel(int voxelIndex)

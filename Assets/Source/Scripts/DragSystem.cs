@@ -30,10 +30,10 @@ public class DragSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        SceneData.EventInput.mouseDown0 += OnMouseDown0;
-        SceneData.EventInput.mouse0 += OnMouse0;
-        SceneData.EventInput.mouseUp0 += OnMouseUp0;
-        SceneData.EventInput.notMouse0 += OnNotMouse0;
+        SceneData.EventInput.MouseDown0 += OnMouseDown0;
+        SceneData.EventInput.Mouse0 += OnMouse0;
+        SceneData.EventInput.MouseUp0 += OnMouseUp0;
+        SceneData.EventInput.NotMouse0 += OnNotMouse0;
     }
 
     private void Start()
@@ -43,9 +43,9 @@ public class DragSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        SceneData.EventInput.mouseDown0 -= OnMouseDown0;
-        SceneData.EventInput.mouse0 -= OnMouse0;
-        SceneData.EventInput.mouseUp0 -= OnMouseUp0;
+        SceneData.EventInput.MouseDown0 -= OnMouseDown0;
+        SceneData.EventInput.Mouse0 -= OnMouse0;
+        SceneData.EventInput.MouseUp0 -= OnMouseUp0;
     }
  
     public Vector3Int GetDragValue()

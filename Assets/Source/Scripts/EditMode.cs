@@ -8,7 +8,7 @@ public class EditMode : Mode
 
     public override void Tick()
     {
-        if (SceneData.EventInput.MouseDown0)
+        if (SceneData.EventInput.GetMouseDown0)
         {
             if (!SceneData.DragSystem.CheckCapture())
             {

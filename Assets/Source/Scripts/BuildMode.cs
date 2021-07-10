@@ -22,7 +22,7 @@ public class BuildMode : Mode
                     SceneData.Extractor.SetActive(true);
                     SceneData.Extractor.transform.position = castResult.lastPoint;
 
-                    if (SceneData.EventInput.MouseDown0)
+                    if (SceneData.EventInput.GetMouseDown0)
                     {
                         int id = SceneData.ColorTest.id;
                         SceneData.Chunk.CreateVoxel(SceneData.ColorTest.id, castResult.lastPoint);

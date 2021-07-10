@@ -27,4 +27,14 @@ public class ControlGUI : MonoBehaviour
             if (_panels[i].IsPanel) _curIndexPanel = i;
         }
     }
+
+    public static bool InRect(RectTransform rectTransform)
+    {
+        Vector2 mousePos = Input.mousePosition;
+
+        return mousePos.x > rectTransform.transform.position.x - rectTransform.rect.width * 0.5f &&
+            mousePos.x < rectTransform.transform.position.x + rectTransform.rect.width * 0.5f &&
+            mousePos.y > rectTransform.transform.position.y - rectTransform.rect.height * 0.5f &&
+            mousePos.y < rectTransform.transform.position.y + rectTransform.rect.height * 0.5f;
+    }
 }

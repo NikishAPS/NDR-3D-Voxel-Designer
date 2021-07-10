@@ -92,49 +92,16 @@ public class Selector : ChunkEmployee
             _chunk.Editor.DeleteVerticesByPos(buildedVoxels[i].Position);
         }
 
-        for (int i = 0; i < vertices[0].Length; i++)
-        {
-            //MonoBehaviour.print(vertices[0][i].PivotPosition);
-        }
-
-            Reset();
+        Reset();
 
         for(int i = 0; i < buildedVoxels.Length; i++)
         {
             Vector3Int newVoxelPosition = buildedVoxels[i].Position + offset;
 
-            _chunk.Builder.CreateVoxel(buildedVoxels[i].Id, newVoxelPosition);
+            _chunk.Builder.TryCreateVoxel(buildedVoxels[i].Id, newVoxelPosition);
             _chunk.Editor.AddVertices(vertices[i], newVoxelPosition);
             SelectVoxel(newVoxelPosition);
         }
-
-        return true;
-
-        int[] indices = SelectedVoxelIndices.ToArray();
-        for(int i = 0; i < indices.Length; i++)
-        {
-            int voxelIndex = indices[i];
-            int voxelId = _chunk.GetVoxel(voxelIndex).Id;
-            Vector3Int voxelPosition = _chunk.GetVoxel(voxelIndex).Position;
-
-            Vector3Int newVoxelPosition = voxelPosition + offset;
-            int newVoxelIndex = _chunk.GetIndexByPos(newVoxelPosition);
-
-            //offset builded Voxels
-            _chunk.Builder.DeleteVoxel(voxelIndex);
-            //_chunk.Builder.CreateVoxel(voxelId, newVoxelPosition);
-
-            //offset selectedVoxels
-            RemoveVoxel(voxelPosition);
-            //SelectVoxel(newVoxelPosition);
-
-            //offset Vertices
-            _chunk.Editor.DeleteVerticesByPos(voxelPosition);
-           // _chunk.Editor.CreateVertices(newVoxelPosition);
-
-        }
-
-        //MiddleSelectedPos += offset;
 
         return true;
     }

@@ -6,11 +6,10 @@ using UnityEngine.Events;
 
 public class Button : Widget
 {
-    public string description;
     [SerializeField]
     private Color _default, _hover, _selected;
 
-    public UnityEvent eventsButton;
+    public UnityEvent ClickButton;
 
     private RectTransform _rectTransform;
     private Image _image;
@@ -18,23 +17,18 @@ public class Button : Widget
     [SerializeField]
     private bool _press;
 
-    // private DescriptionWidgets descriptionWidgets;
-
     public override void Init()
     {
         _rectTransform = GetComponent<RectTransform>();
         _image = GetComponent<Image>();
 
         _image.color = _default;
-
-        //descriptionWidgets = GameObject.Find("Canvas").transform.Find("DescriptionWidgets").GetComponent<DescriptionWidgets>();
     }
 
     public override void Tick()
     {
         if (InRect())
         {
-            //descriptionWidgets.SetTarget(description, transform);
             if (!_press)
                 _image.color = _hover;
             if (Input.GetMouseButtonDown(0))
@@ -46,26 +40,16 @@ public class Button : Widget
             {
                 if (_press)
                 {
-                    eventsButton.Invoke();
+                    ClickButton.Invoke();
                 }
                 _press = false;
             }
         }
         else
         {
-            //descriptionWidgets.Hide(transform);
-
             if (!Input.GetMouseButton(0)) _press = false;
 
-
             _image.color = _press ? _selected : _default;
-
-            //_image.color = _selected;
-            //if (!Input.GetMouseButton(0))
-            //{
-            //    _image.color = _default;
-            //    _press = false;
-            //}
         }
     }
 

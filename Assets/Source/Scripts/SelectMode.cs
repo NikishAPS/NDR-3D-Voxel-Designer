@@ -67,7 +67,7 @@ public class SelectMode : Mode
                 SceneData.Extractor.SetPosition(castResult.point);
             }
 
-            if (SceneData.EventInput.MouseDown0)
+            if (SceneData.EventInput.GetMouseDown0)
             {
                 if (!SceneData.EventInput.LShift) SceneData.Chunk.ResetSelection();
                 SceneData.Chunk.SelectVoxel(castResult.point);

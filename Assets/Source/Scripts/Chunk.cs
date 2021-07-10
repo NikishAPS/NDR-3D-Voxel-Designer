@@ -9,14 +9,19 @@ public class Chunk : MonoBehaviour
     private Voxel _voxel;
 
     private Vector3Int _size;
+    private Vector3Int _vertexArraySize;
+    private Vector3Int _vertexPointAraySize;
 
     public Voxel[] Voxels { get; private set; }
     public Voxel[] SelectedVoxels { get; private set; }
     public Vertex[] Vertices { get; private set; }
+    public VertexPoint[] VertexPoints { get; private set; }
 
     public Builder Builder { get; private set; }
     public Selector Selector { get; private set; }
     public Editor Editor { get; private set; }
+
+    private int _incrementOption;
 
     private Mesh _mesh;
     private Mesh _selectedMesh;
@@ -29,6 +34,8 @@ public class Chunk : MonoBehaviour
     public Vector3 Center => _size.ToVector3() * 0.5f;
 
     public Vector3Int Size => _size;
+
+    public int IncrementOption => _incrementOption;
 
     private void Awake()
     {
@@ -66,6 +73,11 @@ public class Chunk : MonoBehaviour
         _size.z = value;
     }
 
+    public void SetIncrementOption(int incrementOption)
+    {
+        _incrementOption = incrementOption;
+    }
+
     public bool InChunk(Vector3Int point)
     {
         return point.x >= 0 && point.x < _size.x &&
@@ -84,9 +96,14 @@ public class Chunk : MonoBehaviour
     {
         int size = _size.x * _size.y * _size.z;
 
+        _vertexArraySize = _size + Vector3Int.one;
+        _vertexPointAraySize = _vertexArraySize * _incrementOption;
+
         Voxels = new Voxel[size];
         SelectedVoxels = new Voxel[size];
-        Vertices = new Vertex[(_size.x + 1) * (_size.y + 1) * (_size.z + 1)];
+
+        Vertices = new Vertex[_vertexArraySize.x * _vertexArraySize.y * _vertexArraySize.z];
+        VertexPoints = new VertexPoint[_vertexPointAraySize.x * _vertexPointAraySize.y * _vertexPointAraySize.z];
 
         SceneData.Grid.Resize(_size);
     }
@@ -97,14 +114,20 @@ public class Chunk : MonoBehaviour
         Resize();
     }
 
+    public int GetIndex(Vector3Int size, Vector3Int pos)
+    {
+        return (pos.x * size.y + pos.y) * size.z + pos.z;
+    }
+
     public Voxel GetVoxel(int index)
     {
-        return (index < 0 || index > Voxels.Length) ? null : Voxels[index];
+        return (index < 0 || index >= Voxels.Length) ? null : Voxels[index];
     }
 
     public int GetIndexByPos(Vector3Int pos)
     {
         if (!InChunk(pos)) return -1;
+        return GetIndex(_size, pos);
         return (pos.x * _size.y + pos.y) * _size.z + pos.z;
     }
 
@@ -123,7 +146,7 @@ public class Chunk : MonoBehaviour
 
     public Voxel GetSelectedVoxel(int index)
     {
-        return (index < 0 || index > SelectedVoxels.Length) ? null : SelectedVoxels[index];
+        return (index < 0 || index >= SelectedVoxels.Length) ? null : SelectedVoxels[index];
     }
 
     public Voxel GetSelectedVoxelByPos(Vector3Int pos)
@@ -133,21 +156,33 @@ public class Chunk : MonoBehaviour
 
     public Vertex GetVertex(int index)
     {
-        return (index < 0 || index > Vertices.Length) ? null : Vertices[index];
+        return (index < 0 || index >= Vertices.Length) ? null : Vertices[index];
     }
 
     public int GetVertexIndexByPos(Vector3 pos)
     {
         Vector3Int posInt = (pos + Vector3.one * 0.5f).ToVector3Int();
-        Vector3Int size = _size + Vector3Int.one;
 
-        if (!InBox(_size + Vector3Int.one, posInt)) return -1;
-        return (posInt.x * size.y + posInt.y) * size.z + posInt.z;
+        if (!InBox(_vertexArraySize, posInt)) return -1;
+        return GetIndex(_vertexArraySize, posInt);
     }
 
     public Vertex GetVertexByPos(Vector3 pos)
     {
         return GetVertex(GetVertexIndexByPos(pos));
+    }
+
+    public VertexPoint GetVertexPoint(int index)
+    {
+        return index < 0 || index >= VertexPoints.Length ? null : VertexPoints[index];
+    }
+
+    public int GetVertexPointIndexByPos(Vector3 vertexPointPos)
+    {
+        Vector3Int posInt = ((vertexPointPos + Vector3.one * 0.5f) * _incrementOption).ToVector3Int();
+
+        if (!InBox(_vertexPointAraySize, posInt)) return -1;
+        return GetIndex(_vertexPointAraySize, posInt);
     }
 
     public void OffsetVertexByPos(Vector3 pos, Vector3 value)
@@ -157,10 +192,12 @@ public class Chunk : MonoBehaviour
 
     public void CreateVoxel(int id, Vector3Int pos)
     {
-        Builder.CreateVoxel(id, pos);
-        Editor.CreateVertices(pos);
+        if (Builder.TryCreateVoxel(id, pos))
+        {
+            Editor.CreateVertices(pos);
 
-        UpdateMesh();
+            UpdateMesh();
+        }
     }
 
     public void DeleteSelectedVoxels()
@@ -386,6 +423,19 @@ public class Chunk : MonoBehaviour
 
     public void OnDrawGizmos()
     {
+        if (VertexPoints != null)
+        {
+            for(int i = 0; i < VertexPoints.Length; i++)
+            {
+                if (VertexPoints[i] != null)
+                {
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawSphere(VertexPoints[i].Position, 0.05f);
+                }
+            }
+        }
+
+        return;
         if(Vertices != null)
         {
             for (int i = 0; i < Vertices.Length; i++)

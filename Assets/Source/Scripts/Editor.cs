@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class Editor : ChunkEmployee
 {
-    public readonly List<int> CreatedVertexIndices;
-
     public Editor(Chunk chunk) : base(chunk)
     {
-        CreatedVertexIndices = new List<int>();
     }
 
     public void CreateVertices(Vector3Int voxelPos)
@@ -50,11 +47,6 @@ public class Editor : ChunkEmployee
         TryDeleteVertexByPos(voxelPos + new Vector3(-0.5f, +0.5f, +0.5f));
     }
 
-    public Vertex GetVertexByCreatedIndices(int createdIndices)
-    {
-        return _chunk.Vertices[CreatedVertexIndices[createdIndices]];
-    }
-
     public Vertex[] GetVertices(Vector3Int voxelPos)
     {
         Vertex[] vertices = new Vertex[8];
@@ -72,6 +64,8 @@ public class Editor : ChunkEmployee
         return vertices;
     }
 
+
+
     private void TryCreateVertexByPos(Vector3 vertexPos)
     {
         int index = _chunk.GetVertexIndexByPos(vertexPos);
@@ -79,7 +73,9 @@ public class Editor : ChunkEmployee
         if (index == -1 || _chunk.Vertices[index] != null) return;
 
         _chunk.Vertices[index] = new Vertex(vertexPos);
-        CreatedVertexIndices.Add(index); 
+
+        //creating VertexPoint
+        CreateVertexPoint(vertexPos);
     }
 
     private void TryAddVertex(Vertex vertex, Vector3 vertexPos)
@@ -87,6 +83,7 @@ public class Editor : ChunkEmployee
         if(_chunk.GetVertexByPos(vertexPos) == null)
         {
             _chunk.Vertices[_chunk.GetVertexIndexByPos(vertexPos)] = new Vertex(vertexPos, vertex.GetOffset());
+            CreateVertexPoint(vertexPos + vertex.GetOffset());
         }
     }
 
@@ -96,11 +93,23 @@ public class Editor : ChunkEmployee
         {
             int index = _chunk.GetVertexIndexByPos(vertexPos);
             _chunk.Vertices[index] = null;
-           CreatedVertexIndices.Remove(index);
 
+            _chunk.VertexPoints[_chunk.GetVertexPointIndexByPos(vertexPos)] = null;
             return true;
         }
 
+        return false;
+    }
+
+    private bool TryCreateVertexPoint(Vector3 vertexPointPos)
+    {
+        int index = _chunk.GetVertexPointIndexByPos(vertexPointPos);
+
+        if (index >= 0 && _chunk.GetVertexPoint(index) == null)
+        {
+            _chunk.VertexPoints[index] = new VertexPoint(vertexPointPos);
+            return true;
+        }
         return false;
     }
 
@@ -117,4 +126,10 @@ public class Editor : ChunkEmployee
             _chunk.GetVoxelByPos((vertexPos + new Vector3(+0.5f, +0.5f, +0.5f)).ToVector3Int()) != null ||
             _chunk.GetVoxelByPos((vertexPos + new Vector3(-0.5f, +0.5f, +0.5f)).ToVector3Int()) != null;
     }
+
+    private void CreateVertexPoint(Vector3 vertexPos)
+    {
+        _chunk.VertexPoints[_chunk.GetVertexPointIndexByPos(vertexPos)] = new VertexPoint(vertexPos);
+    }
+
 }

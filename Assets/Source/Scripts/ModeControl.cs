@@ -41,11 +41,11 @@ public class ModeControl : MonoBehaviour
 
     public void SwitchMode(int value)
     {
+        if (mode < 0 || mode >= employees.Length) return;
+
         employees[mode].Disable();
         mode = value;
         employees[mode].Enable();
-
-        switcherMode.SwitchMode(value);
     }
 
     private void Update()
@@ -61,23 +61,16 @@ public class ModeControl : MonoBehaviour
     private void OnAlpha1()
     {
         SwitchMode(0);
-        switcherMode.UpdateButtons();
     }
 
     private void OnAlpha2()
     {
         SwitchMode(1);
-        switcherMode.UpdateButtons();
     }
 
     private void OnAlpha3()
     {
         SwitchMode(2);
-        switcherMode.UpdateButtons();
     }
 
-    private void UpdateSwitch()
-    {
-        switcherMode.UpdateButtons();
-    }
 }

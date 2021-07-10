@@ -13,6 +13,8 @@ namespace NDR.UI
         public EventInt InitIntFields;
         public EventFloat InitFloatFields;
         public EventString InitStringFields;
+        public EventString ValueChanged;
+        public EventString EndEdit;
 
         public void SetValue(string text)
         {
@@ -45,6 +47,16 @@ namespace NDR.UI
         public void OnInitStringFields()
         {
             InitStringFields?.Invoke(_inputField.text);
+        }
+
+        public void OnValueChanged(string value)
+        {
+            ValueChanged?.Invoke(value);
+        }
+
+        public void OnEndEdit(string value)
+        {
+            EndEdit?.Invoke(value);
         }
 
         private bool TryParseInt(out int value)
