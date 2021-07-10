@@ -86,7 +86,7 @@ public class Selector : ChunkEmployee
         for (int i = 0; i < buildedVoxels.Length; i++)
         {
             buildedVoxels[i] = new Voxel(_chunk.Voxels[SelectedVoxelIndices[i]]);
-            vertices[i] = _chunk.Editor.GetVertices(buildedVoxels[i].Position);
+            vertices[i] = _chunk.Editor.CopyVertices(buildedVoxels[i].Position);
 
             _chunk.Builder.DeleteVoxel(SelectedVoxelIndices[i]);
             _chunk.Editor.DeleteVerticesByPos(buildedVoxels[i].Position);
@@ -99,7 +99,7 @@ public class Selector : ChunkEmployee
             Vector3Int newVoxelPosition = buildedVoxels[i].Position + offset;
 
             _chunk.Builder.TryCreateVoxel(buildedVoxels[i].Id, newVoxelPosition);
-            _chunk.Editor.AddVertices(vertices[i], newVoxelPosition);
+            _chunk.Editor.PastVertices(vertices[i], newVoxelPosition);
             SelectVoxel(newVoxelPosition);
         }
 
