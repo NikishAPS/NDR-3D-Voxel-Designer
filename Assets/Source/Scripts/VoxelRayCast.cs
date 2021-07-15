@@ -49,12 +49,41 @@ public static class VoxelRayCast
         //return voxel;
     }
 
-    public static CastResult CastVerticesByMouse(float length)
+
+    public static CastVertexResult CastVertexByMouse(float length)
     {
-        //Vector2 mousePos = SceneData.EventInput.MousePos;
-        //Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
-        //Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
-        //dir.Normalize();
+        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
+        Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
+        dir.Normalize();
+
+        Vector3 direction = Vector3.zero;
+        Vector3 point = pos + direction;
+        int index = 0;
+
+        for (float f = 0; f < length; f += SceneData.RayStep * 0.01f)
+        {
+            direction = dir * f;
+            point = SceneData.Chunk.RoundVertexPointPos(pos + direction);
+
+            index = SceneData.Chunk.GetVertexPointIndexByPos(point);
+
+            if (SceneData.Chunk.GetVertexPoint(index) != null)
+            {
+                return new CastVertexResult(index, SceneData.Chunk.GetVertexPoint(index));
+            }
+        }
+
+        return null;
+    }
+
+    public static CastResult CastVerticesByMouse0(float length)
+    {
+        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
+        Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
+        dir.Normalize();
+
 
         //Vector3 direction = Vector3.zero;
         //Vector3 point = Vector3.zero;
@@ -132,6 +161,18 @@ public static class VoxelRayCast
 }
 
 
+
+public class CastVertexResult
+{
+    public readonly int Index;
+    public readonly VertexPoint VertexPoint;
+
+    public CastVertexResult(int index, VertexPoint vertexPoint)
+    {
+        Index = index;
+        VertexPoint = vertexPoint;
+    }
+}
 
 public class CastResult
 {

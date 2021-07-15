@@ -29,9 +29,19 @@ public class Vertex
         Position = PivotPosition + offset;
     }
 
+    public void Offset(Vector3 offset)
+    {
+        Position += offset;
+    }
+
     public void SetOffset(Vector3 offset)
     {
         Position = PivotPosition + offset;
+    }
+
+    public void SetPosition(Vector3 position)
+    {
+        Position = position;
     }
 
     public Vector3 GetOffset()

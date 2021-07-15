@@ -99,7 +99,7 @@ public class Selector : ChunkEmployee
             Vector3Int newVoxelPosition = buildedVoxels[i].Position + offset;
 
             _chunk.Builder.TryCreateVoxel(buildedVoxels[i].Id, newVoxelPosition);
-            _chunk.Editor.PastVertices(vertices[i], newVoxelPosition);
+            _chunk.Editor.PasteVertices(vertices[i], newVoxelPosition);
             SelectVoxel(newVoxelPosition);
         }
 

@@ -78,18 +78,29 @@ public class Chunk : MonoBehaviour
         _incrementOption = incrementOption;
     }
 
-    public bool InChunk(Vector3Int point)
+    public bool InChunk(Vector3 point)
     {
         return point.x >= 0 && point.x < _size.x &&
             point.y >= 0 && point.y < _size.y &&
             point.z >= 0 && point.z < _size.z;
     }
 
-    public bool InBox(Vector3Int size, Vector3Int point)
+    public bool InBox(Vector3 size, Vector3Int point)
     {
         return point.x >= 0 && point.x < size.x &&
             point.y >= 0 && point.y < size.y &&
             point.z >= 0 && point.z < size.z;
+    }
+
+    public bool SetInsideChunk(Vector3 point)
+    {
+        return point.x >= -0.5f && point.x <= _size.x - 0.5f &&
+            point.y >= -0.5f && point.y <= _size.y - 0.5f &&
+            point.z >= -0.5f && point.z <= _size.z - 0.5f;
+
+        if (point.x > _size.x + 0.5f) point.x = _size.x + 0.5f; else if (point.x < -0.5f) point.x = -0.5f;
+        if (point.y > _size.y + 0.5f) point.y = _size.y + 0.5f; else if (point.y < -0.5f) point.y = -0.5f;
+        if (point.z > _size.z + 0.5f) point.z = _size.z + 0.5f; else if (point.z < -0.5f) point.z = -0.5f;
     }
 
     public void Resize()
@@ -185,9 +196,24 @@ public class Chunk : MonoBehaviour
         return GetIndex(_vertexPointAraySize, posInt);
     }
 
-    public void OffsetVertexByPos(Vector3 pos, Vector3 value)
+    public VertexPoint GetVertexPointByPos(Vector3 pos)
     {
-        //_offsetsVertices[GetVertexIndexByPos(pos)] += value;
+        return GetVertexPoint(GetVertexPointIndexByPos(pos));
+    }
+
+    public void OffsetVertex(Vector3 startPos, Vector3 offset)
+    {
+        offset = RoundVertexPointPos(offset);
+
+        //if (!InChunk(startPos + offset)) return;
+
+        if (Editor.TryOffsetVertex(startPos, ref offset))
+        {
+            SceneData.DragSystem.OffsetPosition(offset);
+
+            UpdateMesh();
+            UpdateSelectedMesh();
+        }
     }
 
     public void CreateVoxel(int id, Vector3Int pos)
@@ -287,11 +313,17 @@ public class Chunk : MonoBehaviour
         UpdateMesh();
     }
 
+    public Vector3 RoundVertexPointPos(Vector3 pos)
+    {
+        return ((pos + Vector3.one * 0.5f) * _incrementOption).RoundToFloat() / _incrementOption - Vector3.one * 0.5f;
+    }
+
 
 
     private void OffsetVertexByPos(ref Vector3 vertex)
     {
         int index = GetVertexIndexByPos(vertex);
+        vertex += Vertices[index].GetOffset();
         //vertex += (Vector3)_offsetsVertices?[index];
     }
 
@@ -320,6 +352,7 @@ public class Chunk : MonoBehaviour
                     for (int v = 0; v <= 3; v++)
                     {
                         vertices[i4 + v] = SceneData.VoxelVertices[_i + v] + verPos;
+                        vertices[i4 + v] += Vertices[GetVertexIndexByPos(vertices[i4 + v])].GetOffset();
                         //OffsetVertexByPos(ref vertices[i4 + v]);
                     }
 
@@ -376,6 +409,7 @@ public class Chunk : MonoBehaviour
                     for (int v = 0; v <= 3; v++)
                     {
                         vertices[i4 + v] = (SceneData.VoxelVertices[_i + v] + verPos);
+                        vertices[i4 + v] += Vertices[GetVertexIndexByPos(vertices[i4 + v])].GetOffset();
                         //OffsetVertexByPos(ref vertices[i4 + v]);
                     }
 
@@ -423,13 +457,14 @@ public class Chunk : MonoBehaviour
 
     public void OnDrawGizmos()
     {
+        return;
         if (VertexPoints != null)
         {
             for(int i = 0; i < VertexPoints.Length; i++)
             {
                 if (VertexPoints[i] != null)
                 {
-                    Gizmos.color = Color.green;
+                    Gizmos.color = Color.black;
                     Gizmos.DrawSphere(VertexPoints[i].Position, 0.05f);
                 }
             }
