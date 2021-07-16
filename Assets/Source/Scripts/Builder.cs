@@ -5,11 +5,20 @@ using UnityEngine;
 public class Builder : ChunkEmployee
 {
     public int FaceCount { get; private set; }
-    public readonly List<int> BuildedVoxelIndices;
+    public List<int> BuildedVoxelIndices { get; private set; }
 
     public Builder(Chunk chunk) : base(chunk)
     {
         BuildedVoxelIndices = new List<int>();
+    }
+
+    public Builder(Chunk chunk, List<int> buildedVoxelIndices) : base(chunk)
+    {
+        BuildedVoxelIndices = buildedVoxelIndices;
+        for (int i = 0; i < BuildedVoxelIndices.Count; i++)
+        {
+            FaceCount += GetVoxelByBuildedIndex(i).FaceCount;
+        }
     }
 
     public bool TryCreateVoxel(int id, Vector3Int pos)
@@ -92,5 +101,16 @@ public class Builder : ChunkEmployee
     public Voxel GetVoxelByBuildedIndex(int buildedIndex)
     {
         return _chunk.Voxels[BuildedVoxelIndices[buildedIndex]];
+    }
+
+    public BuilderData GetData()
+    {
+        return new BuilderData(FaceCount, BuildedVoxelIndices);
+    }
+
+    public void SetData(BuilderData builderData)
+    {
+        FaceCount = builderData.FaceCount;
+        BuildedVoxelIndices = builderData.BuildedIndices;
     }
 }
