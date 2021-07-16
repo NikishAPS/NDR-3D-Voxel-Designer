@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Editor : ChunkEmployee
 {
+    public int VertexCount { get; private set; }
+
     public Editor(Chunk chunk) : base(chunk)
     {
     }
@@ -113,6 +115,15 @@ public class Editor : ChunkEmployee
         return false;
     }
 
+    public EditorData GetData()
+    {
+        return new EditorData(VertexCount);
+    }
+
+    public void SetData(EditorData editorData)
+    {
+        VertexCount = editorData.VertexCount;
+    }
 
 
     private bool TryCreateVertexByPos(Vector3 vertexPos)
@@ -122,6 +133,7 @@ public class Editor : ChunkEmployee
         if (index == -1 || _chunk.Vertices[index] != null) return false;
 
         _chunk.Vertices[index] = new Vertex(vertexPos);
+        VertexCount++;
 
         //creating VertexPoint
         AddVertexIndexToVertexPoint(index, vertexPos);
@@ -139,6 +151,7 @@ public class Editor : ChunkEmployee
 
             int index = _chunk.GetVertexIndexByPos(vertexPos);
             _chunk.Vertices[index] = new Vertex(vertexPos, vertexOffset);
+            VertexCount++;
 
             AddVertexIndexToVertexPoint(index, vertexPos + vertexOffset);
             return true;
@@ -154,6 +167,7 @@ public class Editor : ChunkEmployee
             int index = _chunk.GetVertexIndexByPos(vertexPos);
             RemoveVertexIndexFromVertexPoint(index, _chunk.Vertices[index].Position);
             _chunk.Vertices[index] = null;
+            VertexCount--;
 
             return true;
         }

@@ -7727,11 +7727,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79cf2c07c5e98eb43b4f77b021c52fa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _incrementOption: 0
   _selectedMeshFilter: {fileID: 2015439097}
   _verticesMeshFilter: {fileID: 852306105}
   FaceCount: 0
   SelectedFaceCount: 0
+  VertexCount: 0
 --- !u!4 &1529556138
 Transform:
   m_ObjectHideFlags: 0
@@ -9096,7 +9096,18 @@ MonoBehaviour:
   _selected: {r: 0.9058824, g: 0.9058824, b: 0.9058824, a: 1}
   ClickButton:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2079436745}
+        m_MethodName: Load
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _press: 0
 --- !u!114 &1782827170
 MonoBehaviour:
@@ -10697,12 +10708,15 @@ MonoBehaviour:
   _data:
     _savePath: 
     _chunkData:
-      _size: {x: 0, y: 0, z: 0}
-      _buildedIndices: 
-      _verticesIndices: 
-      _offsetsVertices: []
-      _faceCount: 0
-      _voxelData: []
+      IncrementOption: 0
+      Size: {x: 0, y: 0, z: 0}
+      VoxelsData: []
+      VerticesData: []
+      BuilderData:
+        FaceCount: 0
+        BuildedIndices: 
+      EditorData:
+        VertexCount: 0
   _name: 
   _fileExtension: nrd
   _saved: 0

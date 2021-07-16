@@ -4,28 +4,24 @@ using UnityEngine;
 [Serializable]
 public class VoxelData
 {
-    public VoxelData(int id, Vector3Int position, bool[] faces)
+    public int Id;
+    public Vector3Int Position;
+    public bool[] Faces;
+    public int FaceCount;
+
+    public VoxelData(int id, Vector3Int position, bool[] faces, int faceCount)
     {
-        _id = id;
-        _position = position;
-        _faces = faces;
+        Id = id;
+        Position = position;
+        Faces = faces;
+        FaceCount = faceCount;
     }
 
     public VoxelData(Voxel voxel)
     {
-        _id = voxel.Id;
-        _position = voxel.Position;
-        _faces = voxel.Faces;
+        Id = voxel.Id;
+        Position = voxel.Position;
+        Faces = voxel.Faces;
+        FaceCount = voxel.FaceCount;
     }
-
-    [SerializeField]
-    private int _id;
-    [SerializeField]
-    private Vector3Int _position;
-    [SerializeField]
-    private bool[] _faces;
-
-    public int Id => _id;
-    public Vector3Int Position => _position;
-    public bool[] Faces => _faces;
 }

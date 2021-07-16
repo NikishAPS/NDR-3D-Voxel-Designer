@@ -48,6 +48,11 @@ public class Chunk : MonoBehaviour
         _verticesMesh = new Mesh();
         _verticesMeshFilter.mesh = _verticesMesh;
 
+        InitChunkEmployees();
+    }
+
+    private void InitChunkEmployees()
+    {
         Builder = new Builder(this);
         Selector = new Selector(this);
         Editor = new Editor(this);
@@ -269,54 +274,65 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    public ChunkData GetData()
-    {
-        //data arrays
-        //VoxelData[] voxelData = new VoxelData[_buildedIndices.Count];
-        //Vector3[] offsetsVertices = new Vector3[_verticesIndices.Count];
-
-        ////initializing arrays
-        //for (int i = 0; i < _buildedIndices.Count; i++)
-        //{
-        //    voxelData[i] = new VoxelData(Voxels[_buildedIndices[i]]);
-        //}
-        //for (int i = 0; i < _verticesIndices.Count; i++)
-        //{
-        //    offsetsVertices[i] = (Vector3)_offsetsVertices[_verticesIndices[i]];
-        //}
-        //return new ChunkData(Size, _buildedIndices, _verticesIndices, offsetsVertices, _faceCount, voxelData);
-        return null;
-    }
-
-    public void SetData(ChunkData chunkData)
-    {
-        //Resize(chunkData.Size);
-
-        //_buildedIndices = chunkData.BuildedIndices;
-        //for (int i = 0; i < _buildedIndices.Count; i ++)
-        //{
-        //    int index = _buildedIndices[i];
-        //    Voxels[index] = new Voxel(chunkData.VoxelData[i].Id, chunkData.VoxelData[i].Position, chunkData.VoxelData[i].Faces);
-
-        //}
-
-        //_verticesIndices = chunkData.VerticesIndices;
-        //for (int i = 0; i < _verticesIndices.Count; i++)
-        //{
-        //    int index = _verticesIndices[i];
-        //    _offsetsVertices[index] = chunkData.OffsetsVertices[i];
-        //}
-
-        //_faceCount = chunkData.FaceCount;
-
-
-        UpdateMesh();
-    }
-
     public Vector3 RoundVertexPointPos(Vector3 pos)
     {
         return ((pos + Vector3.one * 0.5f) * _incrementOption).RoundToFloat() / _incrementOption - Vector3.one * 0.5f;
     }
+
+    public ChunkData GetData()
+    {
+        VoxelData[] voxelsData = new VoxelData[Builder.BuildedVoxelIndices.Count];
+        VertexData[] verticesData = new VertexData[Editor.VertexCount];
+        BuilderData builderData = Builder.GetData();
+        EditorData editorData = Editor.GetData();
+
+        for (int i = 0; i < voxelsData.Length; i++)
+            voxelsData[i] = new VoxelData(Builder.GetVoxelByBuildedIndex(i));
+
+        for (int i = 0, j = 0; i < Vertices.Length; i++)
+            if (Vertices[i] != null)
+            {
+                verticesData[j] = new VertexData(Vertices[i]);
+                j++;
+            }
+
+        return new ChunkData(_incrementOption, _size, voxelsData, verticesData, builderData, editorData);
+    }
+
+    public void SetData(ChunkData chunkData)
+    {
+        _incrementOption = chunkData.IncrementOption;
+        Resize(chunkData.Size);
+
+        InitChunkEmployees();
+
+        Builder.SetData(chunkData.BuilderData);
+        Editor.SetData(chunkData.EditorData);
+
+        for (int i = 0; i < Builder.BuildedVoxelIndices.Count; i++)
+            Voxels[Builder.BuildedVoxelIndices[i]] = new Voxel(
+                chunkData.VoxelsData[i].Id,
+                chunkData.VoxelsData[i].Position,
+                chunkData.VoxelsData[i].Faces
+                );
+
+        for (int i = 0; i < chunkData.VerticesData.Length; i++)
+        {
+            int vertexIndex = GetVertexIndexByPos(chunkData.VerticesData[i].Position);
+            Vertices[vertexIndex] = new Vertex(chunkData.VerticesData[i].PivotPosition,
+                chunkData.VerticesData[i].Position - chunkData.VerticesData[i].PivotPosition);
+
+            int vertexPointIndex = GetVertexPointIndexByPos(Vertices[vertexIndex].Position);
+            if (VertexPoints[vertexPointIndex] == null)
+            {
+                VertexPoints[vertexPointIndex] = new VertexPoint(Vertices[vertexIndex].Position);
+            }
+            VertexPoints[vertexPointIndex].AddVertexIndex(vertexIndex);
+        }
+
+        UpdateMesh();
+    }
+
 
 
 
@@ -448,11 +464,12 @@ public class Chunk : MonoBehaviour
     }
 
 
-    public int FaceCount, SelectedFaceCount;
+    public int FaceCount, SelectedFaceCount, VertexCount;
     public void Update()
     {
         FaceCount = Builder.FaceCount;
         SelectedFaceCount = Selector.FaceCount;
+        VertexCount = Editor.VertexCount;
     }
 
     public void OnDrawGizmos()

@@ -23,12 +23,12 @@ public class Voxel
         Faces = new bool[6];
     }
 
-    public Voxel(int id, Vector3Int position, bool[] availabilityVertices)
+    public Voxel(int id, Vector3Int position, bool[] faces)
     {
         Id = id;
         Position = position;
-        Faces = new bool[6];
-        for (int i = 0; i < availabilityVertices.Length; i++) this.Faces[i] = availabilityVertices[i];
+        Faces = faces;
+        for (int i = 0; i < Faces.Length; i++) if (Faces[i]) FaceCount++;
     }
 
     public Voxel(Voxel voxel)
@@ -36,8 +36,8 @@ public class Voxel
         Id = voxel.Id;
         Position = voxel.Position;
         FaceCount = voxel.FaceCount;
-        Faces = new bool[6];
-        for (int i = 0; i < Faces.Length; i++) Faces[i] = voxel.Faces[i];
+        Faces = voxel.Faces;
+        FaceCount = voxel.FaceCount;
     }
 
     public void SetLeftFace(bool active)
