@@ -131,7 +131,7 @@ public class Project : MonoBehaviour
 
     public void Load()
     {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", Application.dataPath, _fileExtension, false);
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _data.GetSavePath(), _fileExtension, false);
 
         if(paths.Length > 0)
         {
