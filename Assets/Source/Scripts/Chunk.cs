@@ -108,6 +108,26 @@ public class Chunk : MonoBehaviour
         if (point.z > _size.z + 0.5f) point.z = _size.z + 0.5f; else if (point.z < -0.5f) point.z = -0.5f;
     }
 
+    public int changes;
+    public Text text;
+    public void Change()
+    {
+        changes++;
+        text.text = "Not Saved";
+        text.color = Color.red;
+        if (changes >= 5)
+        {
+            
+        }
+    }
+
+    public void ResetChanges()
+    {
+        changes = 0;
+        text.text = "Saved";
+        text.color = Color.green;
+    }
+
     public void Resize()
     {
         int size = _size.x * _size.y * _size.z;
@@ -215,6 +235,7 @@ public class Chunk : MonoBehaviour
         if (Editor.TryOffsetVertex(startPos, ref offset))
         {
             SceneData.DragSystem.OffsetPosition(offset);
+            Change();
 
             UpdateMesh();
             UpdateSelectedMesh();
@@ -227,6 +248,7 @@ public class Chunk : MonoBehaviour
         {
             Editor.CreateVertices(pos);
 
+            Change();
             UpdateMesh();
         }
     }
@@ -240,6 +262,7 @@ public class Chunk : MonoBehaviour
 
             Builder.DeleteVoxel(voxelIndex);
             Editor.DeleteVerticesByPos(voxelPos);
+            Change();
         }
         Selector.Reset();
         Builder.UpdateAllVoxels();
@@ -269,6 +292,7 @@ public class Chunk : MonoBehaviour
         {
             UpdateMesh();
             UpdateSelectedMesh();
+            Change();
 
             SceneData.DragSystem.OffsetPosition(offsetInt);
         }
@@ -318,7 +342,7 @@ public class Chunk : MonoBehaviour
 
         for (int i = 0; i < chunkData.VerticesData.Length; i++)
         {
-            int vertexIndex = GetVertexIndexByPos(chunkData.VerticesData[i].Position);
+            int vertexIndex = GetVertexIndexByPos(chunkData.VerticesData[i].PivotPosition);
             Vertices[vertexIndex] = new Vertex(chunkData.VerticesData[i].PivotPosition,
                 chunkData.VerticesData[i].Position - chunkData.VerticesData[i].PivotPosition);
 
@@ -464,9 +488,10 @@ public class Chunk : MonoBehaviour
     }
 
 
-    public int FaceCount, SelectedFaceCount, VertexCount;
+    public int inc, FaceCount, SelectedFaceCount, VertexCount;
     public void Update()
     {
+        inc = IncrementOption;
         FaceCount = Builder.FaceCount;
         SelectedFaceCount = Selector.FaceCount;
         VertexCount = Editor.VertexCount;

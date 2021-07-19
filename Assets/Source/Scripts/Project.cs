@@ -126,6 +126,8 @@ public class Project : MonoBehaviour
         {
             if (exit)
                 ApplicationQuit();
+
+            SceneData.Chunk.ResetChanges();
         }
     }
 
