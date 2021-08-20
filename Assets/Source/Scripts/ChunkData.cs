@@ -1,31 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
 public class ChunkData
 {
-    public int IncrementOption;
+    public Vector3Int Position;
     public Vector3Int Size;
+    public int FaceCount;
     public VoxelData[] VoxelsData;
-    public VertexData[] VerticesData;
-    public BuilderData BuilderData;
-    public EditorData EditorData;
+
 
     public ChunkData(
-        int incrementOption,
+        Vector3Int position,
         Vector3Int size,
-        VoxelData[] voxelsData,
-        VertexData[] verticesData,
-        BuilderData builderData,
-        EditorData editorData
+        int faceCount,
+        VoxelData[] voxelsData
         )
     {
-        IncrementOption = incrementOption;
+        Position = position;
         Size = size;
+        FaceCount = faceCount;
         VoxelsData = voxelsData;
-        VerticesData = verticesData;
-        BuilderData = builderData;
-        EditorData = editorData;
     }
 }

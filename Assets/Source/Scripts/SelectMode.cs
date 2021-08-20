@@ -4,75 +4,108 @@ using UnityEngine;
 
 public class SelectMode : Mode
 {
+    private CastResult _castResult;
     public override void Tick()
     {
-        SceneData.Extractor.SetActive(false);
-        if (!SceneData.ControlGUI.IsPanel)
-        {
-            if (SceneData.EventInput.Delete) SceneData.Chunk.DeleteSelectedVoxels();
+        //SceneData.Extractor.SetActive(false);
+        //if (!SceneData.ControlGUI.IsPanel)
+        //{
+        //    //if (SceneData.EventInput.GetDelete) SceneData.Chunk.DeleteSelectedVoxels();
 
-            if (!IsDrag()) RayCastInvoke();
-        }
+        //    if (!IsDrag()) RayCastInvoke();
+        //}
     }
 
     public override void Disable()
     {
-        SceneData.Chunk.SetSelectedMeshActive(false);
+        //SceneData.Chunk.SetSelectedMeshActive(false);
         SceneData.DragSystem.SetActive(false);
-        SceneData.DragSystem.drag -= SceneData.Chunk.MoveSelectedVoxels;
+        //SceneData.DragSystem.drag -= SceneData.Chunk.MoveSelectedVoxels;
         SceneData.Extractor.SetActive(false);
+        ChunksManager.SetSelectedMeshActive(false);
+
+        SceneData.DragSystem.drag -= ChunksManager.MoveSelectedVoxels;
+        SceneData.EventInput.Delete -= Delete;
+        InputEvent.MouseMove -= MouseMove;
+        InputEvent.LMouseDown -= LMouseDown;
     }
 
     public override void Enable()
     {
-        SceneData.Chunk.SetSelectedMeshActive(true);
-        SceneData.DragSystem.drag += SceneData.Chunk.MoveSelectedVoxels;
-    }
+        //SceneData.Chunk.SetSelectedMeshActive(true);
+        // SceneData.DragSystem.drag += SceneData.Chunk.MoveSelectedVoxels;
 
-    private bool IsDrag()
-    {
-        if (SceneData.Chunk.Selector.SelectedVoxelIndices.Count == 0)
+        ChunksManager.SetSelectedMeshActive(true);
+
+        SceneData.DragSystem.drag += ChunksManager.MoveSelectedVoxels;
+        SceneData.EventInput.Delete += Delete;
+        InputEvent.MouseMove += MouseMove;
+        InputEvent.LMouseDown += LMouseDown;
+
+        if(ChunksManager.SelectedVoxelCount > 0)
         {
-            SceneData.DragSystem.SetActive(false);
-            return false;
-        }
-        else
-        {
+            SceneData.DragSystem.SetPosition(ChunksManager.MiddleSelectedPos);
             SceneData.DragSystem.SetActive(true);
-            //SceneData.dragSystem.SetPosition(SceneData.chunk.MiddleSelectedPosition);
-
-            if (!SceneData.DragSystem.CheckCapture())
-            {
-                return false;
-            }
-
-            //if (SceneData.dragSystem.GetDragValue() != Vector3Int.zero)
-            //    SceneData.chunk.MoveVoxels(SceneData.dragSystem.GetDragValue());
-            //SceneData.chunk.MoveVoxel();
-
-
         }
-
-        return true;
     }
 
-    private void RayCastInvoke()
+    public void MouseMove()
     {
-        CastResult castResult = VoxelRayCast.CastByMouse(SceneData.RayLength);
-        if (castResult != null)
-        {
-            if (castResult.voxel != null)
-            {
-                SceneData.Extractor.SetActive(true);
-                SceneData.Extractor.SetPosition(castResult.point);
-            }
+        _castResult = null;
+        SceneData.Extractor.SetActive(false);
 
-            if (SceneData.EventInput.GetMouseDown0)
+        if (!SceneData.DragSystem.CheckCapture())
+        {
+            if (!SceneData.ControlGUI.IsPanel)
             {
-                if (!SceneData.EventInput.LShift) SceneData.Chunk.ResetSelection();
-                SceneData.Chunk.SelectVoxel(castResult.point);
-                SceneData.DragSystem.SetPosition(SceneData.Chunk.Selector.MiddleSelectedPos);
+                _castResult = Raycast.CastByMouse(SceneData.RayLength);
+                if (_castResult != null)
+                {
+                    if (ChunksManager.InField(_castResult.point))
+                    {
+                        SceneData.Extractor.SetPosition(_castResult.point);
+                        SceneData.Extractor.SetActive(true);
+                        VoxelatorManager.Coordinates.Value = _castResult.point;
+                    }
+                    else
+                    {
+                        _castResult = null;
+                    }
+                }
             }
         }
+    }
+
+    public void LMouseDown()
+    {
+        if (!SceneData.ControlGUI.IsPanel)
+        {
+            if (_castResult != null)
+            {
+                if (InputEvent.LShift)
+                {
+                    ChunksManager.SelectVoxel(_castResult.point);
+                }
+                else
+                {
+                    ChunksManager.ResetVoxelSelection();
+                    ChunksManager.SelectVoxel(_castResult.point);
+                }
+
+                SceneData.DragSystem.SetPosition(ChunksManager.MiddleSelectedPos);
+                SceneData.DragSystem.SetActive(true);
+            }
+            else if (!SceneData.DragSystem.CheckCapture())
+            {
+                ChunksManager.ResetVoxelSelection();
+                SceneData.DragSystem.SetActive(false);
+            }
+        }
+    }
+
+    public void Delete()
+    {
+        SceneData.DragSystem.SetActive(false);
+        ChunksManager.DeleteSelectedVoxels();
     }
 }

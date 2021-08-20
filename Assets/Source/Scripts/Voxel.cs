@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class Voxel
 {
-    public readonly int Id;
-    public readonly Vector3Int Position;
-    public readonly bool[] Faces = new bool[0];
+    public readonly int Id = 0;
+    public readonly Vector3Int Position = Vector3Int.zero;
+    public readonly bool[] Faces = new bool[6];
     public int FaceCount { get; private set; }
 
     public Voxel()
     {
-        Id = 0;
-        Position = new Vector3Int(0, 0, 0);
-        Faces = new bool[0];
+        FaceCount = 0;
     }
 
     public Voxel(int id, Vector3Int position)
@@ -36,8 +34,24 @@ public class Voxel
         Id = voxel.Id;
         Position = voxel.Position;
         FaceCount = voxel.FaceCount;
-        Faces = voxel.Faces;
-        FaceCount = voxel.FaceCount;
+        for (int i = 0; i < Faces.Length; i++)
+        {
+            Faces[i] = voxel.Faces[i];
+        }
+    }
+
+    public Voxel(VoxelData voxelData)
+    {
+        Id = voxelData.Id;
+        Position = voxelData.Position;
+        Faces = voxelData.Faces;
+        FaceCount = FaceCount;
+    }
+
+    public void SetFace(int faceIndex, bool active)
+    {
+        if (Faces[faceIndex] != active) CheckFace(active);
+        Faces[faceIndex] = active;
     }
 
     public void SetLeftFace(bool active)
@@ -86,8 +100,15 @@ public class Voxel
         Faces[faceIndex] = active;
     }
 
+    public VoxelData GetData()
+    {
+        return new VoxelData(Id, Position, Faces, FaceCount);
+    }
+
+
     private void CheckFace(bool active)
     {
         FaceCount += active ? 1 : -1;
     }
+
 }

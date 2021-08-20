@@ -12,4 +12,11 @@ namespace CustomUnityEvents
 
     [Serializable]
     public class EventString : UnityEvent<string> { }
+
+    [Serializable]
+    public class EventObject : UnityEvent<object> { }
+
+    [Serializable]
+    public class EventCommand : UnityEvent<Command> { }
+
 }

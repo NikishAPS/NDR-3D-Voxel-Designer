@@ -16,12 +16,4 @@ public class VoxelData
         Faces = faces;
         FaceCount = faceCount;
     }
-
-    public VoxelData(Voxel voxel)
-    {
-        Id = voxel.Id;
-        Position = voxel.Position;
-        Faces = voxel.Faces;
-        FaceCount = voxel.FaceCount;
-    }
 }

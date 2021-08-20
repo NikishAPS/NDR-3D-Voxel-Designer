@@ -22,7 +22,7 @@ public class CameraControl : MonoBehaviour
 
     void Start()
     {
-        _target = SceneData.Chunk.Center;
+        //_target = SceneData.Chunk.Center;
         _target.y = 0;
 
         offset.z = -15;
@@ -106,7 +106,7 @@ public class CameraControl : MonoBehaviour
             //else if(voxelsControl.selectedImported == null)
             {
 
-                target = SceneData.Chunk.Size;
+                //target = SceneData.Chunk.Size;
 
                 mul = 0;
                 if (target.x > mul) mul = target.x;

@@ -9,6 +9,7 @@ public class EventInput : MonoBehaviour
     public Vector3 MousePos => Input.mousePosition; //{ get { return Input.mousePosition; } private set }
 
     public EventTemplate MouseMove, MouseDown0, Mouse0, MouseUp0, NotMouse0;
+    public EventTemplate Delete;
 
     public EventTemplate alpha1;
     public EventTemplate alpha2;
@@ -21,7 +22,7 @@ public class EventInput : MonoBehaviour
     public bool GetMouseDown2 => Input.GetMouseButtonDown(2);
     public bool LShift => Input.GetKey(KeyCode.LeftShift);
     public bool LShiftDown => Input.GetKeyDown(KeyCode.LeftShift);
-    public bool Delete => Input.GetKeyDown(KeyCode.Delete); 
+    public bool GetDelete => Input.GetKeyDown(KeyCode.Delete); 
 
     public EventTemplate tab;
 
@@ -38,6 +39,7 @@ public class EventInput : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1)) alpha1?.Invoke();
         if (Input.GetKeyDown(KeyCode.Alpha2)) alpha2?.Invoke();
         if (Input.GetKeyDown(KeyCode.Alpha3)) alpha3?.Invoke();
+        if (Input.GetKeyDown(KeyCode.Delete)) Delete.Invoke();
 
 
 

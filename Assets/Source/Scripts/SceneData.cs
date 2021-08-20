@@ -8,8 +8,6 @@ public static class SceneData
     {
         Camera = Camera.main;
         MainCamera = Camera.main.transform;
-        Chunk = Object.FindObjectOfType<Chunk>();
-        Grid = Object.FindObjectOfType<Grid>();
         ModeControl = Object.FindObjectOfType<ModeControl>();
         Extractor = Object.FindObjectOfType<Extractor>();
         ControlGUI = Object.FindObjectOfType<ControlGUI>();
@@ -56,7 +54,6 @@ public static class SceneData
             new Vector3(-0.5f, 0.5f, 0.5f),
             new Vector3(-0.5f, -0.5f, 0.5f)
     };
-
         sphereVertices = new Vector3[]
         {
 
@@ -64,7 +61,7 @@ public static class SceneData
     }
     
     //parameters
-    public static readonly float RayLength = 500;
+    public static readonly float RayLength = 500 / 5;
     public static readonly float RayStep = 0.1f;
     public static readonly int TextureSize = 5;
     public static readonly float TextureMul = 1.0f / TextureSize;
@@ -72,8 +69,6 @@ public static class SceneData
 
     public static readonly Camera Camera;
     public static readonly Transform MainCamera;
-    public static readonly Chunk Chunk;
-    public static readonly Grid Grid;
     public static readonly ModeControl ModeControl;
     public static readonly Extractor Extractor;
     public static readonly ControlGUI ControlGUI;

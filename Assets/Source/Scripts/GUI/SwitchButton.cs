@@ -8,6 +8,10 @@ public class SwitchButton : MonoBehaviour
     [SerializeField]
     private int _value;
 
+    [SerializeField]
+    private Color _default, _hover, _selected;
+
+    [SerializeField]
     private RectTransform _rectTransform;
     private Image _image;
 
@@ -23,14 +27,29 @@ public class SwitchButton : MonoBehaviour
         return ControlGUI.InRect(_rectTransform);
     }
 
+    public RectTransform GetRect()
+    {
+        return _rectTransform;
+    }
+
     public int GetValue()
     {
         return _value;
     }
 
-    public void SetColor(Color color)
+    public void SetDefaultColor()
     {
-        _image.color = color;
+        _image.color = _default;
+    }
+
+    public void SetSelectedColor()
+    {
+        _image.color = _selected;
+    }
+
+    public void SetHoverColor()
+    {
+        _image.color = _hover;
     }
 
 }

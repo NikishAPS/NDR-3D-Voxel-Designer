@@ -1,417 +1,178 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
-using UnityEngine;
-using System.Linq;
+﻿using UnityEngine;
+using System.Collections;
 
-public class Chunk : MonoBehaviour
+public class Chunk
 {
-    private Voxel _voxel;
+    public readonly Vector3Int Position;
+    public readonly Vector3Int Size;
+    public readonly Vector3Int GlobalPosition;
 
-    private Vector3Int _size;
-    private Vector3Int _vertexArraySize;
-    private Vector3Int _vertexPointAraySize;
+    public readonly Voxel[] Voxels;
+    public readonly Voxel[] SelectedVoxels;
 
-    public Voxel[] Voxels { get; private set; }
-    public Voxel[] SelectedVoxels { get; private set; }
-    public Vertex[] Vertices { get; private set; }
-    public VertexPoint[] VertexPoints { get; private set; }
+    public int FaceCount { get; private set; }
+    public int SelectedFaceCount { get; private set; }
 
-    public Builder Builder { get; private set; }
-    public Selector Selector { get; private set; }
-    public Editor Editor { get; private set; }
+    private int _voxelCount;
 
-    private int _incrementOption;
-
+    private GameObject _chunk;
+    private GameObject _selectedChunk;
     private Mesh _mesh;
     private Mesh _selectedMesh;
-    private Mesh _verticesMesh;
 
-    [SerializeField] public MeshFilter _selectedMeshFilter;
-    [SerializeField] private MeshFilter _verticesMeshFilter;
-
-
-    public Vector3 Center => _size.ToVector3() * 0.5f;
-
-    public Vector3Int Size => _size;
-
-    public int IncrementOption => _incrementOption;
-
-    private void Awake()
+    public Chunk(Vector3Int position, Vector3Int size)
     {
-        _mesh = new Mesh();
-        GetComponent<MeshFilter>().mesh = _mesh;
+        Position = position;
+        Size = size;
+        GlobalPosition = Position * ChunksManager.ChunkSize;
 
-        _selectedMesh = new Mesh();
-        _selectedMeshFilter.mesh = _selectedMesh;
+        Voxels = new Voxel[Size.x * Size.y * Size.z];
+        SelectedVoxels = new Voxel[Voxels.Length];
 
-        _verticesMesh = new Mesh();
-        _verticesMeshFilter.mesh = _verticesMesh;
-
-        InitChunkEmployees();
+        CreateMeshes();
     }
 
-    private void InitChunkEmployees()
+    public Chunk(ChunkData chunkData)
     {
-        Builder = new Builder(this);
-        Selector = new Selector(this);
-        Editor = new Editor(this);
-    }
+        Position = chunkData.Position;
+        Size = chunkData.Size;
+        GlobalPosition = Position * ChunksManager.ChunkSize;
+        FaceCount = chunkData.FaceCount;
 
-    public void SetSelectedMeshActive(bool active)
-    {
-        _selectedMeshFilter.gameObject.SetActive(active);
-    }
+        Voxels = new Voxel[Size.x * Size.y * Size.z];
+        SelectedVoxels = new Voxel[Voxels.Length];
 
-    public void SetSizeX(int value)
-    {
-        _size.x = value;
-    }
+        CreateMeshes();
 
-    public void SetSizeY(int value)
-    {
-        _size.y = value;
-    }
-
-    public void SetSizeZ(int value)
-    {
-        _size.z = value;
-    }
-
-    public void SetIncrementOption(int incrementOption)
-    {
-        _incrementOption = incrementOption;
-    }
-
-    public bool InChunk(Vector3 point)
-    {
-        return point.x >= 0 && point.x < _size.x &&
-            point.y >= 0 && point.y < _size.y &&
-            point.z >= 0 && point.z < _size.z;
-    }
-
-    public bool InBox(Vector3 size, Vector3Int point)
-    {
-        return point.x >= 0 && point.x < size.x &&
-            point.y >= 0 && point.y < size.y &&
-            point.z >= 0 && point.z < size.z;
-    }
-
-    public bool SetInsideChunk(Vector3 point)
-    {
-        return point.x >= -0.5f && point.x <= _size.x - 0.5f &&
-            point.y >= -0.5f && point.y <= _size.y - 0.5f &&
-            point.z >= -0.5f && point.z <= _size.z - 0.5f;
-
-        if (point.x > _size.x + 0.5f) point.x = _size.x + 0.5f; else if (point.x < -0.5f) point.x = -0.5f;
-        if (point.y > _size.y + 0.5f) point.y = _size.y + 0.5f; else if (point.y < -0.5f) point.y = -0.5f;
-        if (point.z > _size.z + 0.5f) point.z = _size.z + 0.5f; else if (point.z < -0.5f) point.z = -0.5f;
-    }
-
-    public int changes;
-    public Text text;
-    public void Change()
-    {
-        changes++;
-        text.text = "Not Saved";
-        text.color = Color.red;
-        if (changes >= 5)
+        for(int i = 0; i < Voxels.Length; i++)
         {
-            
+            if (chunkData.VoxelsData[i].Id > 0)
+                Voxels[i] = new Voxel(chunkData.VoxelsData[i]);
+            else
+                Voxels[i] = null;
         }
     }
 
-    public void ResetChanges()
+    ~Chunk()
     {
-        changes = 0;
-        text.text = "Saved";
-        text.color = Color.green;
+        //MonoBehaviour.print("Xyu");
+        //Object.Destroy(_chunk);
     }
 
-    public void Resize()
+    public void Release()
     {
-        int size = _size.x * _size.y * _size.z;
-
-        _vertexArraySize = _size + Vector3Int.one;
-        _vertexPointAraySize = _vertexArraySize * _incrementOption;
-
-        Voxels = new Voxel[size];
-        SelectedVoxels = new Voxel[size];
-
-        Vertices = new Vertex[_vertexArraySize.x * _vertexArraySize.y * _vertexArraySize.z];
-        VertexPoints = new VertexPoint[_vertexPointAraySize.x * _vertexPointAraySize.y * _vertexPointAraySize.z];
-
-        SceneData.Grid.Resize(_size);
+        Object.Destroy(_chunk);
     }
 
-    public void Resize(Vector3Int size)
+    public Voxel GetVoxel(Vector3Int globalVoxelPos)
     {
-        _size = size;
-        Resize();
+        return GetVoxelByGlobalPos(Voxels, globalVoxelPos);
     }
 
-    public int GetIndex(Vector3Int size, Vector3Int pos)
+    public Voxel GetSelectedVoxel(Vector3Int globalVoxelPos)
     {
-        return (pos.x * size.y + pos.y) * size.z + pos.z;
+        return GetVoxelByGlobalPos(SelectedVoxels, globalVoxelPos);
     }
 
-    public Voxel GetVoxel(int index)
+    public bool TryToCreateVoxel(int id, Vector3Int globalVoxelPos)
     {
-        return (index < 0 || index >= Voxels.Length) ? null : Voxels[index];
+        int index = VoxelatorManager.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
+
+        if (index < 0 || Voxels[index] != null) return false;
+
+        Voxels[index] = new Voxel(id, globalVoxelPos);
+
+        UpdateVoxel(Voxels[index]);
+        UpdateVoxelsAround(Voxels, globalVoxelPos);
+
+        _voxelCount++;
+
+        return true;
     }
 
-    public int GetIndexByPos(Vector3Int pos)
+    public bool TryToDeleteVoxel(Vector3Int globalVoxelPos)
     {
-        if (!InChunk(pos)) return -1;
-        return GetIndex(_size, pos);
-        return (pos.x * _size.y + pos.y) * _size.z + pos.z;
+        int index = GetVoxelIndexByGlobalPos(globalVoxelPos);
+
+        FaceCount -= Voxels[index].FaceCount;
+        SelectedFaceCount -= SelectedVoxels[index].FaceCount;
+
+        Voxels[index] = null;
+        SelectedVoxels[index] = null;
+
+        UpdateVoxelsAround(Voxels, globalVoxelPos);
+
+        _voxelCount--;
+
+        return true;
     }
 
-    public Vector3Int GetPosByIndex(int index)
+    public bool TryToSelectVoxel(Vector3Int globalVoxelPos)
     {
-        int z = index % _size.z;
-        int y = (index - z) / _size.z % _size.y;
-        int x = ((index - z) / _size.z - y) / _size.y;
-        return new Vector3Int(x, y, z);
+        int index = GetVoxelIndexByGlobalPos(globalVoxelPos);
+        if (index < 0 || Voxels[index] == null || SelectedVoxels[index] != null) return false;
+
+        SelectedVoxels[index] = new Voxel(Voxels[index]);
+        SelectedFaceCount += SelectedVoxels[index].FaceCount;
+
+        return true;
     }
 
-    public Voxel GetVoxelByPos(Vector3Int pos)
+    public void ResetVoxelSelection(Vector3Int globaVoxelPos)
     {
-        return GetVoxel(GetIndexByPos(pos));
+        int index = GetVoxelIndexByGlobalPos(globaVoxelPos);
+
+        if (index < 0 || SelectedVoxels[index] == null) return; 
+
+        SelectedFaceCount -= SelectedVoxels[index].FaceCount;
+        SelectedVoxels[index] = null;
     }
 
-    public Voxel GetSelectedVoxel(int index)
+    public void SetActiveSelectedMesh(bool active)
     {
-        return (index < 0 || index >= SelectedVoxels.Length) ? null : SelectedVoxels[index];
-    }
-
-    public Voxel GetSelectedVoxelByPos(Vector3Int pos)
-    {
-        return GetSelectedVoxel(GetIndexByPos(pos));
-    }
-
-    public Vertex GetVertex(int index)
-    {
-        return (index < 0 || index >= Vertices.Length) ? null : Vertices[index];
-    }
-
-    public int GetVertexIndexByPos(Vector3 pos)
-    {
-        Vector3Int posInt = (pos + Vector3.one * 0.5f).ToVector3Int();
-
-        if (!InBox(_vertexArraySize, posInt)) return -1;
-        return GetIndex(_vertexArraySize, posInt);
-    }
-
-    public Vertex GetVertexByPos(Vector3 pos)
-    {
-        return GetVertex(GetVertexIndexByPos(pos));
-    }
-
-    public VertexPoint GetVertexPoint(int index)
-    {
-        return index < 0 || index >= VertexPoints.Length ? null : VertexPoints[index];
-    }
-
-    public int GetVertexPointIndexByPos(Vector3 vertexPointPos)
-    {
-        Vector3Int posInt = ((vertexPointPos + Vector3.one * 0.5f) * _incrementOption).ToVector3Int();
-
-        if (!InBox(_vertexPointAraySize, posInt)) return -1;
-        return GetIndex(_vertexPointAraySize, posInt);
-    }
-
-    public VertexPoint GetVertexPointByPos(Vector3 pos)
-    {
-        return GetVertexPoint(GetVertexPointIndexByPos(pos));
-    }
-
-    public void OffsetVertex(Vector3 startPos, Vector3 offset)
-    {
-        offset = RoundVertexPointPos(offset);
-
-        //if (!InChunk(startPos + offset)) return;
-
-        if (Editor.TryOffsetVertex(startPos, ref offset))
-        {
-            SceneData.DragSystem.OffsetPosition(offset);
-            Change();
-
-            UpdateMesh();
-            UpdateSelectedMesh();
-        }
-    }
-
-    public void CreateVoxel(int id, Vector3Int pos)
-    {
-        if (Builder.TryCreateVoxel(id, pos))
-        {
-            Editor.CreateVertices(pos);
-
-            Change();
-            UpdateMesh();
-        }
-    }
-
-    public void DeleteSelectedVoxels()
-    {
-        for (int i = 0; i < Selector.SelectedVoxelIndices.Count; i++)
-        {
-            int voxelIndex = Selector.SelectedVoxelIndices[i];
-            Vector3Int voxelPos = Voxels[Selector.SelectedVoxelIndices[i]].Position;
-
-            Builder.DeleteVoxel(voxelIndex);
-            Editor.DeleteVerticesByPos(voxelPos);
-            Change();
-        }
-        Selector.Reset();
-        Builder.UpdateAllVoxels();
-
-        UpdateMesh();
-        UpdateSelectedMesh();
-    }
-
-    public void SelectVoxel(Vector3Int pos)
-    {
-        Selector.SelectVoxel(pos);
-
-        UpdateSelectedMesh();
-    }
-
-    public void ResetSelection()
-    {
-        Selector.Reset();
-
-        UpdateSelectedMesh();
-    }
-
-    public void MoveSelectedVoxels(Vector3 startPos, Vector3 offset)
-    {
-        Vector3Int offsetInt = offset.ToVector3Int();
-        if (Selector.TryMoveVoxels(startPos, offsetInt))
-        {
-            UpdateMesh();
-            UpdateSelectedMesh();
-            Change();
-
-            SceneData.DragSystem.OffsetPosition(offsetInt);
-        }
-    }
-
-    public Vector3 RoundVertexPointPos(Vector3 pos)
-    {
-        return ((pos + Vector3.one * 0.5f) * _incrementOption).RoundToFloat() / _incrementOption - Vector3.one * 0.5f;
-    }
-
-    public ChunkData GetData()
-    {
-        VoxelData[] voxelsData = new VoxelData[Builder.BuildedVoxelIndices.Count];
-        VertexData[] verticesData = new VertexData[Editor.VertexCount];
-        BuilderData builderData = Builder.GetData();
-        EditorData editorData = Editor.GetData();
-
-        for (int i = 0; i < voxelsData.Length; i++)
-            voxelsData[i] = new VoxelData(Builder.GetVoxelByBuildedIndex(i));
-
-        for (int i = 0, j = 0; i < Vertices.Length; i++)
-            if (Vertices[i] != null)
-            {
-                verticesData[j] = new VertexData(Vertices[i]);
-                j++;
-            }
-
-        return new ChunkData(_incrementOption, _size, voxelsData, verticesData, builderData, editorData);
-    }
-
-    public void SetData(ChunkData chunkData)
-    {
-        _incrementOption = chunkData.IncrementOption;
-        Resize(chunkData.Size);
-
-        InitChunkEmployees();
-
-        Builder.SetData(chunkData.BuilderData);
-        Editor.SetData(chunkData.EditorData);
-
-        for (int i = 0; i < Builder.BuildedVoxelIndices.Count; i++)
-            Voxels[Builder.BuildedVoxelIndices[i]] = new Voxel(
-                chunkData.VoxelsData[i].Id,
-                chunkData.VoxelsData[i].Position,
-                chunkData.VoxelsData[i].Faces
-                );
-
-        for (int i = 0; i < chunkData.VerticesData.Length; i++)
-        {
-            int vertexIndex = GetVertexIndexByPos(chunkData.VerticesData[i].PivotPosition);
-            Vertices[vertexIndex] = new Vertex(chunkData.VerticesData[i].PivotPosition,
-                chunkData.VerticesData[i].Position - chunkData.VerticesData[i].PivotPosition);
-
-            int vertexPointIndex = GetVertexPointIndexByPos(Vertices[vertexIndex].Position);
-            if (VertexPoints[vertexPointIndex] == null)
-            {
-                VertexPoints[vertexPointIndex] = new VertexPoint(Vertices[vertexIndex].Position);
-            }
-            VertexPoints[vertexPointIndex].AddVertexIndex(vertexIndex);
-        }
-
-        UpdateMesh();
-    }
-
-
-
-
-    private void OffsetVertexByPos(ref Vector3 vertex)
-    {
-        int index = GetVertexIndexByPos(vertex);
-        vertex += Vertices[index].GetOffset();
-        //vertex += (Vector3)_offsetsVertices?[index];
+        _chunk.transform.GetChild(0).gameObject.SetActive(active);
     }
 
     public void UpdateMesh()
     {
         _mesh.Clear();
 
-        if (Builder.FaceCount == 0) return;
+        if (FaceCount == 0) return;
 
-        Vector3[] vertices = new Vector3[Builder.FaceCount * 4];
-        Vector2[] uv = new Vector2[Builder.FaceCount * 4];
-        int[] triangles = new int[Builder.FaceCount * 6];
+        Vector3[] vertices = new Vector3[FaceCount * 4];
+        Vector2[] uv = new Vector2[FaceCount * 4];
+        int[] triangles = new int[FaceCount * 6];
         int i4 = 0;
         int i6 = 0;
 
-        for (int i = 0; i < Builder.BuildedVoxelIndices.Count; i++)
+        foreach(Voxel voxel in Voxels)
         {
-            Voxel curVoxel = Builder.GetVoxelByBuildedIndex(i);
-            for (int j = 0; j < curVoxel.Faces.Length; j++)
+            if(voxel != null)
             {
-                if (curVoxel.Faces[j])
+                for(int i = 0; i < voxel.Faces.Length; i++)
                 {
-                    int _i = j * 4;
-                    Vector3 verPos = curVoxel.Position;
-
-                    for (int v = 0; v <= 3; v++)
+                    if (voxel.Faces[i])
                     {
-                        vertices[i4 + v] = SceneData.VoxelVertices[_i + v] + verPos;
-                        vertices[i4 + v] += Vertices[GetVertexIndexByPos(vertices[i4 + v])].GetOffset();
-                        //OffsetVertexByPos(ref vertices[i4 + v]);
+                        for (int j = 0; j < 4; j++)
+                        {
+                            vertices[i4 + j] = ChunksManager.GetVertex(VoxelMesh.VoxelVertices[i * 4 + j] + voxel.Position).Position - Position;
+                        }
+
+                        for(int j = 0; j < 6; j++)
+                        {
+                            triangles[i6 + j] = VoxelMesh.VoxelFaceTriangles[j] + i4;
+                        }
+
+                        float v1 = SceneData.TextureMul * (voxel.Id % SceneData.TextureSize);
+                        float v2 = 1 - SceneData.TextureMul * (voxel.Id / (SceneData.TextureSize + 1));
+                        uv[i4 + 0] = new Vector2(v1, v2 - SceneData.TextureMul);
+                        uv[i4 + 1] = new Vector2(v1, v2);
+                        uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul, v2);
+                        uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul, v2 - SceneData.TextureMul);
+
+                        i4 += 4;
+                        i6 += 6;
                     }
-
-                    float v1 = SceneData.TextureMul * (curVoxel.Id % SceneData.TextureSize);
-                    float v2 = 1 - SceneData.TextureMul * (curVoxel.Id / (SceneData.TextureSize + 1));
-                    uv[i4 + 0] = new Vector2(v1, v2 - SceneData.TextureMul);
-                    uv[i4 + 1] = new Vector2(v1, v2);
-                    uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul, v2);
-                    uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul, v2 - SceneData.TextureMul);
-
-                    triangles[i6 + 0] = i4 + 0;
-                    triangles[i6 + 1] = i4 + 1;
-                    triangles[i6 + 2] = i4 + 3;
-                    triangles[i6 + 3] = i4 + 1;
-                    triangles[i6 + 4] = i4 + 2;
-                    triangles[i6 + 5] = i4 + 3;
-
-                    i4 += 4;
-                    i6 += 6;
                 }
             }
         }
@@ -424,44 +185,41 @@ public class Chunk : MonoBehaviour
         _mesh.RecalculateNormals();
     }
 
-    private void UpdateSelectedMesh()
+    public void UpdateSelectedMesh()
     {
         _selectedMesh.Clear();
 
-        if (Selector.FaceCount == 0) return;
+        if (SelectedFaceCount == 0) return;
 
-        Vector3[] vertices = new Vector3[Selector.FaceCount * 4];
-        Vector2[] uv = new Vector2[Selector.FaceCount * 4];
-        int[] triangles = new int[Selector.FaceCount * 6];
-        int i4 = 0;
-        int i6 = 0;
+        Vector3[] vertices = new Vector3[SelectedFaceCount * 8];
+        int[] triangles = new int[SelectedFaceCount * 24];
+        int j = 0;
+        int k = 0;
 
-        for (int i = 0; i < Selector.SelectedVoxelIndices.Count; i++)
+        foreach (Voxel selectedVoxel in SelectedVoxels)
         {
-            Voxel curVoxel = Selector.GetVoxelBySelectedIndex(i);
-            for (int j = 0; j < curVoxel.Faces.Length; j++)
+            if(selectedVoxel != null)
             {
-                if (curVoxel.Faces[j])
+                for (int i = 0; i < selectedVoxel.Faces.Length; i++)
                 {
-                    int _i = j * 4;
-                    Vector3 verPos = curVoxel.Position;
-
-                    for (int v = 0; v <= 3; v++)
+                    if(selectedVoxel.Faces[i])
                     {
-                        vertices[i4 + v] = (SceneData.VoxelVertices[_i + v] + verPos);
-                        vertices[i4 + v] += Vertices[GetVertexIndexByPos(vertices[i4 + v])].GetOffset();
-                        //OffsetVertexByPos(ref vertices[i4 + v]);
+                        for(int l = 0; l < 4; l++)
+                        {
+                            Vector3 vertexOffset = ChunksManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + selectedVoxel.Position).GetOffset();
+
+                            vertices[j + l] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
+                            vertices[j + l + 4] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l + 4] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
+                        }
+
+                        for (int l = 0; l < 24; l++)
+                        {
+                            triangles[k + l] = VoxelMesh.SelectedVoxelFaceTriangles[l] + j;
+                        }
+
+                        j += 8;
+                        k += 24;
                     }
-
-                    triangles[i6 + 0] = i4 + 0;
-                    triangles[i6 + 1] = i4 + 1;
-                    triangles[i6 + 2] = i4 + 3;
-                    triangles[i6 + 3] = i4 + 1;
-                    triangles[i6 + 4] = i4 + 2;
-                    triangles[i6 + 5] = i4 + 3;
-
-                    i4 += 4;
-                    i6 += 6;
                 }
             }
         }
@@ -473,56 +231,150 @@ public class Chunk : MonoBehaviour
         _selectedMesh.RecalculateNormals();
     }
 
-    private void UpdateVerticesMesh()
+    public ChunkData GetData()
     {
-        _verticesMesh.Clear();
-
-        Vector3[] vertices = new Vector3[0];
-        int[] triangles = new int[0];
-
-        _verticesMesh.vertices = vertices;
-        _verticesMesh.triangles = triangles;
-
-        _verticesMesh.Optimize();
-        _verticesMesh.RecalculateNormals();
-    }
-
-
-    public int inc, FaceCount, SelectedFaceCount, VertexCount;
-    public void Update()
-    {
-        inc = IncrementOption;
-        FaceCount = Builder.FaceCount;
-        SelectedFaceCount = Selector.FaceCount;
-        VertexCount = Editor.VertexCount;
-    }
-
-    public void OnDrawGizmos()
-    {
-        return;
-        if (VertexPoints != null)
+        VoxelData[] voxelsData = new VoxelData[Voxels.Length];
+        for (int i = 0; i < Voxels.Length; i++)
         {
-            for(int i = 0; i < VertexPoints.Length; i++)
-            {
-                if (VertexPoints[i] != null)
-                {
-                    Gizmos.color = Color.black;
-                    Gizmos.DrawSphere(VertexPoints[i].Position, 0.05f);
-                }
-            }
+            if (Voxels[i] != null)
+                voxelsData[i] = Voxels[i].GetData();
+            else
+                voxelsData[i] = new Voxel(-1, Vector3Int.zero).GetData();
+        }
+        return new ChunkData(Position, Size, FaceCount, voxelsData);
+    }
+
+    private void CreateMeshes()
+    {
+        _chunk = new GameObject().Create("Chunk", null, Position, Quaternion.identity);
+        _selectedChunk = new GameObject().Create("Selected Chunk", _chunk.transform, Position, Quaternion.identity);
+
+        _mesh = new Mesh();
+        _chunk.AddComponent<MeshFilter>().mesh = _mesh;
+        _chunk.AddComponent<MeshRenderer>().material = ChunksManager.ChunkMaterial;
+        _selectedMesh = new Mesh();
+        _selectedChunk.AddComponent<MeshFilter>().mesh = _selectedMesh;
+        _selectedChunk.AddComponent<MeshRenderer>().material = ChunksManager.SelectedChunkMaterial;
+    }
+
+    private bool InArray(Vector3 arraySize, Vector3 point)
+    {
+        return
+            point.x >= 0 && point.x < arraySize.x &&
+            point.y >= 0 && point.y < arraySize.y &&
+            point.z >= 0 && point.z < arraySize.z;
+    }
+
+    //get position
+    private Vector3Int GetLocalVoxelPos(Vector3Int globalVoxelPos)
+    {
+        return globalVoxelPos - GlobalPosition;
+    }
+    private Vector3Int GetGlobalVoxelPos(Vector3Int localVoxelPos)
+    {
+        return localVoxelPos + GlobalPosition;
+    }
+
+    //get index
+    private int GetIndex(Vector3Int arraySize, Vector3Int pos)
+    {
+        return (InArray(arraySize, pos)) ? (pos.x * arraySize.y + pos.y) * arraySize.z + pos.z : -1;
+    }
+    private int GetVoxelIndexByLocalPos(Vector3Int localVoxelPos)
+    {
+        return GetIndex(Size, localVoxelPos);
+    }
+    private int GetVoxelIndexByGlobalPos(Vector3Int globalVoxelPos)
+    {
+        return GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
+    }
+
+    //get voxel
+    private Voxel GetVoxelByLocalPos(Voxel[] voxels, Vector3Int localVoxelPos)
+    {
+        int index = GetIndex(Size, localVoxelPos);
+        return (index < 0) ? null : voxels[index];
+    }
+    private Voxel GetVoxelByGlobalPos(Voxel[] voxels, Vector3Int globalVoxelPos)
+    {
+        return GetVoxelByLocalPos(voxels, GetLocalVoxelPos(globalVoxelPos));
+    }
+
+    //get vertex
+
+    //updates
+    private void UpdateVoxel(Voxel voxel)
+    {
+        if (voxel == null) return;
+
+        FaceCount -= voxel.FaceCount;
+
+        for(int i = 0; i < Direction.Directions.Length; i++)
+        {
+            if (ChunksManager.GetVoxel(voxel.Position + Direction.Directions[i]) == null) voxel.SetFace(i, true);
+            else voxel.SetFace(i, false);
         }
 
-        return;
-        if(Vertices != null)
-        {
-            for (int i = 0; i < Vertices.Length; i++)
-            {
-                if (Vertices[i] != null)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(Vertices[i].Position, 0.1f);
-                }
-            }
-        }
+        //if (ChunksManager.GetVoxel(voxel.Position + Vector3Int.left) == null) voxel.SetFace(Direction.Left, true);
+        //else voxel.SetFace(Direction.Left, false);
+
+        //if (ChunksManager.GetVoxel(voxel.Position + Vector3Int.right) == null) voxel.SetFace(Direction.Right, true);
+        //else voxel.SetFace(Direction.Right, false);
+
+        //if (ChunksManager.GetVoxel(voxel.Position + Vector3Int.down) == null) voxel.SetFace(Direction.Down, true);
+        //else voxel.SetFace(Direction.Down, false);
+
+        //if (ChunksManager.GetVoxel(voxel.Position + Vector3Int.up) == null) voxel.SetFace(Direction.Up, true);
+        //else voxel.SetFace(Direction.Up, false);
+
+        //if (ChunksManager.GetVoxel(voxel.Position + new Vector3Int().Back()) == null) voxel.SetFace(Direction.Back, true);
+        //else voxel.SetFace(Direction.Back, false);
+
+        //if (ChunksManager.GetVoxel(voxel.Position + new Vector3Int().Forward()) == null) voxel.SetFace(Direction.Forward, true);
+        //else voxel.SetFace(Direction.Forward, false);
+
+        FaceCount += voxel.FaceCount;
     }
+    private void UpdateVoxelsAround(Voxel[] voxels, Vector3Int globalVoxelPos)
+    {
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + Vector3Int.left));
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + Vector3Int.right));
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + Vector3Int.down));
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + Vector3Int.up));
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + new Vector3Int().Back()));
+        UpdateVoxel(GetVoxelByGlobalPos(voxels, globalVoxelPos + new Vector3Int().Forward()));
+    }
+    private void UpdateSelectedVoxel(Voxel selectedVoxel)
+    {
+        if (selectedVoxel == null) return;
+
+        Voxel voxel = GetVoxelByGlobalPos(Voxels, selectedVoxel.Position);
+
+        SelectedFaceCount -= selectedVoxel.FaceCount;
+        selectedVoxel = new Voxel(GetVoxelByGlobalPos(Voxels, selectedVoxel.Position));
+        SelectedFaceCount += selectedVoxel.FaceCount;
+    }
+
+    //create
+    //private void CreateVertex(Vector3 globalVertexPos)
+    //{
+    //    int index = GetVertexIndexByGlobalPos(globalVertexPos);
+
+    //    if (index < 0 || Vertices[index] != null) return;
+
+    //    Vertices[index] = new Vertex(globalVertexPos);
+    //}
+    //private void CreateVertices(Vector3Int globalVoxelPos)
+    //{
+    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, -0.5f, -0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, -0.5f, -0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, +0.5f, -0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, +0.5f, -0.5f));
+
+    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, -0.5f, +0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, -0.5f, +0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, +0.5f, +0.5f));
+    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, +0.5f, +0.5f));
+    //}
+
 }

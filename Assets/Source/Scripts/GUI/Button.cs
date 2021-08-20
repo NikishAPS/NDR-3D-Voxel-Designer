@@ -11,7 +11,6 @@ public class Button : Widget
 
     public UnityEvent ClickButton;
 
-    private RectTransform _rectTransform;
     private Image _image;
 
     [SerializeField]
@@ -19,7 +18,8 @@ public class Button : Widget
 
     public override void Init()
     {
-        _rectTransform = GetComponent<RectTransform>();
+        BaseInit();
+
         _image = GetComponent<Image>();
 
         _image.color = _default;
@@ -40,7 +40,8 @@ public class Button : Widget
             {
                 if (_press)
                 {
-                    ClickButton.Invoke();
+                    ClickButton?.Invoke();
+                    ExecuteCommands();
                 }
                 _press = false;
             }

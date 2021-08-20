@@ -13,23 +13,39 @@ namespace NDR.UI
         public EventInt InitIntFields;
         public EventFloat InitFloatFields;
         public EventString InitStringFields;
+        public EventObject InitField;
         public EventString ValueChanged;
         public EventString EndEdit;
+
+        public int Int
+        {
+            get => ParseInt();
+            set => _inputField.text =value.ToString();
+        }
+        public string String
+        {
+            get => ParseString();
+            set => _inputField.text = value;
+        }
+
+
 
         public void SetValue(string text)
         {
             _inputField.text = text;
         }
 
-        private void Awake()
+
+
+        public void OnInitField(object obj)
         {
-            _inputField = GetComponentInChildren<UnityEngine.UI.InputField>();
+            InitField?.Invoke(obj);
         }
 
         public void OnInitIntFields()
         {
             int value;
-            if (TryParseInt(out value))
+            if (TryToParseInt(out value))
             {
                 InitIntFields?.Invoke(value);
             }
@@ -38,7 +54,7 @@ namespace NDR.UI
         public void OnInitFloatFields()
         {
             float value;
-            if(TryParseFloat(out value))
+            if(TryToParseFloat(out value))
             {
                 InitFloatFields?.Invoke(value);
             }
@@ -59,18 +75,36 @@ namespace NDR.UI
             EndEdit?.Invoke(value);
         }
 
-        private bool TryParseInt(out int value)
+
+        private void Awake()
+        {
+            _inputField = GetComponentInChildren<UnityEngine.UI.InputField>();
+        }
+
+        private int ParseInt()
+        {
+            int value;
+            TryToParseInt(out value);
+
+            return value;
+        }
+
+        private string ParseString()
+        {
+            return _inputField.text;
+        }
+
+        private bool TryToParseInt(out int value)
         {
             value = 0;
             return int.TryParse(_inputField.text, out value);
         }
 
-        private bool TryParseFloat(out float value)
+        private bool TryToParseFloat(out float value)
         {
             value = 0;
             return float.TryParse(_inputField.text, out value);
         }
 
-       
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EditMode : Mode
 {
-    private Vector3? _vertexPos;
+    private Vertex _vertex;
 
     public override void Tick()
     {
@@ -14,20 +14,21 @@ public class EditMode : Mode
             {
                 if (!SceneData.ControlGUI.IsPanel)
                 {
-                    CastVertexResult castResult = VoxelRayCast.CastVertexByMouse(SceneData.RayLength);
+                    CastVertexResult castResult = Raycast.CastVertexByMouse(SceneData.RayLength);
 
                     if (castResult != null)
                     {
-                        if (castResult.VertexPoint != null)
+                        if (castResult.Vertex != null)
                         {
-                            SceneData.DragSystem.SetPosition(castResult.VertexPoint.Position);
+                            ChunksManager.SelectedVertex = castResult.Vertex;
+                            SceneData.DragSystem.SetPosition(castResult.Vertex.Position);
                             SceneData.DragSystem.SetActive(true);
 
                             //Vector3 verPos = castResult.point + Vector3.one * 0.5f;
-                           // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
+                            // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
                             //_vertexPos = verPos;
 
-                           // SceneData.DragSystem.SetPosition(verPos + offsetPos);
+                            // SceneData.DragSystem.SetPosition(verPos + offsetPos);
                             //SceneData.DragSystem.SetActive(true);
                         }
                     }
@@ -36,24 +37,61 @@ public class EditMode : Mode
         }
     }
 
-    public void DragVertex(Vector3 startPos, Vector3 offset)
-    {
-        if (_vertexPos != null && offset != Vector3.zero)
-        {
-            SceneData.Chunk.OffsetVertex((Vector3)_vertexPos, offset);
-            //SceneData.Chunk.UpdateMesh();
-            //SceneData.DragSystem.OffsetPosition(offset);
-        }
-    }
+  
 
     public override void Disable()
     {
         SceneData.DragSystem.SetActive(false);
-        SceneData.DragSystem.drag -= SceneData.Chunk.OffsetVertex;
+        //SceneData.DragSystem.drag -= SceneData.Chunk.OffsetVertex;
+        SceneData.DragSystem.drag -= MoveVertex;
+        InputEvent.LMouseDown -= LMouseDown;
     }
 
     public override void Enable()
     {
-        SceneData.DragSystem.drag += SceneData.Chunk.OffsetVertex;
+        //SceneData.DragSystem.drag += SceneData.Chunk.OffsetVertex;
+        SceneData.DragSystem.drag += MoveVertex;
+        InputEvent.LMouseDown += LMouseDown;
+    }
+
+    public void MoveVertex(Vector3 startPos, Vector3 offset)
+    {
+        if (_vertex != null)
+        {
+            VoxelatorManager.Coordinates.Value = (startPos - _vertex.PivotPosition) * ChunksManager.IncrementOption;
+            ChunksManager.MoveVertex(startPos, offset);
+        }
+    }
+
+    public void LMouseDown()
+    {
+        if (!SceneData.DragSystem.CheckCapture())
+        {
+            _vertex = null;
+            SceneData.DragSystem.SetActive(false);
+
+            if (!SceneData.ControlGUI.IsPanel)
+            {
+                CastVertexResult castResult = Raycast.CastVertexByMouse(SceneData.RayLength);
+
+                if (castResult != null)
+                {
+                    if (castResult.Vertex != null)
+                    {
+                        ChunksManager.SelectedVertex = castResult.Vertex;
+                        SceneData.DragSystem.SetPosition(castResult.Vertex.Position);
+                        SceneData.DragSystem.SetActive(true);
+                        _vertex = castResult.Vertex;
+
+                        //Vector3 verPos = castResult.point + Vector3.one * 0.5f;
+                        // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
+                        //_vertexPos = verPos;
+
+                        // SceneData.DragSystem.SetPosition(verPos + offsetPos);
+                        //SceneData.DragSystem.SetActive(true);
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,5 +11,12 @@ public class InputFieldCorrector : MonoBehaviour
         {
             inputField.text = inputField.text.Replace("-", "");
         }
+
+        int value;
+        if (int.TryParse(inputField.text, out value))
+        {
+            if (value > 512)
+                inputField.text = "512";
+        }
     }
 }

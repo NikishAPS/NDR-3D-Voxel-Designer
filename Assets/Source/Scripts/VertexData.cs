@@ -12,10 +12,4 @@ public class VertexData
         PivotPosition = pivotPosition;
         Position = position;
     }
-
-    public VertexData(Vertex vertex)
-    {
-        PivotPosition = vertex.PivotPosition;
-        Position = vertex.Position;
-    }
 }

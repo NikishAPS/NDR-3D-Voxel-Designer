@@ -15,7 +15,7 @@ public class ModeControl : MonoBehaviour
 
 
 
-    private void Start()
+    public void Init()
     {
         mode = 0;
         employees = new Mode[]
@@ -25,6 +25,8 @@ public class ModeControl : MonoBehaviour
             new EditMode()
         };
 
+        employees[mode].Enable();
+
         SceneData.EventInput.alpha1 += OnAlpha1;
         SceneData.EventInput.alpha2 += OnAlpha2;
         SceneData.EventInput.alpha3 += OnAlpha3;
@@ -32,12 +34,20 @@ public class ModeControl : MonoBehaviour
         SceneData.EventInput.tab += OnTab;
     }
 
+    public void Enable()
+    {
+        employees[mode].Enable();
+    }
+
+    public void Disable()
+    {
+        employees[mode].Disable();
+    }
+
     void OnTab()
     {
 
     }
-
-   
 
     public void SwitchMode(int value)
     {
@@ -48,7 +58,7 @@ public class ModeControl : MonoBehaviour
         employees[mode].Enable();
     }
 
-    private void Update()
+    private void Update1()
     {
         if (mode >= 0 && mode < employees.Length)
         {
