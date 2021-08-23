@@ -8,6 +8,7 @@ public static class ChunksManager
     public static int IncrementOption { get; private set; }
     public static Vector3Int FieldSize { get; private set; }
     public static Vector3Int VerticesArraySize { get; private set; }
+    public static Vector3 Center => FieldSize.ToVector3() * 0.5f;
 
     public static Material ChunkMaterial => VoxelatorManager.Project.ChunkMaterial;
     public static Material SelectedChunkMaterial => VoxelatorManager.Project.SelectedChunkMaterial;

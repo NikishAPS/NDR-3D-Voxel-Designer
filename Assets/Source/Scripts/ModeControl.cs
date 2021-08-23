@@ -22,7 +22,8 @@ public class ModeControl : MonoBehaviour
         {
             new BuildMode(),
             new SelectMode(),
-            new EditMode()
+            new EditMode(),
+            new ObjMode()
         };
 
         employees[mode].Enable();
