@@ -5,24 +5,36 @@ public class ObjMode : Mode
 {
     public override void Disable()
     {
-        SceneData.DragSystem.SetActive(false);
+        Axes.Active = false;
+        Axes.ScaleAxesActive = false;
         InputEvent.LMouseDown -= OnLMouseDown;
+        Axes.DragPosition -= OBJControl.OnMove;
+        Axes.DragScale -= OBJControl.OnScale;
     }
 
     public override void Enable()
     {
         InputEvent.LMouseDown += OnLMouseDown;
+        Axes.DragPosition += OBJControl.OnMove;
+        Axes.DragScale += OBJControl.OnScale;
     }
 
     public void OnLMouseDown()
     {
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+        if (!Axes.IsHighlightedAxis())
         {
-            if(hit.transform.CompareTag("OBJ"))
+            OBJControl.SelectModel(null);
+            Axes.Active = false;
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
             {
-                SceneData.DragSystem.SetPosition(hit.transform.position);
-                SceneData.DragSystem.SetActive(true);
+                if (hit.transform.CompareTag("OBJ"))
+                {
+                    Axes.Position = hit.transform.position;
+                    Axes.Active = true;
+                    Axes.ScaleAxesActive = true;
+                    OBJControl.SelectModel(hit.transform);
+                }
             }
         }
     }

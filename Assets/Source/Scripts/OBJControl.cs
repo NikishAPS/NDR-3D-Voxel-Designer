@@ -10,6 +10,7 @@ public class OBJControl : MonoBehaviour
 
     [SerializeField]
     private Material _material;
+    [SerializeField]
     private Transform _selectedModel;
 
     public static void Import()
@@ -27,13 +28,22 @@ public class OBJControl : MonoBehaviour
 
     public static void SelectModel(Transform model)
     {
+        if (_this._selectedModel != null) _this._selectedModel.GetComponent<Collider>().enabled = true;
         _this._selectedModel = model;
+        if (_this._selectedModel != null) _this._selectedModel.GetComponent<Collider>().enabled = false;
     }
 
-    public static void MoveSelectedModel(Vector3 startPoint, Vector3 offset)
+    public static Vector3? OnMove(Vector3 dragValue)
     {
-        _this._selectedModel.position = startPoint + offset;
-        SceneData.DragSystem.OffsetPosition(offset);
+        _this._selectedModel.position += dragValue;
+        return dragValue;
+    }
+
+    public static Vector3? OnScale(Vector3 scaleValue)
+    {
+        float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
+        _this._selectedModel.localScale += Vector3.one * scaleValue.magnitude * sign;
+        return scaleValue;
     }
 
     public static void ResizeSelectedModel(Vector3 startSize, Vector3 offset)

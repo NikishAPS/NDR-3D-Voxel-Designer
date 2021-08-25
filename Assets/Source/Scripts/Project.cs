@@ -88,16 +88,16 @@ public class Project : MonoBehaviour
 
     private void Update()
     {
-        int step = 1;
-        if(Input.GetKeyDown(KeyCode.A)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(-step, 0, 0));
-        if(Input.GetKeyDown(KeyCode.D)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(step, 0, 0));
-        if (Input.GetKeyDown(KeyCode.LeftControl)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, -step, 0));
-        if (Input.GetKeyDown(KeyCode.Space)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, step, 0));
-        if (Input.GetKeyDown(KeyCode.S)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, -step));
-        if (Input.GetKeyDown(KeyCode.W)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, step));
+        //int step = 1;
+        //if(Input.GetKeyDown(KeyCode.A)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(-step, 0, 0));
+        //if(Input.GetKeyDown(KeyCode.D)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(step, 0, 0));
+        //if (Input.GetKeyDown(KeyCode.LeftControl)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, -step, 0));
+        //if (Input.GetKeyDown(KeyCode.Space)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, step, 0));
+        //if (Input.GetKeyDown(KeyCode.S)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, -step));
+        //if (Input.GetKeyDown(KeyCode.W)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, step));
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-            ExitProcessing();
+        //if (Input.GetKeyDown(KeyCode.Escape))
+        //    ExitProcessing();
 
         if (Input.GetKeyDown(KeyCode.S))
         {

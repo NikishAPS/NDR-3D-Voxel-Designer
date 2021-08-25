@@ -12,7 +12,6 @@ public static class SceneData
         Extractor = Object.FindObjectOfType<Extractor>();
         ControlGUI = Object.FindObjectOfType<ControlGUI>();
         EventInput = Object.FindObjectOfType<EventInput>();
-        DragSystem = Object.FindObjectOfType<DragSystem>();
 
         ColorTest = Object.FindObjectOfType<ColorTest>();
 
@@ -73,7 +72,6 @@ public static class SceneData
     public static readonly Extractor Extractor;
     public static readonly ControlGUI ControlGUI;
     public static readonly EventInput EventInput;
-    public static readonly DragSystem DragSystem;
 
     public static readonly ColorTest ColorTest;
 

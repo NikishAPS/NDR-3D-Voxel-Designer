@@ -183,9 +183,9 @@ public static class ChunksManager
         UpdateChunkSelectedMeshes();
     }
 
-    public static void MoveSelectedVoxels(Vector3 startPoint, Vector3 offset)
+    public static Vector3? MoveSelectedVoxels(Vector3 offset)
     {
-        if (_selectedVoxelPositions.Count == 0) return;
+        if (_selectedVoxelPositions.Count == 0) return null;
 
         Vector3Int roundedOffset = offset.RoundToInt();
 
@@ -194,7 +194,7 @@ public static class ChunksManager
         {
             if (!InField(selectedVoxelPosition + roundedOffset) ||
                 GetVoxel(selectedVoxelPosition + roundedOffset) != null &&
-                GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return;
+                GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return null;
         }
 
         //copying voxels
@@ -255,16 +255,18 @@ public static class ChunksManager
 
         }
 
-        SceneData.DragSystem.OffsetPosition(roundedOffset);
+        //SceneData.DragSystem.OffsetPosition(roundedOffset);
 
         UpdateAllChunkMeshes();
+
+        return roundedOffset;
     }
 
-    public static void MoveVertex(Vector3 startPoint, Vector3 offset)
+    public static Vector3? MoveVertex(Vector3 offset)
     {
         offset = RoundVertexPointPos(offset);
 
-        if (SelectedVertex == null || offset == Vector3.zero) return;
+        if (SelectedVertex == null || offset == Vector3.zero) return null;
 
         Vector3 vertexOffset = SelectedVertex.GetOffset();
         Vector3 newVertexPos = offset + vertexOffset;
@@ -274,9 +276,10 @@ public static class ChunksManager
         if (newVertexPos.z < -1.5) offset.z = -vertexOffset.z - 1.5f; else if (newVertexPos.z > 1.5f) offset.z = 1.5f - vertexOffset.z;
 
         SelectedVertex.Offset(offset);
-        SceneData.DragSystem.OffsetPosition(offset);
+        //SceneData.DragSystem.OffsetPosition(offset);
         UpdateChunksAround(SelectedVertex.PivotPosition.ToVector3Int());
         UpdateAllChunkMeshes();
+        return offset;
     }
 
     public static void SetSelectedMeshActive(bool active)

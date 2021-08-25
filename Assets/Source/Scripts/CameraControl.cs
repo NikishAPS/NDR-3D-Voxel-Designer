@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour
 {
+    private static CameraControl _this;
+
+    public delegate void Move();
+    public static Move MoveEvent;
+
     public Vector3 target;
 
     public float sensitivity = 5f, zoom;
@@ -27,6 +32,8 @@ public class CameraControl : MonoBehaviour
 
         offset.z = -15;
         angles = new Vector2(320f, -50f);
+
+        _this = FindObjectOfType<CameraControl>();
     }
 
 
@@ -147,6 +154,8 @@ public class CameraControl : MonoBehaviour
 
         transform.localEulerAngles = new Vector3(-angles.y, angles.x, 0);
         transform.position = transform.localRotation * (offset + Vector3.forward) + _target;
+
+        MoveEvent?.Invoke();
 
 
         /*

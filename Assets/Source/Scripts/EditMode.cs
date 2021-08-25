@@ -10,7 +10,7 @@ public class EditMode : Mode
     {
         if (SceneData.EventInput.GetMouseDown0)
         {
-            if (!SceneData.DragSystem.CheckCapture())
+            if (!Axes.IsHighlightedAxis())
             {
                 if (!SceneData.ControlGUI.IsPanel)
                 {
@@ -21,8 +21,8 @@ public class EditMode : Mode
                         if (castResult.Vertex != null)
                         {
                             ChunksManager.SelectedVertex = castResult.Vertex;
-                            SceneData.DragSystem.SetPosition(castResult.Vertex.Position);
-                            SceneData.DragSystem.SetActive(true);
+                            Axes.Position = castResult.Vertex.Position;
+                            Axes.Active = true;
 
                             //Vector3 verPos = castResult.point + Vector3.one * 0.5f;
                             // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
@@ -41,34 +41,36 @@ public class EditMode : Mode
 
     public override void Disable()
     {
-        SceneData.DragSystem.SetActive(false);
+        Axes.Active = false;
         //SceneData.DragSystem.drag -= SceneData.Chunk.OffsetVertex;
-        SceneData.DragSystem.drag -= MoveVertex;
+        Axes.DragPosition -= MoveVertex;
         InputEvent.LMouseDown -= LMouseDown;
     }
 
     public override void Enable()
     {
         //SceneData.DragSystem.drag += SceneData.Chunk.OffsetVertex;
-        SceneData.DragSystem.drag += MoveVertex;
+        Axes.DragPosition += MoveVertex;
         InputEvent.LMouseDown += LMouseDown;
     }
 
-    public void MoveVertex(Vector3 startPos, Vector3 offset)
+    public Vector3? MoveVertex(Vector3 offset)
     {
         if (_vertex != null)
         {
-            VoxelatorManager.Coordinates.Value = (startPos - _vertex.PivotPosition) * ChunksManager.IncrementOption;
-            ChunksManager.MoveVertex(startPos, offset);
+            VoxelatorManager.Coordinates.Value = (_vertex.Position - _vertex.PivotPosition) * ChunksManager.IncrementOption;
+            return ChunksManager.MoveVertex(offset);
         }
+
+        return null;
     }
 
     public void LMouseDown()
     {
-        if (!SceneData.DragSystem.CheckCapture())
+        if (!Axes.IsHighlightedAxis())
         {
             _vertex = null;
-            SceneData.DragSystem.SetActive(false);
+            Axes.Active = false;
 
             if (!SceneData.ControlGUI.IsPanel)
             {
@@ -79,8 +81,8 @@ public class EditMode : Mode
                     if (castResult.Vertex != null)
                     {
                         ChunksManager.SelectedVertex = castResult.Vertex;
-                        SceneData.DragSystem.SetPosition(castResult.Vertex.Position);
-                        SceneData.DragSystem.SetActive(true);
+                        Axes.Position = castResult.Vertex.Position;
+                        Axes.Active = true;
                         _vertex = castResult.Vertex;
 
                         //Vector3 verPos = castResult.point + Vector3.one * 0.5f;

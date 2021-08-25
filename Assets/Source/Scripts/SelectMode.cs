@@ -19,12 +19,12 @@ public class SelectMode : Mode
     public override void Disable()
     {
         //SceneData.Chunk.SetSelectedMeshActive(false);
-        SceneData.DragSystem.SetActive(false);
+        Axes.Active = false;
         //SceneData.DragSystem.drag -= SceneData.Chunk.MoveSelectedVoxels;
         SceneData.Extractor.SetActive(false);
         ChunksManager.SetSelectedMeshActive(false);
 
-        SceneData.DragSystem.drag -= ChunksManager.MoveSelectedVoxels;
+        Axes.DragPosition -= ChunksManager.MoveSelectedVoxels;
         SceneData.EventInput.Delete -= Delete;
         InputEvent.MouseMove -= MouseMove;
         InputEvent.LMouseDown -= LMouseDown;
@@ -37,15 +37,15 @@ public class SelectMode : Mode
 
         ChunksManager.SetSelectedMeshActive(true);
 
-        SceneData.DragSystem.drag += ChunksManager.MoveSelectedVoxels;
+        Axes.DragPosition += ChunksManager.MoveSelectedVoxels;
         SceneData.EventInput.Delete += Delete;
         InputEvent.MouseMove += MouseMove;
         InputEvent.LMouseDown += LMouseDown;
 
         if(ChunksManager.SelectedVoxelCount > 0)
         {
-            SceneData.DragSystem.SetPosition(ChunksManager.MiddleSelectedPos);
-            SceneData.DragSystem.SetActive(true);
+            Axes.Position = ChunksManager.MiddleSelectedPos;
+            Axes.Active = true;
         }
     }
 
@@ -54,7 +54,7 @@ public class SelectMode : Mode
         _castResult = null;
         SceneData.Extractor.SetActive(false);
 
-        if (!SceneData.DragSystem.CheckCapture())
+        if (!Axes.IsHighlightedAxis())
         {
             if (!SceneData.ControlGUI.IsPanel)
             {
@@ -92,20 +92,20 @@ public class SelectMode : Mode
                     ChunksManager.SelectVoxel(_castResult.point);
                 }
 
-                SceneData.DragSystem.SetPosition(ChunksManager.MiddleSelectedPos);
-                SceneData.DragSystem.SetActive(true);
+                Axes.Position = ChunksManager.MiddleSelectedPos;
+                Axes.Active = true;
             }
-            else if (!SceneData.DragSystem.CheckCapture())
+            else if (!Axes.IsHighlightedAxis())
             {
                 ChunksManager.ResetVoxelSelection();
-                SceneData.DragSystem.SetActive(false);
+                Axes.Active = false;
             }
         }
     }
 
     public void Delete()
     {
-        SceneData.DragSystem.SetActive(false);
+        Axes.Active = false;
         ChunksManager.DeleteSelectedVoxels();
     }
 }
