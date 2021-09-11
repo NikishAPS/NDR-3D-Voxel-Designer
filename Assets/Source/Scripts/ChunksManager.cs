@@ -20,6 +20,7 @@ public static class ChunksManager
     public static readonly Vector3Int ChunkSize = new Vector3Int(1, 1, 1) * 16;
 
     public static Vertex SelectedVertex { get; set; }
+    public static Vector3Int[] SelectedVoxelPositions => _selectedVoxelPositions.ToArray();
 
     public static Vector3 MiddleSelectedPos { get; private set; }
     public static int SelectedVoxelCount => _selectedVoxelPositions.Count;
@@ -108,6 +109,11 @@ public static class ChunksManager
         return InField(globalVoxelPos) ? GetChunk(globalVoxelPos).GetSelectedVoxel(globalVoxelPos) : null;
     }
 
+    public static Vertex GetSelectedVertex()
+    {
+        return SelectedVertex;
+    }
+
     public static Vertex GetVertex(Vector3 globalVertexPos)
     {
         int index = GetVertexIndex(globalVertexPos);
@@ -181,6 +187,87 @@ public static class ChunksManager
         MiddleSelectedPos = Vector3.zero;
         _selectedVoxelPositions.Clear();
         UpdateChunkSelectedMeshes();
+    }
+
+    public static bool MoveSelectedVoxels(DragTransform dragValue)
+    {
+        if (_selectedVoxelPositions.Count == 0) return false;
+
+        Vector3Int roundedOffset = dragValue.Position.RoundToInt();
+
+        //checking limits
+        foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
+        {
+            if (!InField(selectedVoxelPosition + roundedOffset) ||
+                GetVoxel(selectedVoxelPosition + roundedOffset) != null &&
+                GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return false;
+        }
+
+        //copying voxels
+        Voxel[] voxels = new Voxel[_selectedVoxelPositions.Count];
+        Vertex[] vertices = new Vertex[voxels.Length * 8];
+        Vector3[] verticesPos = new Vector3[1];
+        {
+            int i = 0;
+            foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
+            {
+                voxels[i] = new Voxel(GetVoxel(selectedVoxelPosition));
+                Vector3[] vertexPositions = GetVertexPositions(selectedVoxelPosition);
+
+                int j = 0;
+                foreach (Vector3 vertexPosition in vertexPositions)
+                {
+                    vertices[i * 8 + j] = new Vertex(GetVertex(vertexPosition));
+                    j++;
+                }
+
+                i++;
+            }
+        }
+
+        //deleting voxels
+        foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
+        {
+            DeleteVoxel(selectedVoxelPosition);
+        }
+        _selectedVoxelPositions.Clear();
+
+        //creating voxels
+        for (int i = 0; i < voxels.Length; i++)
+        {
+            Chunk chunk = GetChunk(voxels[i].Position);
+            if (chunk.TryToCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
+            {
+                if (chunk.TryToSelectVoxel(voxels[i].Position + roundedOffset))
+                {
+                    _selectedVoxelPositions.AddLast(voxels[i].Position + roundedOffset);
+                    UpdateChunksAround(voxels[i].Position);
+
+                    int j = 0;
+                    foreach (Vector3 vertexPosition in GetVertexPositions(voxels[i].Position + roundedOffset))
+                    {
+                        int index = GetVertexIndex(vertexPosition);
+
+                        int adjacentVoxelsCount = Vertices[index] != null ? Vertices[index].AdjacentVoxelsCount + 1 : 1;
+
+                        Vertices[index] = new Vertex(vertices[i * 8 + j].PivotPosition + roundedOffset, vertices[i * 8 + j].GetOffset());
+                        Vertices[index].AdjacentVoxelsCount = adjacentVoxelsCount;
+
+                        j++;
+                    }
+                }
+
+            }
+
+        }
+
+        //SceneData.DragSystem.OffsetPosition(roundedOffset);
+
+        MiddleSelectedPos += roundedOffset;
+        UpdateAllChunkMeshes();
+
+        dragValue.Position = roundedOffset;
+        return true;
     }
 
     public static Vector3? MoveSelectedVoxels(Vector3 offset)
@@ -262,6 +349,27 @@ public static class ChunksManager
         return roundedOffset;
     }
 
+    public static bool TryMoveVertex(DragTransform dragValue)
+    {
+        Vector3 offset = RoundVertexPointPos(dragValue.Position);
+
+        if (SelectedVertex == null || offset == Vector3.zero) return false;
+
+        Vector3 vertexOffset = SelectedVertex.GetOffset();
+        Vector3 newVertexPos = offset + vertexOffset;
+
+        if (newVertexPos.x < -1.5) offset.x = -vertexOffset.x - 1.5f; else if (newVertexPos.x > 1.5f) offset.x = 1.5f - vertexOffset.x;
+        if (newVertexPos.y < -1.5) offset.y = -vertexOffset.y - 1.5f; else if (newVertexPos.y > 1.5f) offset.y = 1.5f - vertexOffset.y;
+        if (newVertexPos.z < -1.5) offset.z = -vertexOffset.z - 1.5f; else if (newVertexPos.z > 1.5f) offset.z = 1.5f - vertexOffset.z;
+
+        SelectedVertex.Offset(offset);
+        UpdateChunksAround(SelectedVertex.PivotPosition.ToVector3Int());
+        UpdateAllChunkMeshes();
+
+        dragValue.Position = offset;
+        return true;
+    }
+
     public static Vector3? MoveVertex(Vector3 offset)
     {
         offset = RoundVertexPointPos(offset);
@@ -276,9 +384,9 @@ public static class ChunksManager
         if (newVertexPos.z < -1.5) offset.z = -vertexOffset.z - 1.5f; else if (newVertexPos.z > 1.5f) offset.z = 1.5f - vertexOffset.z;
 
         SelectedVertex.Offset(offset);
-        //SceneData.DragSystem.OffsetPosition(offset);
         UpdateChunksAround(SelectedVertex.PivotPosition.ToVector3Int());
         UpdateAllChunkMeshes();
+
         return offset;
     }
 
@@ -344,7 +452,7 @@ public static class ChunksManager
     }
 
 
-    private static bool TryCreateVoxel(Vector3Int globalVoxelPos)
+    public static bool TryCreateVoxel(Vector3Int globalVoxelPos)
     {
         Chunk chunk = GetChunk(globalVoxelPos);
         if (chunk == null) return false;
@@ -454,7 +562,7 @@ public static class ChunksManager
         UpdateChunk(GetChunk(globalVoxelPos + new Vector3Int().Forward()));
     }
 
-    private static void UpdateChunkMeshes()
+    public static void UpdateChunkMeshes()
     {
         for(int i = 0; i < _nonUpdatedChunks.Count; i++)
         {

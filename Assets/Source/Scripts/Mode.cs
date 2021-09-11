@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Voxelator;
 
-public abstract class Mode
+public class Mode : IMouseMove, ILMouseDown, ILMouseUp, IRMouseDown, IRMouseUp
 {
-    public abstract void Tick();
-    public abstract void Enable();
-    public abstract void Disable();
+    public virtual void OnEnable() { }
+    public virtual void OnDisable() { }
+
+    public virtual void OnMouseMove() { }
+    public virtual void OnLMouseDown() { }
+    public virtual void OnLMouseUp() { }
+    public virtual void OnRMouseDown() { }
+    public virtual void OnRMouseUp() { }
 }
 

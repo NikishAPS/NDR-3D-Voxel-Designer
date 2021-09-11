@@ -19,4 +19,27 @@ public class InputFieldCorrector : MonoBehaviour
                 inputField.text = "512";
         }
     }
+
+    public void CorrectNameField(InputField inputField)
+    {
+        string value = inputField.text;
+
+        if (char.IsDigit(value[0]))
+        {
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (!char.IsDigit(value[i]))
+                {
+                    string newValue = string.Empty;
+                    for (; i < value.Length; i++)
+                    {
+                        newValue += value[i];
+                    }
+                    inputField.text = newValue;
+                    return;
+                }
+            }
+        }
+    }
+
 }

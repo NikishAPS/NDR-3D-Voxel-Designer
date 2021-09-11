@@ -4,7 +4,26 @@ using System.Collections;
 public class ImportedModel
 {
     public readonly Transform Transform;
+    public int Transparency
+    {
+        get
+        {
+            return _transparency;
+        }
+        set
+        {
+            _transparency = value;
+            foreach(MeshRenderer meshRenderer in meshRenderers)
+            {
+                foreach (Material material in meshRenderer.materials)
+                {
+                    material.SetColor("_Color", new Color(1, 1, 1, value));
+                }
+            }
+        }
+    }
 
+    private int _transparency;
     private readonly MeshRenderer[] meshRenderers;
 
     public ImportedModel(Transform transform, Material material)

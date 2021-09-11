@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 1896766099724264174}
   - component: {fileID: 1297633536576833447}
   - component: {fileID: 271275405759141647}
-  - component: {fileID: 6225293860688374876}
+  - component: {fileID: 6011992447815451708}
   m_Layer: 5
   m_Name: Button (Prefab)
   m_TagString: Untagged
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6225293860688374876
+--- !u!114 &6011992447815451708
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,14 +161,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2471792321351830584}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec41dad5f8d5d9c4287d74fb263ade96, type: 3}
+  m_Script: {fileID: 11500000, guid: 873af648290060c419a927bad1c94841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: 
   _default: {r: 0.35686275, g: 0.35686275, b: 0.35686275, a: 1}
   _hover: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
-  _selected: {r: 0.9058824, g: 0.9058824, b: 0.9058824, a: 1}
-  eventsButton:
+  _selected: {r: 0.90588236, g: 0.90588236, b: 0.90588236, a: 1}
+  Click:
     m_PersistentCalls:
       m_Calls: []
-  _press: 0

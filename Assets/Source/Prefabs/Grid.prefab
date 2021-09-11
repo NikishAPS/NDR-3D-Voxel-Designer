@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4623121024149629024}
   - component: {fileID: 933403665703135377}
-  m_Layer: 9
+  m_Layer: 8
   m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 4623121024788342408}
   - component: {fileID: 4623121024788342405}
   - component: {fileID: 4623121024788342410}
-  m_Layer: 9
+  m_Layer: 8
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}

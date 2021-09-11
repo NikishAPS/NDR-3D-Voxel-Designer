@@ -15,63 +15,22 @@ public class BuildMode : Mode
      */
     private int _voxelAreaMode;
 
-    public override void Tick()
+    public override void OnEnable()
     {
-        //return;
-        //SceneData.Extractor.SetActive(false);
-
-        //if (!SceneData.ControlGUI.IsPanel)
-        //{
-        //    //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //    //RaycastHit hit;
-
-        //    CastResult castResult = VoxelRayCast.CastByMouse(SceneData.RayLength);
-        //    if (castResult != null)
-        //    {
-
-        //        if (SceneData.Chunk.InChunk(SceneData.Vector3FloatToInt(castResult.lastPoint)))
-        //        {
-        //            SceneData.Extractor.SetActive(true);
-        //            SceneData.Extractor.transform.position = castResult.lastPoint;
-
-        //            if (SceneData.EventInput.GetMouseDown0)
-        //            {
-        //                int id = SceneData.ColorTest.id;
-        //                ChunksManager.CreateVoxel(id, castResult.lastPoint);
-        //                return;
-        //                SceneData.Chunk.CreateVoxel(SceneData.ColorTest.id, castResult.lastPoint);
-        //            }
-        //        }
-        //    }
-        //}
     }
 
-    public override void Enable()
+    public override void OnDisable()
     {
-        InputEvent.MouseMove += MouseMove;
-        InputEvent.LMouseDown += LMouseDown;
-        InputEvent.RMouseDown += RMouseDown;
-        InputEvent.RMouseUp += RMouseUp;
+        Extractor.Active = false;
     }
 
-    public override void Disable()
-    {
-        SceneData.Extractor.SetActive(false);
-
-        InputEvent.MouseMove -= MouseMove;
-        InputEvent.LMouseDown -= LMouseDown;
-        InputEvent.RMouseDown -= RMouseDown;
-        InputEvent.RMouseUp -= RMouseUp;
-    }
-
-    public void MouseMove()
+    public override void OnMouseMove()
     {
         RayCast();
 
-
         if (_castResult != null)
         {
-            Vector3Int endPos = SceneData.Extractor.GetPosition().ToVector3Int();
+            Vector3Int endPos = Extractor.GetPosition().ToVector3Int();
 
             if(_voxelAreaMode == 2)
                 _endVoxelAreaPosition.y = endPos.y;
@@ -80,52 +39,49 @@ public class BuildMode : Mode
 
             if (_voxelAreaMode == 0)
             {
-                VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetPosition();
+                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetPosition();
             }
             else //(_voxelAreaMode != 0)
             {
-                SceneData.Extractor.SetPosition((_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f);
-                SceneData.Extractor.SetScale((_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one);
-                VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
+                Extractor.SetPosition((_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f);
+                Extractor.SetScale((_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one);
+                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
             }
         }
     }
 
-    public void LMouseDown()
+    public override void OnLMouseDown()
     {
-        if (!SceneData.ControlGUI.IsPanel)
-        {
-            if (_voxelAreaMode == 0) _startVoxelAreaPosition = _endVoxelAreaPosition;
-            else GridManager.Grids[Direction.Left].Active = false;
+        if (_voxelAreaMode == 0) _startVoxelAreaPosition = _endVoxelAreaPosition;
+        else GridManager.Grids[Direction.Left].Active = false;
 
-            //ChunksManager.CreateVoxels(_startVoxelAreaPosition, _endVoxelAreaPosition);
-            Commands.CreateVoxelsCommand.SetAndExe(_startVoxelAreaPosition, _endVoxelAreaPosition);
+        //ChunksManager.CreateVoxels(_startVoxelAreaPosition, _endVoxelAreaPosition);
+        Invoker.Execute(new CreateVoxelsCommand(_startVoxelAreaPosition, _endVoxelAreaPosition));
 
-            _voxelAreaMode = 0;
-            ResetExtractor();
-        }
+        _voxelAreaMode = 0;
+        ResetExtractor();
     }
 
-    public void RMouseDown()
+    public override void OnRMouseDown()
     {
         if (_castResult != null)
         {
             if (_voxelAreaMode == 0)
             {
-                VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
-                _startVoxelAreaPosition = SceneData.Extractor.GetPosition().ToVector3Int();
+                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
+                _startVoxelAreaPosition = Extractor.GetPosition().ToVector3Int();
                 _voxelAreaMode = 1;
             }
         }
     }
 
-    public void RMouseUp()
+    public override void OnRMouseUp()
     {
         if (_voxelAreaMode != 0)
         {
             _voxelAreaMode = 2;
 
-            VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
+            //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
 
             GridManager.Grids[Direction.Left].Set(true,
                 new Vector3Int(Mathf.Min(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), 0, Mathf.Min(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)),
@@ -147,31 +103,26 @@ public class BuildMode : Mode
         _castResult = null;
         //SceneData.Extractor.SetActive(false);
 
-        if (!SceneData.ControlGUI.IsPanel)
+        _castResult = Raycast.CastByMouse(SceneData.RayLength);
+        if (_castResult != null)
         {
-            _castResult = Raycast.CastByMouse(SceneData.RayLength);
-            if (_castResult != null)
+            //MonoBehaviour.print(_castResult.lastPoint);
+            if (ChunksManager.InField(_castResult.lastPoint))
             {
-                //MonoBehaviour.print(_castResult.lastPoint);
-                if (ChunksManager.InField(_castResult.lastPoint))
-                {
-                    SceneData.Extractor.SetPosition(_castResult.lastPoint);
-                    SceneData.Extractor.SetActive(true);
-                }
-                else
-                {
-                    _castResult = null;
-                }
+                Extractor.SetPosition(_castResult.lastPoint);
+                Extractor.Active = true;
+            }
+            else
+            {
+                _castResult = null;
             }
         }
     }
 
-
-
     private void ResetExtractor()
     {
-        SceneData.Extractor.SetPosition(_endVoxelAreaPosition);
-        SceneData.Extractor.SetScale(Vector3.one);
+        Extractor.SetPosition(_endVoxelAreaPosition);
+        Extractor.SetScale(Vector3.one);
     }
 
 }

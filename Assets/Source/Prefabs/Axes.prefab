@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 318248013419043511}
   - component: {fileID: 318248013419043509}
   - component: {fileID: 318248013419043510}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: X
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,10 +138,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 1, y: 0, z: 0}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 8596045643009567969}
 --- !u!1 &318248013482270021
 GameObject:
@@ -154,7 +150,7 @@ GameObject:
   - component: {fileID: 318248013482270020}
   - component: {fileID: 318248013482270018}
   - component: {fileID: 318248013482270019}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Y
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -202,10 +198,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 0, y: 1, z: 0}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 8596045641206034389}
 --- !u!1 &318248013548612501
 GameObject:
@@ -220,7 +212,7 @@ GameObject:
   - component: {fileID: 318248013548612497}
   - component: {fileID: 318248013548612498}
   - component: {fileID: 1715714501}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Scale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -315,10 +307,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 0, y: 0, z: 0}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 318248013691800760}
 --- !u!1 &318248013555246896
 GameObject:
@@ -331,7 +319,7 @@ GameObject:
   - component: {fileID: 318248013555246863}
   - component: {fileID: 318248013555246861}
   - component: {fileID: 318248013555246862}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Z
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -379,10 +367,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 0, y: 0, z: 1}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 8596045642534938804}
 --- !u!1 &318248013691800760
 GameObject:
@@ -476,7 +460,7 @@ GameObject:
   - component: {fileID: 318248014012884740}
   - component: {fileID: 318248014012884738}
   - component: {fileID: 318248014012884741}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: XZ
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -571,10 +555,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 1, y: 0, z: 1}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 318248013029287124}
 --- !u!1 &318248014107257993
 GameObject:
@@ -668,7 +648,7 @@ GameObject:
   - component: {fileID: 318248014121885196}
   - component: {fileID: 318248014121885194}
   - component: {fileID: 318248014121885197}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: XY
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -763,10 +743,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 1, y: 1, z: 0}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 318248014107257993}
 --- !u!1 &318248014168772848
 GameObject:
@@ -781,7 +757,7 @@ GameObject:
   - component: {fileID: 318248014168772813}
   - component: {fileID: 318248014168772811}
   - component: {fileID: 318248014168772814}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: YZ
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -876,10 +852,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _direction: {x: 0, y: 1, z: 1}
-  _directions:
-    X: 0
-    Y: 0
-    Z: 0
   _luminaire: {fileID: 318248014203361677}
 --- !u!1 &318248014203361677
 GameObject:

@@ -2,45 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SelectMode : Mode
+public class SelectMode : Mode, IDrag
 {
     private CastResult _castResult;
-    public override void Tick()
+
+
+  
+    public override void OnEnable()
     {
-        //SceneData.Extractor.SetActive(false);
-        //if (!SceneData.ControlGUI.IsPanel)
-        //{
-        //    //if (SceneData.EventInput.GetDelete) SceneData.Chunk.DeleteSelectedVoxels();
-
-        //    if (!IsDrag()) RayCastInvoke();
-        //}
-    }
-
-    public override void Disable()
-    {
-        //SceneData.Chunk.SetSelectedMeshActive(false);
-        Axes.Active = false;
-        //SceneData.DragSystem.drag -= SceneData.Chunk.MoveSelectedVoxels;
-        SceneData.Extractor.SetActive(false);
-        ChunksManager.SetSelectedMeshActive(false);
-
-        Axes.DragPosition -= ChunksManager.MoveSelectedVoxels;
-        SceneData.EventInput.Delete -= Delete;
-        InputEvent.MouseMove -= MouseMove;
-        InputEvent.LMouseDown -= LMouseDown;
-    }
-
-    public override void Enable()
-    {
-        //SceneData.Chunk.SetSelectedMeshActive(true);
-        // SceneData.DragSystem.drag += SceneData.Chunk.MoveSelectedVoxels;
-
         ChunksManager.SetSelectedMeshActive(true);
-
-        Axes.DragPosition += ChunksManager.MoveSelectedVoxels;
-        SceneData.EventInput.Delete += Delete;
-        InputEvent.MouseMove += MouseMove;
-        InputEvent.LMouseDown += LMouseDown;
+        Axes.SetDragObject(this);
+        InputEvent.Delete += Delete;
 
         if(ChunksManager.SelectedVoxelCount > 0)
         {
@@ -49,57 +21,60 @@ public class SelectMode : Mode
         }
     }
 
-    public void MouseMove()
+    public override void OnDisable()
+    {
+        ChunksManager.SetSelectedMeshActive(false);
+        Axes.Active = false;
+        Extractor.Active = false;
+
+        InputEvent.Delete -= Delete;
+    }
+
+    public override void OnMouseMove()
     {
         _castResult = null;
-        SceneData.Extractor.SetActive(false);
+        Extractor.Active = false;
 
         if (!Axes.IsHighlightedAxis())
         {
-            if (!SceneData.ControlGUI.IsPanel)
+            _castResult = Raycast.CastByMouse(SceneData.RayLength);
+            if (_castResult != null)
             {
-                _castResult = Raycast.CastByMouse(SceneData.RayLength);
-                if (_castResult != null)
+                if (ChunksManager.InField(_castResult.point))
                 {
-                    if (ChunksManager.InField(_castResult.point))
-                    {
-                        SceneData.Extractor.SetPosition(_castResult.point);
-                        SceneData.Extractor.SetActive(true);
-                        VoxelatorManager.Coordinates.Value = _castResult.point;
-                    }
-                    else
-                    {
-                        _castResult = null;
-                    }
+                    Extractor.SetPosition(_castResult.point);
+                    Extractor.Active = true;
+                    //VoxelatorManager.Coordinates.Value = _castResult.point;
+                }
+                else
+                {
+                    _castResult = null;
                 }
             }
         }
     }
 
-    public void LMouseDown()
+    public override void OnLMouseDown()
     {
-        if (!SceneData.ControlGUI.IsPanel)
+        if (_castResult != null)
         {
-            if (_castResult != null)
+            if (InputEvent.LShift)
             {
-                if (InputEvent.LShift)
-                {
-                    ChunksManager.SelectVoxel(_castResult.point);
-                }
-                else
-                {
-                    ChunksManager.ResetVoxelSelection();
-                    ChunksManager.SelectVoxel(_castResult.point);
-                }
-
-                Axes.Position = ChunksManager.MiddleSelectedPos;
-                Axes.Active = true;
+                ChunksManager.SelectVoxel(_castResult.point);
             }
-            else if (!Axes.IsHighlightedAxis())
+            else
             {
                 ChunksManager.ResetVoxelSelection();
-                Axes.Active = false;
+                ChunksManager.SelectVoxel(_castResult.point);
             }
+
+            Axes.Position = ChunksManager.MiddleSelectedPos;
+            Axes.Active = true;
+        }
+        else if (!Axes.IsHighlightedAxis())
+        {
+            ChunksManager.ResetVoxelSelection();
+            Axes.Active = false;
         }
     }
 
@@ -107,5 +82,20 @@ public class SelectMode : Mode
     {
         Axes.Active = false;
         ChunksManager.DeleteSelectedVoxels();
+    }
+
+    public bool OnTryDrag(DragTransform dragValue)
+    {
+        return ChunksManager.MoveSelectedVoxels(dragValue);
+    }
+
+    public DragTransform GetDragCoordinates()
+    {
+        if(ChunksManager.SelectedVoxelCount == 1)
+        {
+            return new DragTransform(ChunksManager.GetSelectedVoxel(ChunksManager.SelectedVoxelPositions[0]).Position, Vector3.zero);
+        }
+
+        return null;
     }
 }

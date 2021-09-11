@@ -3,6 +3,7 @@
 public class Axes : MonoBehaviour
 {
     private static Axes _this;
+    [SerializeField] private CoordinateDisplay _coordinates;
 
     public static bool Active
     {
@@ -13,6 +14,7 @@ public class Axes : MonoBehaviour
         set
         {
             _this.gameObject.SetActive(value);
+            _this._coordinates.Active = value;
         }
     }
     public static Vector3 Position
@@ -50,7 +52,7 @@ public class Axes : MonoBehaviour
             Scale = Scale;
         }
     }
-    public static bool ScaleAxesActive
+    public static bool ScaleActive
     {
         set
         {
@@ -61,18 +63,25 @@ public class Axes : MonoBehaviour
         }
     }
 
-    public delegate Vector3? DragEvent(Vector3 dragValue); //return drag value
+    //public delegate Vector3? DragEvent(Vector3 dragValue); //return drag value
 
-    public static DragEvent DragPosition; 
-    public static DragEvent DragScale;
+    //public static DragEvent DragPosition; 
+    //public static DragEvent DragScale;
 
+    private IDrag _dragObject;
     private Axis[] _positionAxes, _scaleAxes;
     private Vector3 _offsetScale;
     [SerializeField] private float _pivotSize = 0.1f;
     [SerializeField] private Axis _highlightedAxis;
     [SerializeField] private bool _isDrag = false;
+    private DragTransform _initialDragValue;
 
+    public delegate void DragResult();
 
+    public static void SetDragObject(IDrag dragObject)
+    {
+        _this._dragObject = dragObject;
+    }
 
     public static Axis GetHighlightedAxis()
     {
@@ -86,10 +95,22 @@ public class Axes : MonoBehaviour
 
     public static void OnResize()
     {
-        Scale = Vector3.one * _this._pivotSize * Vector3.Distance(Position, Camera.main.transform.position);
+        float size = _this._pivotSize * Vector3.Distance(Position, Camera.main.transform.position);
+
+        Scale = Vector3.one * size;
+
+        DragTransform dragCoordinates = _this._dragObject.GetDragCoordinates();
+        if (dragCoordinates == null) _this._coordinates.Value = null;
+        else
+            _this._coordinates.Value = dragCoordinates.Position;
+
+        size *= 1.5f;
+
+        _this._coordinates.Position = Position;
+        _this._coordinates.XPosition = Position + Vector3.right * size;
+        _this._coordinates.YPosition = Position + Vector3.up * size;
+        _this._coordinates.ZPosition = Position + Vector3.forward * size;
     }
-
-
 
     private void Awake()
     {
@@ -100,7 +121,7 @@ public class Axes : MonoBehaviour
     private void Start()
     {
         Active = false;
-        ScaleAxesActive = false;
+        ScaleActive = false;
     }
 
     private void OnEnable()
@@ -136,7 +157,8 @@ public class Axes : MonoBehaviour
 
     private void OnLMouseDown()
     {
-        _highlightedAxis?.OnStartDrag();
+        _initialDragValue = new DragTransform(transform);
+        _highlightedAxis?.OnStartDrag(_initialDragValue);
     }
 
     private void OnLMouseHold()
@@ -145,7 +167,13 @@ public class Axes : MonoBehaviour
         {
             _isDrag = true;
 
-            _highlightedAxis.OnDrag();
+            DragTransform dragValue =_highlightedAxis.GetDragValue();
+            Position = _initialDragValue.Position + dragValue.Position;
+            if(_dragObject.OnTryDrag(dragValue))
+            {
+                _initialDragValue.Position += dragValue.Position;
+                _highlightedAxis.OffsetDragPoint(dragValue);
+            }
         }
     }
 
@@ -153,7 +181,8 @@ public class Axes : MonoBehaviour
     {
         if (_isDrag)
         {
-            _highlightedAxis.OnEndDrag();
+            //_highlightedAxis.OnEndDrag();
+            Position = _initialDragValue.Position;
             SetSelectedAxis(null);
             _isDrag = false;
             OnMouseMove();

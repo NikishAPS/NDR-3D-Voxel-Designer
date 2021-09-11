@@ -8,10 +8,6 @@ public static class SceneData
     {
         Camera = Camera.main;
         MainCamera = Camera.main.transform;
-        ModeControl = Object.FindObjectOfType<ModeControl>();
-        Extractor = Object.FindObjectOfType<Extractor>();
-        ControlGUI = Object.FindObjectOfType<ControlGUI>();
-        EventInput = Object.FindObjectOfType<EventInput>();
 
         ColorTest = Object.FindObjectOfType<ColorTest>();
 
@@ -68,10 +64,6 @@ public static class SceneData
 
     public static readonly Camera Camera;
     public static readonly Transform MainCamera;
-    public static readonly ModeControl ModeControl;
-    public static readonly Extractor Extractor;
-    public static readonly ControlGUI ControlGUI;
-    public static readonly EventInput EventInput;
 
     public static readonly ColorTest ColorTest;
 

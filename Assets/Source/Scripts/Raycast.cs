@@ -8,7 +8,7 @@ public static class Raycast
     {
         Vector3Int lastPointInt = new Vector3Int(-1, -1, -1);
 
-        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector2 mousePos = InputEvent.MousePosition;
         Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
         Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
         dir.Normalize();
@@ -67,7 +67,7 @@ public static class Raycast
 
     public static CastVertexResult CastVertexByMouse(float length)
     {
-        Vector3 startPoint = GetStartPoint(SceneData.EventInput.MousePos); 
+        Vector3 startPoint = GetStartPoint(InputEvent.MousePosition); 
         Vector3 dir = GetDirection();
 
         Vector3 ray = Vector3.zero;
@@ -115,7 +115,7 @@ public static class Raycast
 
     public static CastResult CastVerticesByMouse0(float length)
     {
-        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector2 mousePos = InputEvent.MousePosition;
         Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
         Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
         dir.Normalize();
@@ -204,7 +204,7 @@ public static class Raycast
 
     private static Vector3 GetDirection()
     {
-        Vector2 mousePos = SceneData.EventInput.MousePos;
+        Vector2 mousePos = InputEvent.MousePosition;
         Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
         dir.Normalize();
 

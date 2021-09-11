@@ -4,31 +4,38 @@ using UnityEngine;
 
 public class ScaleAxis : Axis
 {
-    public override void OnStartDrag()
+    public override void OnStartDrag(DragTransform initialDragPoint)
     {
-        _startDragPosition = GetProjectedPoint();
-        _startPointProjection = _startDragPosition;
+        _initialDragPoint = GetProjectedPoint();
+        _initialDragPointProjection = _initialDragPoint;
     }
 
-    public override void OnDrag()
+    public override DragTransform GetDragValue()
     {
-        Vector3 dragValue = GetProjectedPoint() - _startPointProjection;
-        float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
-
-        Vector3? dragResult = Axes.DragScale?.Invoke(dragValue);
-        if (dragResult != null)
-        {
-            _startDragPosition += (Vector3)dragResult;
-            _startPointProjection += (Vector3)dragResult;
-        }
+        return new DragTransform(Vector3.zero, GetProjectedPoint() - _initialDragPointProjection);
     }
 
-    public override void OnEndDrag()
+    public override void OffsetDragPoint(DragTransform dragValue)
     {
-        Axes.OffsetScale = Vector3.zero;
+        _initialDragPoint += dragValue.Scale;
+        _initialDragPointProjection += dragValue.Scale;
     }
 
 
+    //public override Vector3? TryDrag()
+    //{
+    //    Vector3 dragValue = GetProjectedPoint() - _initialDragPointProjection;
+    //    float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
+
+    //    Vector3? dragResult = Axes.DragScale?.Invoke(dragValue);
+    //    if (dragResult != null)
+    //    {
+    //        _startDragPosition += (Vector3)dragResult;
+    //        _startPointProjection += (Vector3)dragResult;
+    //    }
+
+    //    return dragResult;
+    //}
 
     protected override Vector3 GetProjectedPoint()
     {
@@ -42,12 +49,13 @@ public class ScaleAxis : Axis
 
         Vector3 planeNormal = Vector3.Cross(cameraRightDirection, cameraUpDirection);
 
-        float t = (-Vector3.Dot(planeNormal, cameraPoint1) + Vector3.Dot(planeNormal, _startDragPosition))
+        float t = (-Vector3.Dot(planeNormal, cameraPoint1) + Vector3.Dot(planeNormal, _initialDragPoint))
             / Vector3.Dot(planeNormal, cameraDirection);
 
         Vector3 result = cameraDirection * t + cameraPoint1;
 
         return result.Mul(_direction);
     }
+
 
 }

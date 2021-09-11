@@ -7,11 +7,10 @@ public class OBJControl : MonoBehaviour
 {
     private static OBJControl _this;
     public List<ImportedModel> Models = new List<ImportedModel>();
+    public static Transform SelectedModel { get; private set; }
 
     [SerializeField]
     private Material _material;
-    [SerializeField]
-    private Transform _selectedModel;
 
     public static void Import()
     {
@@ -28,21 +27,21 @@ public class OBJControl : MonoBehaviour
 
     public static void SelectModel(Transform model)
     {
-        if (_this._selectedModel != null) _this._selectedModel.GetComponent<Collider>().enabled = true;
-        _this._selectedModel = model;
-        if (_this._selectedModel != null) _this._selectedModel.GetComponent<Collider>().enabled = false;
+        if (SelectedModel != null) SelectedModel.GetComponent<Collider>().enabled = true;
+        SelectedModel = model;
+        if (SelectedModel != null) SelectedModel.GetComponent<Collider>().enabled = false;
     }
 
     public static Vector3? OnMove(Vector3 dragValue)
     {
-        _this._selectedModel.position += dragValue;
+        SelectedModel.position += dragValue;
         return dragValue;
     }
 
     public static Vector3? OnScale(Vector3 scaleValue)
     {
         float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
-        _this._selectedModel.localScale += Vector3.one * scaleValue.magnitude * sign;
+        SelectedModel.localScale += Vector3.one * scaleValue.magnitude * sign;
         return scaleValue;
     }
 
@@ -56,4 +55,17 @@ public class OBJControl : MonoBehaviour
     {
         _this = FindObjectOfType<OBJControl>();
     }
+
+    public static bool TryDrag(DragTransform dragValue)
+    {
+        //drag position
+        SelectedModel.position += dragValue.Position;
+
+        //drag scale
+        float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
+        SelectedModel.localScale += Vector3.one * dragValue.Scale.magnitude * sign;
+
+        return true;
+    }
+
 }

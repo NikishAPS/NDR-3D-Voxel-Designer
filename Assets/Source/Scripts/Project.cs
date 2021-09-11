@@ -40,28 +40,15 @@ public class Project : MonoBehaviour
         private ChunksManagerData _chunksManagerData;
     }
 
+    private static Project _this;
+    private static StatisticsPanel _statisticsPanel;
+
     public static bool Saved
     {
         get => _saved;
-        set
-        {
-            _saved = value;
-            if(_saved)
-            {
-                Project project = FindObjectOfType<Project>();
-                project.ChangeText.color = Color.green;
-                project.ChangeText.text = "Saved";
-            }
-            else
-            {
-                Project project = FindObjectOfType<Project>();
-                project.ChangeText.color = Color.red;
-                project.ChangeText.text = "Not Saved";
-            }
-        }
+        set => _saved = value;
     }
 
-    public UnityEngine.UI.Text ChangeText;
     public Material ChunkMaterial => _chunkMaterial;
     public Material SelectedChunkMaterial => _selectedChunkMaterial;
 
@@ -83,26 +70,13 @@ public class Project : MonoBehaviour
 
     private void Awake()
     {
+        _this = FindObjectOfType<Project>();
         Application.wantsToQuit += ExitProcessing;
     }
 
-    private void Update()
+    private void Start()
     {
-        //int step = 1;
-        //if(Input.GetKeyDown(KeyCode.A)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(-step, 0, 0));
-        //if(Input.GetKeyDown(KeyCode.D)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(step, 0, 0));
-        //if (Input.GetKeyDown(KeyCode.LeftControl)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, -step, 0));
-        //if (Input.GetKeyDown(KeyCode.Space)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, step, 0));
-        //if (Input.GetKeyDown(KeyCode.S)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, -step));
-        //if (Input.GetKeyDown(KeyCode.W)) ChunksManager.MoveSelectedVoxels(Vector3.zero, new Vector3(0, 0, step));
-
-        //if (Input.GetKeyDown(KeyCode.Escape))
-        //    ExitProcessing();
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            //Save(false);
-        }
+        _statisticsPanel = PanelManager.GetPanel<StatisticsPanel>();
     }
 
     private void OnDisable()
@@ -111,13 +85,6 @@ public class Project : MonoBehaviour
     }
 
 
-    public void BaseInit()
-    {
-        SceneData.ModeControl.Init();
-        ChunksManager.InitChunks();
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunksManager.FieldSize.x, 1, ChunksManager.FieldSize.z);
-        GridManager.Grids[Direction.Down].Active = true;
-    }
 
     public void Init(string name, string saveLocation)
     {
@@ -126,11 +93,9 @@ public class Project : MonoBehaviour
         _name = name;
         _data.SetSaveLocation(saveLocation);
 
-        BaseInit();
-
-        //SceneData.ModeControl.Init();
-        //GridManager.Grids[Direction.Down].Size = new Vector3Int(10, 1, 10);
-        //GridManager.Grids[Direction.Down].Active = true;
+        ChunksManager.InitChunks();
+        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunksManager.FieldSize.x, 1, ChunksManager.FieldSize.z);
+        GridManager.Grids[Direction.Down].Active = true;
     }
 
     public static void Ouit()
@@ -158,14 +123,6 @@ public class Project : MonoBehaviour
         _data.SetSaveLocation(path);
     }
 
-    public void StartNewProject()
-    {
-        SceneData.ModeControl.Init();
-        ChunksManager.InitChunks();
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunksManager.FieldSize.x, 1, ChunksManager.FieldSize.z);
-        GridManager.Grids[Direction.Down].Active = true;
-    }
-
     public void Create()
     {
         if (_saved)
@@ -181,26 +138,7 @@ public class Project : MonoBehaviour
         }
     }
 
-    public void Load()
-    {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _data.GetSavePath(), _fileExtension, false);
-
-        if(paths.Length > 0)
-        {
-            _data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
-            _data.Distribute();
-        }
-    }
-
-    public void LoadAndClose(Panel panel)
-    {
-        if(TryToLoad())
-        {
-            panel.Close();
-        }
-    }
-
-    public string GetFolderPath(string title)
+    public static string GetFolderPath(string title)
     {
         string[] paths = StandaloneFileBrowser.OpenFolderPanel(title, Application.dataPath, false);
         if (paths.Length > 0)
@@ -208,36 +146,30 @@ public class Project : MonoBehaviour
             return paths[0];
         }
 
-        return @"C:\";
-    }
-
-
-
-    private void OnChange()
-    {
-        //_saved = false;
+        return null;
+        //return @"C:\";
     }
 
     private bool ExitProcessing()
     {
         if (!_saved)
         {
-            Invoker.Execute(Commands.AppExitCommand);
+            Ouit();
         }
         return _saved;
     }
 
-    public bool TryToSave()
+    public static bool TryToSave()
     {
-        string path = StandaloneFileBrowser.SaveFilePanel("Save", _data.GetSavePath(), _name, _fileExtension);
+        string path = StandaloneFileBrowser.SaveFilePanel("Save", _this._data.GetSavePath(), _this._name, _this._fileExtension);
 
         if (!string.IsNullOrEmpty(path))
         {
-            _data.Collect();
-            _data.SetSaveLocation(path);
-            File.WriteAllText(path, JsonUtility.ToJson(_data));
+            _this._data.Collect();
+            _this._data.SetSaveLocation(path);
+            File.WriteAllText(path, JsonUtility.ToJson(_this._data));
 
-            //_saved = true;
+            Saved = true;
 
             return true;
         }
@@ -245,13 +177,13 @@ public class Project : MonoBehaviour
         return false;
     }
 
-    public bool TryToLoad()
+    public static bool TryToLoad()
     {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _data.GetSavePath(), _fileExtension, false);
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _this._data.GetSavePath(), _this._fileExtension, false);
         if (paths.Length > 0)
         {
-            _data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
-            _data.Distribute();
+            _this._data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
+            _this._data.Distribute();
 
             return true;
         }

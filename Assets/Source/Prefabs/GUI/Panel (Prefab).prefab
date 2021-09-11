@@ -147,7 +147,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 152
-    m_Alignment: 3
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -315,24 +315,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec41dad5f8d5d9c4287d74fb263ade96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: 
+  _commands: []
   _default: {r: 0.35686275, g: 0.35686275, b: 0.35686275, a: 1}
   _hover: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
   _selected: {r: 0.9058824, g: 0.9058824, b: 0.9058824, a: 1}
-  eventsButton:
+  ClickButton:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5993514603809357790}
-        m_MethodName: Close
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   _press: 0
 --- !u!1 &7308093568239938596
 GameObject:
@@ -418,7 +407,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2730041862639363146}
-  - component: {fileID: 5993514603809357790}
   m_Layer: 5
   m_Name: Panel (Prefab)
   m_TagString: Panel
@@ -446,19 +434,3 @@ RectTransform:
   m_AnchoredPosition: {x: -636, y: 462}
   m_SizeDelta: {x: 310.5, y: 363.3}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5993514603809357790
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8049368494251451971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b50f15b063e3904e99bd47c4492cc72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _rectTransform: {fileID: 7087753738371978018}
-  widgets: []
-  isActive: 1
-  openStart: 1

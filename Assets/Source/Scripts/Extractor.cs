@@ -1,46 +1,73 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Extractor : MonoBehaviour
 {
-    private Coordinates _coordinates;
+    private static Extractor _this;
+    [SerializeField] private CoordinateDisplay _coordinates;
 
-    public void SetActive(bool value)
+    public static bool Active
     {
-        gameObject.SetActive(value);
+        get => _this.gameObject.activeSelf;
+        set
+        {
+            _this.gameObject.SetActive(value);
+            _this._coordinates.Active = value;
+        }
     }
 
-    public void SetPosition(Vector3 position)
+    public static void SetPosition(Vector3 position)
     {
-        transform.position = position;
+        _this.transform.position = position;
+
+        _this._coordinates.Position = _this.transform.position;
+        _this._coordinates.Title = "Position";
+        _this._coordinates.Value = _this.transform.position;
     }
 
-    public Vector3 GetPosition()
+    public static void OnMouseMove()
     {
-        return transform.position;
+        _this._coordinates.Position = _this.transform.position;
     }
 
-    public void SetRotation(Quaternion rot)
+    public static Vector3 GetPosition()
+    {
+        return _this.transform.position;
+    }
+
+    public static void SetRotation(Quaternion rot)
     {
         Vector3 euler = rot.eulerAngles;
         //transform.eulerAngles = new Vector3(Mathf.Abs(euler.x), Mathf.Abs(euler.y), Mathf.Abs(euler.z));
-        transform.eulerAngles = euler;
+        _this.transform.eulerAngles = euler;
     }
 
-    public void SetScale(Vector3 scale)
+    public static void SetScale(Vector3 scale)
     {
-        transform.localScale = new Vector3().Set(scale);
+        _this.transform.localScale = new Vector3().Set(scale);
+
+        _this._coordinates.Position = _this.transform.position;
+        _this._coordinates.Title = "Scale";
+        _this._coordinates.Value = _this.transform.localScale;
     }
 
-    public Vector3 GetScale()
+    public static Vector3 GetScale()
     {
-        return transform.localScale;
+        return _this.transform.localScale;
     }
-
 
     private void Awake()
     {
-        _coordinates = FindObjectOfType<Coordinates>();
+        _this = FindObjectOfType<Extractor>();
+        Active = false;
+    }
+
+    private void OnEnable()
+    {
+        CameraControl.MoveEvent += OnMouseMove;
+    }
+
+    private void OnDisable()
+    {
+        CameraControl.MoveEvent -= OnMouseMove;
     }
 }

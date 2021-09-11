@@ -1,25 +1,21 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class ObjMode : Mode
+public class OBJMode : Mode, IDrag
 {
-    public override void Disable()
-    {
-        Axes.Active = false;
-        Axes.ScaleAxesActive = false;
-        InputEvent.LMouseDown -= OnLMouseDown;
-        Axes.DragPosition -= OBJControl.OnMove;
-        Axes.DragScale -= OBJControl.OnScale;
-    }
-
-    public override void Enable()
+    public override void OnEnable()
     {
         InputEvent.LMouseDown += OnLMouseDown;
-        Axes.DragPosition += OBJControl.OnMove;
-        Axes.DragScale += OBJControl.OnScale;
+        Axes.SetDragObject(this);
     }
 
-    public void OnLMouseDown()
+    public override void OnDisable()
+    {
+        Axes.Active = false;
+        Axes.ScaleActive = false;
+        InputEvent.LMouseDown -= OnLMouseDown;
+    }
+
+    public override void OnLMouseDown()
     {
         RaycastHit hit;
         if (!Axes.IsHighlightedAxis())
@@ -32,15 +28,26 @@ public class ObjMode : Mode
                 {
                     Axes.Position = hit.transform.position;
                     Axes.Active = true;
-                    Axes.ScaleAxesActive = true;
+                    Axes.ScaleActive = true;
                     OBJControl.SelectModel(hit.transform);
                 }
             }
         }
     }
 
-    public override void Tick()
+    public bool OnTryDrag(DragTransform dragValue)
     {
-        //throw new System.NotImplementedException();
+        return OBJControl.TryDrag(dragValue);
+    }
+
+    public DragTransform GetDragCoordinates()
+    {
+        if (OBJControl.SelectedModel != null)
+        {
+            return new DragTransform((OBJControl.SelectedModel.position * 100).RoundToFloat() / 100f,
+                OBJControl.SelectedModel.localScale);
+        }
+
+        return null;
     }
 }

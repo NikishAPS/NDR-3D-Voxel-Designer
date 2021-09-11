@@ -5,12 +5,10 @@ using UnityEngine;
 public static class VoxelatorManager
 {
     public static readonly Project Project;
-    public static readonly Coordinates Coordinates;
 
     static VoxelatorManager()
     {
         Project = Object.FindObjectOfType<Project>();
-        Coordinates = Object.FindObjectOfType<Coordinates>();
     }
 
     public static int GetIndex(Vector3Int arraySize, Vector3Int position)
