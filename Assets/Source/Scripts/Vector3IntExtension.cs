@@ -3,22 +3,22 @@ using System.Collections;
 
 public static class Vector3IntExtension
 {
-    public static Vector3Int Set(this Vector3Int vector3, Vector3Int value)
+    public static Vector3Int Set(this Vector3Int vector3Int, Vector3Int value)
     {
         return new Vector3Int(value.x, value.y, value.y);
     }
 
-    public static Vector3 ToVector3(this Vector3Int value)
+    public static Vector3 ToVector3(this Vector3Int vector3Int)
     {
-        return new Vector3(value.x, value.y, value.z);
+        return new Vector3(vector3Int.x, vector3Int.y, vector3Int.z);
     }
 
-    public static Vector3Int Forward(this Vector3Int value)
+    public static Vector3Int Forward(this Vector3Int vector3Int)
     {
         return new Vector3Int(0, 0, 1);
     }
 
-    public static Vector3Int Back(this Vector3Int value)
+    public static Vector3Int Back(this Vector3Int vector3Int)
     {
         return new Vector3Int(0, 0, -1);
     }
