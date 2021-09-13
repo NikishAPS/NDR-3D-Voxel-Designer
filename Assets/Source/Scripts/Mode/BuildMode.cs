@@ -30,7 +30,7 @@ public class BuildMode : Mode
 
         if (_castResult != null)
         {
-            Vector3Int endPos = Extractor.GetPosition().ToVector3Int();
+            Vector3Int endPos = Extractor.Position.ToVector3Int();
 
             if(_voxelAreaMode == 2)
                 _endVoxelAreaPosition.y = endPos.y;
@@ -43,8 +43,8 @@ public class BuildMode : Mode
             }
             else //(_voxelAreaMode != 0)
             {
-                Extractor.SetPosition((_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f);
-                Extractor.SetScale((_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one);
+                Extractor.Position = (_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f;
+                Extractor.Scale = (_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one;
                 //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
             }
         }
@@ -69,7 +69,7 @@ public class BuildMode : Mode
             if (_voxelAreaMode == 0)
             {
                 //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
-                _startVoxelAreaPosition = Extractor.GetPosition().ToVector3Int();
+                _startVoxelAreaPosition = Extractor.Position.ToVector3Int();
                 _voxelAreaMode = 1;
             }
         }
@@ -109,7 +109,7 @@ public class BuildMode : Mode
             //MonoBehaviour.print(_castResult.lastPoint);
             if (ChunksManager.InField(_castResult.lastPoint))
             {
-                Extractor.SetPosition(_castResult.lastPoint);
+                Extractor.Position = _castResult.lastPoint;
                 Extractor.Active = true;
             }
             else
@@ -121,8 +121,8 @@ public class BuildMode : Mode
 
     private void ResetExtractor()
     {
-        Extractor.SetPosition(_endVoxelAreaPosition);
-        Extractor.SetScale(Vector3.one);
+        Extractor.Position = _endVoxelAreaPosition;
+        Extractor.Scale = Vector3.one;
     }
 
 }

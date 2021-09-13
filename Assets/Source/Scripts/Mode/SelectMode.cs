@@ -42,7 +42,7 @@ public class SelectMode : Mode, IDrag
             {
                 if (ChunksManager.InField(_castResult.point))
                 {
-                    Extractor.SetPosition(_castResult.point);
+                    Extractor.Position = _castResult.point;
                     Extractor.Active = true;
                     //VoxelatorManager.Coordinates.Value = _castResult.point;
                 }

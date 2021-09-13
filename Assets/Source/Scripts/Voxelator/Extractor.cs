@@ -4,6 +4,7 @@ public class Extractor : MonoBehaviour
 {
     private static Extractor _this;
     [SerializeField] private CoordinateDisplay _coordinates;
+    private static bool _activeCoordinates;
 
     public static bool Active
     {
@@ -11,17 +12,40 @@ public class Extractor : MonoBehaviour
         set
         {
             _this.gameObject.SetActive(value);
-            _this._coordinates.Active = value;
+            _this._coordinates.Active = value && _activeCoordinates;
         }
     }
 
-    public static void SetPosition(Vector3 position)
+    public static Vector3 Position
     {
-        _this.transform.position = position;
+        get
+        {
+            return _this.transform.position;
+        }
+        set
+        {
+            _this.transform.position = value;
 
-        _this._coordinates.Position = _this.transform.position;
-        _this._coordinates.Title = "Position";
-        _this._coordinates.Value = _this.transform.position;
+            _this._coordinates.Position = _this.transform.position;
+            _this._coordinates.Title = "Position";
+            _this._coordinates.Value = _this.transform.position;
+        }
+    }
+
+    public static Vector3 Scale
+    {
+        get
+        {
+            return _this.transform.localScale;
+        }
+        set
+        {
+            _this.transform.localScale = new Vector3().Set(value);
+
+            _this._coordinates.Position = _this.transform.position;
+            _this._coordinates.Title = "Scale";
+            _this._coordinates.Value = _this.transform.localScale;
+        }
     }
 
     public static void OnMouseMove()
@@ -29,35 +53,26 @@ public class Extractor : MonoBehaviour
         _this._coordinates.Position = _this.transform.position;
     }
 
-    public static Vector3 GetPosition()
-    {
-        return _this.transform.position;
-    }
+    //public static void SetRotation(Quaternion rot)
+    //{
+    //    Vector3 euler = rot.eulerAngles;
+    //    //transform.eulerAngles = new Vector3(Mathf.Abs(euler.x), Mathf.Abs(euler.y), Mathf.Abs(euler.z));
+    //    _this.transform.eulerAngles = euler;
+    //}
 
-    public static void SetRotation(Quaternion rot)
+    public static bool ActiveCoordinates
     {
-        Vector3 euler = rot.eulerAngles;
-        //transform.eulerAngles = new Vector3(Mathf.Abs(euler.x), Mathf.Abs(euler.y), Mathf.Abs(euler.z));
-        _this.transform.eulerAngles = euler;
-    }
-
-    public static void SetScale(Vector3 scale)
-    {
-        _this.transform.localScale = new Vector3().Set(scale);
-
-        _this._coordinates.Position = _this.transform.position;
-        _this._coordinates.Title = "Scale";
-        _this._coordinates.Value = _this.transform.localScale;
-    }
-
-    public static Vector3 GetScale()
-    {
-        return _this.transform.localScale;
+        set
+        {
+            _activeCoordinates = value;
+            _this._coordinates.Active = value;
+        }
     }
 
     private void Awake()
     {
         _this = FindObjectOfType<Extractor>();
+        ActiveCoordinates = true;
         Active = false;
     }
 
