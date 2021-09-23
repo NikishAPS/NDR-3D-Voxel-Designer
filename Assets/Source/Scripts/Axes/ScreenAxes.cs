@@ -2,12 +2,11 @@
 
 public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
 {
+    public static ScreenAxis CurAxis { get; private set; }
     private static ScreenAxes _this;
 
     [SerializeField] private float _size = 0.015f;
     [SerializeField] private RectTransform _screenPoint;
-    private ScreenAxis _curAxis;
-
 
     public static bool Active
     {
@@ -32,9 +31,9 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
 
     public void OnLMouseDown()
     {
-        if(_curAxis != null)
+        if(CurAxis != null)
         {
-
+            CameraController.SetViewDirectino(CurAxis.Direction);
         }
     }
 
@@ -49,14 +48,17 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
         CameraController.MoveEvent += OnCameraMove;
 
         gameObject.SetActive(false);
+    }
 
+    private void Start()
+    {
         OnCameraMove();
     }
 
     private void SetCurrentAxis(ScreenAxis axis)
     {
-        if (_curAxis != null) _curAxis.Highlighted = false;
-        _curAxis = axis;
-        if (_curAxis != null) _curAxis.Highlighted = true;
+        if (CurAxis != null) CurAxis.Highlighted = false;
+        CurAxis = axis;
+        if (CurAxis != null) CurAxis.Highlighted = true;
     }
 }

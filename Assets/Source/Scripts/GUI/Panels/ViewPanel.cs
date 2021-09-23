@@ -25,26 +25,35 @@ public class ViewPanel : Panel
 
     public override void OnMouseMove()
     {
+        if (ScreenAxes.CurAxis != null) return;
+
         Mode.OnMouseMove();
     }
 
     public override void OnLMouseDown()
     {
+        if (ScreenAxes.CurAxis != null) return;
         Mode.OnLMouseDown();
     }
 
     public override void OnLMouseUp()
     {
+        if (ScreenAxes.CurAxis != null) return;
+
         Mode.OnLMouseUp();
     }
 
     public override void OnRMouseDown()
     {
+        if (ScreenAxes.CurAxis != null) return;
+
         Mode.OnRMouseDown();
     }
 
     public override void OnRMouseUp()
     {
+        if (ScreenAxes.CurAxis != null) return;
+
         Mode.OnRMouseUp();
     }
 

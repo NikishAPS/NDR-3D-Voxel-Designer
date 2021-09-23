@@ -7,15 +7,17 @@ public class CameraController : MonoBehaviour
     public static Void MoveEvent;
     public static float Distance => Camera.main.orthographicSize;
 
+    private static CameraController _this;
+
     [SerializeField] private Camera _axesCamera;
     [SerializeField] private float _sensitivity = 250f;
     [SerializeField] private float _minZoom = 1f, _maxZoom = 100f;
     [SerializeField] private float _zoomSpeed = 0.2f;
+    [SerializeField] private float _viewChangingSpeed = 100f;
 
     [SerializeField]
     private Vector3 _target;
 
-    private Vector2 angles;
     private float _zoom;
 
     public static float GetDistance(Vector3 targerPosition)
@@ -23,8 +25,14 @@ public class CameraController : MonoBehaviour
         return Vector3.Distance(Camera.main.transform.position, targerPosition) + Camera.main.orthographicSize;
     }
 
+    public static void SetViewDirectino(Vector3 viewDirection)
+    {
+        _this.StartCoroutine(_this.Rotating(viewDirection));
+    }
+
     private void Awake()
     {
+        _this = FindObjectOfType<CameraController>();
         InputEvent.MMouseHold += OnMMouseHold;
         InputEvent.MouseScroll += OnMouseScroll;
 
@@ -36,17 +44,21 @@ public class CameraController : MonoBehaviour
         _axesCamera.nearClipPlane = Camera.main.nearClipPlane;
 
         _target.y = 0;
-        angles = new Vector2(320f, -50f);
+        transform.position = _target;
+        transform.localEulerAngles = new Vector2(20f, 50f);
     }
 
     private void OnMMouseHold()
     {
         if (!Input.GetKey(KeyCode.LeftShift))
         {
-            angles.x = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * Time.deltaTime * _sensitivity;
-            angles.y += Input.GetAxis("Mouse Y") * Time.deltaTime * _sensitivity;
+            float offsetAngleY = (transform.localEulerAngles.x) > 90f ? 360f : 0f;
+            float angleX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * Time.deltaTime * _sensitivity;
+            float angleY = transform.localEulerAngles.x - offsetAngleY - Input.GetAxis("Mouse Y") * Time.deltaTime * _sensitivity;
 
-            angles.y = Mathf.Clamp(angles.y, -90, 90);
+            angleY = Mathf.Clamp(angleY, -90f, 90f);
+
+            transform.localEulerAngles = new Vector3(angleY, angleX, 0);
         }
         else
         {
@@ -55,7 +67,6 @@ public class CameraController : MonoBehaviour
             _target += transform.TransformDirection(mouseDir);
         }
 
-        transform.localEulerAngles = new Vector3(-angles.y, angles.x, 0);
         //transform.position = transform.localRotation * (Vector3.forward) + _target;
         //transform.position = transform.localRotation * (-Vector3.forward) + _target;
         transform.position = _target;
@@ -70,10 +81,12 @@ public class CameraController : MonoBehaviour
 
         _zoom -= InputEvent.GetMouseScroll * speed;
         _zoom = Mathf.Clamp(_zoom, 1, 100);
-        StartCoroutine(CameraZoom(lastZoom, _zoom, speed));
+        StartCoroutine(Zooming(lastZoom, _zoom, speed));
     }
 
-    private IEnumerator CameraZoom(float lastZoom, float zoom, float speed)
+    
+
+    private IEnumerator Zooming(float lastZoom, float zoom, float speed)
     {
         float curzoom = lastZoom;
 
@@ -90,8 +103,19 @@ public class CameraController : MonoBehaviour
 
             yield return null;
         }
+    }
 
-        yield return null;
+    private IEnumerator Rotating(Vector3 viewDirection)
+    {
+        Quaternion rotation = Quaternion.LookRotation(viewDirection);
+        while(transform.rotation != rotation)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, Time.deltaTime * 10 * _viewChangingSpeed);
+            //transform.localEulerAngles = new Vector3(-angles.y, angles.x);
+            MoveEvent?.Invoke();
+
+            yield return null;
+        }
     }
 
 }

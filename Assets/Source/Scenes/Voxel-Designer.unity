@@ -2087,6 +2087,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 749863864}
     m_Modifications:
+    - target: {fileID: 1287394792698186347, guid: a9a116da34ffbdc41bb2d209952f8efb,
+        type: 3}
+      propertyPath: _direction.z
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 2218956837280380166, guid: a9a116da34ffbdc41bb2d209952f8efb,
         type: 3}
       propertyPath: _screenPoint
@@ -2150,6 +2155,21 @@ PrefabInstance:
     - target: {fileID: 3356098617744652900, guid: a9a116da34ffbdc41bb2d209952f8efb,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6140657072250177880, guid: a9a116da34ffbdc41bb2d209952f8efb,
+        type: 3}
+      propertyPath: _direction.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426140992209137491, guid: a9a116da34ffbdc41bb2d209952f8efb,
+        type: 3}
+      propertyPath: _direction.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426140992209137491, guid: a9a116da34ffbdc41bb2d209952f8efb,
+        type: 3}
+      propertyPath: _direction.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8989450486341433692, guid: a9a116da34ffbdc41bb2d209952f8efb,
@@ -10524,6 +10544,7 @@ MonoBehaviour:
   _minZoom: 1
   _maxZoom: 100
   _zoomSpeed: 0.2
+  _viewChangingSpeed: 70
   _target: {x: 0, y: 0, z: 0}
 --- !u!81 &1012944081
 AudioListener:
