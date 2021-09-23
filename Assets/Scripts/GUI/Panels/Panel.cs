@@ -25,14 +25,14 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
         OnOpen();
 
         gameObject.SetActive(true);
-        StartCoroutine(Opening1());
+        StartCoroutine(Opening());
     }
 
     public void Close()
     {
         OnClose();
 
-        StartCoroutine(Closing1());
+        StartCoroutine(Closing());
         PanelManager.RemovePanel(this);
     }
 
@@ -62,9 +62,9 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
         OnInit();
     }
 
-    private IEnumerator Opening1()
+    private IEnumerator Opening()
     {
-        StopCoroutine(Closing1());
+        StopCoroutine(Closing());
 
         while (transform.localScale != Vector3.one)
         {
@@ -75,9 +75,9 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
         PanelManager.AddPanel(this);
     }
 
-    private IEnumerator Closing1()
+    private IEnumerator Closing()
     {
-        StopCoroutine(Opening1());
+        StopCoroutine(Opening());
 
         while (transform.localScale != Vector3.zero)
         {

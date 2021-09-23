@@ -11,6 +11,6 @@ public static class Invoker
         command.Execute();
         _commands.Push(command);
 
-        StatisticsPresenter.IsProjectSaved = false;
+        ProjectPresenter.Saved = false;
     }
 }

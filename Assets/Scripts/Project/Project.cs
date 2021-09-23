@@ -43,16 +43,10 @@ public class Project : MonoBehaviour
     private static Project _this;
     private static StatisticsPanel _statisticsPanel;
 
-    public static bool Saved
-    {
-        get => _saved;
-        set => _saved = value;
-    }
+    public static bool Saved { get; set; }
 
     public Material ChunkMaterial => _chunkMaterial;
     public Material SelectedChunkMaterial => _selectedChunkMaterial;
-
-    private static bool _saved;
 
     [SerializeField]
     Data _data = new Data();
@@ -125,7 +119,7 @@ public class Project : MonoBehaviour
 
     public void Create()
     {
-        if (_saved)
+        if (Saved)
         {
             Restart();
         }
@@ -152,12 +146,11 @@ public class Project : MonoBehaviour
 
     private bool ExitProcessing()
     {
-        _saved = true;
-        if (!_saved || true)
+        if (!Saved)
         {
             Ouit();
         }
-        return _saved;
+        return Saved;
     }
 
     public static bool TryToSave()

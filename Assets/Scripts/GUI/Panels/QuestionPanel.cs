@@ -9,8 +9,6 @@ public class QuestionPanel : Panel
     private Void _reject;
     private Void _cancel;
 
-
-
     public override void OnOpen()
     {
         PanelManager.PinThePanel(this);

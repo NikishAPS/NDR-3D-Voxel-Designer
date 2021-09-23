@@ -3,23 +3,30 @@ using UnityEngine.UI;
 
 public class StatisticsPanel : Panel
 {
-    public bool Saved
+    private static StatisticsPanel _this;
+
+    public static bool Saved
     {
         set
         {
             if(value)
             {
-                statusText.text = "Saved";
-                statusText.color = Color.green;
+                _this.statusText.text = "Saved";
+                _this.statusText.color = Color.green;
             }
             else
             {
-                statusText.text = "Not Saved";
-                statusText.color = Color.red;
+                _this.statusText.text = "Not Saved";
+                _this.statusText.color = Color.red;
             }
         }
     }
 
     [SerializeField] private Text statusText;
+
+    public override void OnInit()
+    {
+        _this = PanelManager.GetPanel<StatisticsPanel>();
+    }
 
 }
