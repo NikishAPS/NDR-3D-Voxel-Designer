@@ -11,7 +11,14 @@ public static class Raycast
         Vector2 mousePos = InputEvent.MousePosition;
         Vector3 pos = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 0));
         Vector3 dir = SceneData.Camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 1)) - SceneData.Camera.transform.position;
+
+        pos = Camera.main.ScreenToWorldPoint(InputEvent.MousePosition);
+        dir = Camera.main.transform.forward;
+
+        pos += dir * Camera.main.nearClipPlane;
+
         dir.Normalize();
+
 
         Vector3 direction = Vector3.zero;
         Vector3 point = Vector3.zero;
@@ -76,6 +83,11 @@ public static class Raycast
 
         Vector3 startVertex = Vector3.zero;
         Vector3 endVertex = Vector3.zero;
+
+        point = Camera.main.ScreenToWorldPoint(InputEvent.MousePosition);
+        dir = Camera.main.transform.forward;
+
+        point += dir * Camera.main.nearClipPlane;
 
         Vertex vertex = null;
 

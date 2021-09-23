@@ -30,6 +30,17 @@ public static class ChunksManager
     private static LinkedList<Vector3Int> _selectedVoxelPositions = new LinkedList<Vector3Int>();
 
 
+    public static void SetVoxelIdByColor(Color color)
+    {
+        int r = (int)(color.r * 255);
+        int g = (int)(color.g * 255);
+        int b = (int)(color.b * 255);
+
+        int index = VoxelatorManager.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
+
+        VoxelId = index;
+    }
+
     public static void InitField(Vector3Int size)
     {
         FieldSize = size;
@@ -46,7 +57,7 @@ public static class ChunksManager
 
     public static void InitChunks()
     {
-        VoxelId = 1;
+        VoxelId = 4096 * 4096;
         MiddleSelectedPos = Vector3.zero;
 
         _chunkSizes = new Vector3Int(

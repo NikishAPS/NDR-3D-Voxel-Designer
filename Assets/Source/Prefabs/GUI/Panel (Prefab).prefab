@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 5879234683508116852}
   - component: {fileID: 2026698873055543370}
   - component: {fileID: 8300158855413511807}
-  - component: {fileID: 2467235119602404889}
+  - component: {fileID: 598215054548098793}
   m_Layer: 5
   m_Name: Button (Close)
   m_TagString: Untagged
@@ -303,7 +303,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2467235119602404889
+--- !u!114 &598215054548098793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -312,17 +312,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 5838919257317798503}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec41dad5f8d5d9c4287d74fb263ade96, type: 3}
+  m_Script: {fileID: 11500000, guid: 873af648290060c419a927bad1c94841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _commands: []
-  _default: {r: 0.35686275, g: 0.35686275, b: 0.35686275, a: 1}
-  _hover: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
-  _selected: {r: 0.9058824, g: 0.9058824, b: 0.9058824, a: 1}
-  ClickButton:
+  _defaultColor: {r: 0.35686275, g: 0.35686275, b: 0.35686275, a: 1}
+  _hoverColor: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
+  _selectedColor: {r: 0.90588236, g: 0.90588236, b: 0.90588236, a: 1}
+  Click:
     m_PersistentCalls:
-      m_Calls: []
-  _press: 0
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_MethodName: Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7308093568239938596
 GameObject:
   m_ObjectHideFlags: 0

@@ -163,12 +163,27 @@ public class Chunk
                             triangles[i6 + j] = VoxelMesh.VoxelFaceTriangles[j] + i4;
                         }
 
-                        float v1 = SceneData.TextureMul * (voxel.Id % SceneData.TextureSize);
-                        float v2 = 1 - SceneData.TextureMul * (voxel.Id / (SceneData.TextureSize + 1));
-                        uv[i4 + 0] = new Vector2(v1, v2 - SceneData.TextureMul);
-                        uv[i4 + 1] = new Vector2(v1, v2);
-                        uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul, v2);
-                        uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul, v2 - SceneData.TextureMul);
+                        float v1 = SceneData.TextureMul * ((voxel.Id - 1) % SceneData.TextureSize) + SceneData.TextureMul;
+                        float v2 = 1 - SceneData.TextureMul * (int)(voxel.Id / (SceneData.TextureSize + 1));
+                        float offset = SceneData.TextureMul / 2f;
+
+                        uv[i4 + 0] = new Vector2(v1 - offset, v2 - SceneData.TextureMul + offset);
+                        uv[i4 + 1] = new Vector2(v1 - offset, v2 - offset);
+                        uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - offset);
+                        uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - SceneData.TextureMul + offset);
+
+
+                        float x = (voxel.Id - 1) % SceneData.TextureSize + 1;
+                        float y = (voxel.Id - 1) / (SceneData.TextureSize) + 1;
+
+
+                        x = x / SceneData.TextureSize;
+                        y = 1 - y / SceneData.TextureSize;
+
+                        uv[i4 + 0] = new Vector2(x - offset, y + offset);
+                        uv[i4 + 2] = new Vector2(x - offset, y + SceneData.TextureMul - offset);
+                        uv[i4 + 3] = new Vector2(x - SceneData.TextureMul + offset, y + SceneData.TextureMul - offset);
+                        uv[i4 + 1] = new Vector2(x - SceneData.TextureMul + offset, y + offset);
 
                         i4 += 4;
                         i6 += 6;

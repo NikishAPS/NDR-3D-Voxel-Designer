@@ -23,4 +23,7 @@ namespace CustomUnityEvents
     [Serializable]
     public class EventCommand : UnityEvent<Command> { }
 
+    [Serializable]
+    public class EventColor : UnityEvent<Color> { }
+
 }

@@ -9,7 +9,7 @@ public class Button : Widget
 
 
 
-    public override void OnDown()
+    public override void OnClick()
     {
         Click?.Invoke();
     }

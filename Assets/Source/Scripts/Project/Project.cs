@@ -152,7 +152,8 @@ public class Project : MonoBehaviour
 
     private bool ExitProcessing()
     {
-        if (!_saved)
+        _saved = true;
+        if (!_saved || true)
         {
             Ouit();
         }

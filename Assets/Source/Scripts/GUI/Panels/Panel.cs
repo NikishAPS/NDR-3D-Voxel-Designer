@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, IRMouseDown, IRMouseUp
+public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMouseUp, IRMouseDown, IRMouseUp
 {
     public Vector2 Position
     {
@@ -24,15 +24,15 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, IRMouseD
     {
         OnOpen();
 
-        PanelManager.AddProcess(Opening);
-        PanelManager.AddPanel(this);
+        gameObject.SetActive(true);
+        StartCoroutine(Opening1());
     }
 
     public void Close()
     {
         OnClose();
 
-        PanelManager.AddProcess(Closing);
+        StartCoroutine(Closing1());
         PanelManager.RemovePanel(this);
     }
 
@@ -41,6 +41,7 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, IRMouseD
     public virtual void OnClose() { }
     public virtual void OnMouseMove() { }
     public virtual void OnLMouseDown() { }
+    public virtual void OnLMouseHold() { }
     public virtual void OnLMouseUp() { }
     public virtual void OnRMouseDown() { }
     public virtual void OnRMouseUp() { }
@@ -58,34 +59,33 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, IRMouseD
     {
         transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
+        OnInit();
     }
 
-    private bool Closing()
+    private IEnumerator Opening1()
     {
-        transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.zero, Time.deltaTime * 10f);
+        StopCoroutine(Closing1());
 
-        if (transform.localScale == Vector3.zero)
+        while (transform.localScale != Vector3.one)
         {
-            gameObject.SetActive(false);
-            return true;
+            transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.one, Time.deltaTime * 10f);
+            yield return null;
         }
 
-        return false;
+        PanelManager.AddPanel(this);
     }
 
-    private bool Opening()
+    private IEnumerator Closing1()
     {
-        gameObject.SetActive(true);
+        StopCoroutine(Opening1());
 
-        transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.one, Time.deltaTime * 10f);
-
-        if(transform.localScale == Vector3.one)
+        while (transform.localScale != Vector3.zero)
         {
-            return true;
+            transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.zero, Time.deltaTime * 10f);
+            yield return null;
         }
 
-        return false;
+        gameObject.SetActive(false);
     }
-
 
 }

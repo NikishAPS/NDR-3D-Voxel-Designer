@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
-public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, IRMouseDown, IRMouseUp
+public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMouseUp, IRMouseDown, IRMouseUp
 {
     public static Panel[] Panels { get; private set; }
 
     private static Panel _pinPanel;
     private static LinkedList<Panel> _openedPanel = new LinkedList<Panel>();
-    private static BoolFunction _process;
-    private static LinkedList<BoolFunction> _processes = new LinkedList<BoolFunction>();
+    private static Bool _process;
     [SerializeField] private Panel _cursorPanel;
     [SerializeField] private Widget _cursorWidget;
 
+    private bool _isLMouseDowned = false;
     
+
     
     public static T GetPanel<T>() where T : Panel
     {
@@ -26,7 +26,7 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, I
         return null;
     }
 
-    public static void PinPanel(Panel panel)
+    public static void PinThePanel(Panel panel)
     {
         _pinPanel = panel;
     }
@@ -39,11 +39,6 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, I
     public static void RemovePanel(Panel panel)
     {
         _openedPanel.Remove(panel);
-    }
-
-    public static void AddProcess(BoolFunction process)
-    {
-        _processes.AddLast(process);
     }
 
     public void OnMouseMove()
@@ -73,22 +68,30 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, I
         {
             _cursorWidget.OnSelect();
             InputEvent.MouseMove -= OnMouseMove;
+            _isLMouseDowned = true;
         }
+    }
+
+    public void OnLMouseHold()
+    {
+        _cursorWidget?.OnHold();
     }
 
     public void OnLMouseUp()
     {
         _cursorPanel?.OnLMouseUp();
+        _cursorWidget?.OnLMouseUp();
 
-        if (_cursorWidget != null)
+        if (_cursorWidget != null && _isLMouseDowned)
         {
             Widget widget = GetCursorWidget();
             if (widget == _cursorWidget)
             {
-                _cursorWidget.OnDown();
+                _cursorWidget.OnClick();
             }
             OnMouseMove();
             InputEvent.MouseMove += OnMouseMove;
+            _isLMouseDowned = false;
         }
     }
 
@@ -110,31 +113,10 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp, I
 
         InputEvent.MouseMove += OnMouseMove;
         InputEvent.LMouseDown += OnLMouseDown;
+        InputEvent.LMouseHold += OnLMouseHold;
         InputEvent.LMouseUp += OnLMouseUp;
         InputEvent.RMouseDown += OnRMouseDown;
         InputEvent.RMouseUp += OnRMouseUp;
-    }
-
-    private void Start()
-    {
-        foreach(Panel panel in Panels)
-        {
-            panel.OnInit();
-        }
-    }
-
-    private void Update()
-    {
-        var process = _processes.First;
-        while (process != null)
-        {
-            var next = process.Next;
-            if (process.Value.Invoke())
-            {
-                _processes.Remove(process);
-            }
-            process = next;
-        }
     }
 
     private Panel GetCursorPanel()

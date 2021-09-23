@@ -9,6 +9,11 @@ public class InputEvent : MonoBehaviour
     public static bool GetRMouseDown => Input.GetMouseButtonDown(1);
     public static bool GetRMouseHold => Input.GetMouseButton(1);
     public static bool GetRMouseUp => Input.GetMouseButtonUp(1);
+    public static bool GetMMouseDown => Input.GetMouseButtonDown(2);
+    public static bool GetMMouseHold => Input.GetMouseButton(2);
+    public static bool GetMMouseUp => Input.GetMouseButtonUp(2);
+    public static float GetMouseScroll => Input.mouseScrollDelta.y;
+
     public static Void MouseMove;
     public static Void LMouseDown;
     public static Void LMouseHold;
@@ -17,6 +22,10 @@ public class InputEvent : MonoBehaviour
     public static Void RMouseDown;
     public static Void RMouseHold;
     public static Void RMouseUp;
+    public static Void MMouseDown;
+    public static Void MMouseHold;
+    public static Void MMouseUp;
+    public static Void MouseScroll;
 
     public static Vector3 MousePosition => Input.mousePosition;
     public static Vector3 MouseSpeed { get; private set; }
@@ -44,5 +53,10 @@ public class InputEvent : MonoBehaviour
         if (GetRMouseHold) RMouseHold?.Invoke();
         if (GetRMouseUp) RMouseUp?.Invoke();
         if (GetDelete) Delete?.Invoke();
+        if (GetMMouseDown) MMouseDown?.Invoke();
+        if (GetMMouseHold) MMouseHold?.Invoke();
+        if (GetMMouseUp) MMouseUp?.Invoke();
+
+        if (GetMouseScroll != 0) MouseScroll?.Invoke();
     }
 }

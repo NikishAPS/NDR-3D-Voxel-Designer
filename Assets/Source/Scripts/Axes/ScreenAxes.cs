@@ -20,7 +20,7 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
     {
         transform.position = Camera.main.ScreenToWorldPoint(_screenPoint.position);
         transform.rotation = Quaternion.identity;
-        transform.localScale = Vector3.one * _size;
+        transform.localScale = Vector3.one * _size * CameraController.Distance;
     }
 
     public void OnMouseMove()
@@ -46,9 +46,11 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
 
         InputEvent.MouseMove += OnMouseMove;
         InputEvent.LMouseDown += OnLMouseDown;
-        CameraControl.MoveEvent += OnCameraMove;
+        CameraController.MoveEvent += OnCameraMove;
 
         gameObject.SetActive(false);
+
+        OnCameraMove();
     }
 
     private void SetCurrentAxis(ScreenAxis axis)

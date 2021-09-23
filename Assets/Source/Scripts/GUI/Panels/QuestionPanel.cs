@@ -13,12 +13,12 @@ public class QuestionPanel : Panel
 
     public override void OnOpen()
     {
-        PanelManager.PinPanel(this);
+        PanelManager.PinThePanel(this);
     }
 
     public override void OnClose()
     {
-        PanelManager.PinPanel(null);
+        PanelManager.PinThePanel(null);
     }
 
     public void SetTitles(string panelTitle, string confirmTitle, string rejectTitle, string cancelTitle)

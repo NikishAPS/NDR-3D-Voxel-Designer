@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 
 public class Widget : MonoBehaviour
 {
@@ -39,7 +36,7 @@ public class Widget : MonoBehaviour
     private RectTransform _rectTransform;
     protected Image _image;
     [SerializeField] protected Color
-        _defaultColor = new Color(91f/255f, 91f / 255f, 91f / 255f),
+        _defaultColor = new Color(91f / 255f, 91f / 255f, 91f / 255f),
         _hoverColor = new Color(178f / 255f, 178f / 255f, 178f / 255f),
         _selectedColor = new Color(231f / 255f, 231f / 255f, 231f / 255f);
 
@@ -48,7 +45,13 @@ public class Widget : MonoBehaviour
     {
         return _rectTransform.Inside(Input.mousePosition);
     }
-            
+
+    public virtual void SetColor(Color color)
+    {
+        if (_image != null)
+            _image.color = color;
+    }
+
     public virtual void OnInit()
     {
 
@@ -56,25 +59,32 @@ public class Widget : MonoBehaviour
 
     public virtual void OnHover()
     {
-        if(_image != null)
-        _image.color = _hoverColor;
+        SetColor(_hoverColor);
+    }
+
+    public virtual void OnHold()
+    {
+
+    }
+
+    public virtual void OnLMouseUp()
+    {
+
     }
 
     public virtual void OnSelect()
     {
-        if (_image != null)
-            _image.color = _selectedColor;
+        SetColor(_selectedColor);
     }
 
-    public virtual void OnDown()
+    public virtual void OnClick()
     {
 
     }
 
     public virtual void OnLeave()
     {
-        if (_image != null)
-            _image.color = _defaultColor;
+        SetColor(_defaultColor);
     }
 
 

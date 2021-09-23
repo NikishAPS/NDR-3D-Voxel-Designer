@@ -78,11 +78,11 @@ public class Extractor : MonoBehaviour
 
     private void OnEnable()
     {
-        CameraControl.MoveEvent += OnMouseMove;
+        CameraController.MoveEvent += OnMouseMove;
     }
 
     private void OnDisable()
     {
-        CameraControl.MoveEvent -= OnMouseMove;
+        CameraController.MoveEvent -= OnMouseMove;
     }
 }

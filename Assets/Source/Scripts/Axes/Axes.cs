@@ -95,7 +95,8 @@ public class Axes : MonoBehaviour
 
     public static void OnResize()
     {
-        float size = _this._pivotSize * Vector3.Distance(Position, Camera.main.transform.position);
+        //float size = _this._pivotSize * Vector3.Distance(Position, Camera.main.transform.position);
+        float size = _this._pivotSize * CameraController.Distance;
 
         Scale = Vector3.one * size;
 
@@ -130,7 +131,7 @@ public class Axes : MonoBehaviour
         InputEvent.LMouseDown += OnLMouseDown;
         InputEvent.LMouseHold += OnLMouseHold;
         InputEvent.LMouseUp += OnLMouseUp;
-        CameraControl.MoveEvent += OnResize;
+        CameraController.MoveEvent += OnResize;
 
         _this = FindObjectOfType<Axes>();
 
@@ -142,7 +143,7 @@ public class Axes : MonoBehaviour
         InputEvent.LMouseDown -= OnLMouseDown;
         InputEvent.LMouseHold -= OnLMouseHold;
         InputEvent.LMouseUp -= OnLMouseUp;
-        CameraControl.MoveEvent -= OnResize;
+        CameraController.MoveEvent -= OnResize;
     }
 
     private void OnMouseMove()

@@ -14,7 +14,7 @@ public class SwitcherButton : Widget
         _switcher = GetComponentInParent<Switcher>();
     }
 
-    public override void OnDown()
+    public override void OnClick()
     {
         _switcher.Switch(this);
     }
