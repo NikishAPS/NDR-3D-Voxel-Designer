@@ -36,5 +36,27 @@ public static class GridManager
         return false;
     }
 
+
+    public static Grid GetFaceGrid(Vector3 direction)
+    {
+        int[] indexes = new int[4]
+        {
+            Direction.Left, Direction.Right, Direction.Back, Direction.Forward
+        };
+
+        float minAngle = 0f;
+        int indexMin = 0;
+        for(int i = 0; i < indexes.Length; i++)
+        {
+            float angle = Vector3.Angle(-Direction.Directions[indexes[i]], direction);
+            if (angle > minAngle)
+            {
+                minAngle = angle;
+                indexMin = i;
+            }
+        }
+
+        return Grids[indexes[indexMin]];
+    }
 }
 
