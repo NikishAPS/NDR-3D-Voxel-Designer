@@ -6,7 +6,12 @@ public static class InspectorPresenter
 
     static InspectorPresenter()
     {
-        _inspectorPanel = Object.FindObjectOfType<InspectorPanel>();
+        _inspectorPanel = PanelManager.GetPanel<InspectorPanel>();
+    }
+
+    public static void SwitchTab(int tabIndex)
+    {
+
     }
 
 

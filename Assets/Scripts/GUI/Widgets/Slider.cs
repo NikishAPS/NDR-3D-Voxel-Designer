@@ -25,18 +25,19 @@ public class Slider : Widget
     [SerializeField] private InputField _inputField;
     [SerializeField] private EventInt _initField;
 
-    private Image _handleImage;
+    public override void OnInitImage()
+    {
+        _image = _handle.GetComponent<Image>();
+    }
 
     public override void OnInit()
     {
         Value = _value;
-
-        _handleImage = _handle.GetComponent<Image>();
     }
 
     public override void SetColor(Color color)
     {
-        _handleImage.color = color;
+        _image.color = color;
     }
 
     public override void OnHold()

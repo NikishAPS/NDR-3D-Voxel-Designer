@@ -1,17 +1,11 @@
-﻿using UnityEngine;
-
-public class ModeManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp
+﻿public static class ModeManager
 {
-    public static ModeManager This { get; private set; }
     private static int _mode = -1;
     private static  Mode[] _modes = new Mode[0];
+    private static Mode _curMode => _modes[_mode];
 
-
-
-    public void Awake()
+    static ModeManager()
     {
-        This = FindObjectOfType<ModeManager>();
-
         _mode = 0;
         _modes = new Mode[]
         {
@@ -24,7 +18,7 @@ public class ModeManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp
         _modes[_mode].OnEnable();
     }
 
-    public void SwitchMode(int value)
+    public static void SwitchMode(int value)
     {
         if (_mode < 0 || _mode >= _modes.Length) return;
 
@@ -33,19 +27,29 @@ public class ModeManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseUp
         _modes[_mode].OnEnable();
     }
 
-    public void OnMouseMove()
+    public static void OnMouseMove()
     {
-        _modes[_mode].OnMouseMove();
+        _curMode.OnMouseMove();
     }
 
-    public void OnLMouseDown()
+    public static void OnLMouseDown()
     {
-        _modes[_mode].OnLMouseDown();
+        _curMode.OnLMouseDown();
     }
 
-    public void OnLMouseUp()
+    public static void OnLMouseUp()
     {
-        _modes[_mode].OnLMouseUp();
+        _curMode.OnLMouseUp();
+    }
+
+    public static void OnRMouseDown()
+    {
+        _curMode.OnRMouseDown();
+    }
+
+    public static void OnRMouseUp()
+    {
+        _curMode.OnRMouseUp();
     }
     
 }

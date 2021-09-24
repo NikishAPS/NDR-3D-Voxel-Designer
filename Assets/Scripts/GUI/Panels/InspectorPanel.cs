@@ -3,15 +3,17 @@ using System.Collections;
 
 public class InspectorPanel : Panel, IColor
 {
+    [SerializeField] private GameObject[] _tabs;
+
     [SerializeField] private Color _buildColor = Color.white;
     [SerializeField] private Button _buildColorButton;
 
     private ColorPickerPanel _colorPickerPanel;
+    private int _tabIndex = 0;
 
     public override void OnInit()
     {
         _colorPickerPanel = PanelManager.GetPanel<ColorPickerPanel>();
-
         SetColor(_buildColor);
     }
 
@@ -33,4 +35,12 @@ public class InspectorPanel : Panel, IColor
 
         ChunksManager.SetVoxelIdByColor(color);
     }
+
+    public void SwitchTab(int tabIndex)
+    {
+        _tabs[_tabIndex].SetActive(false);
+        _tabIndex = tabIndex;
+        _tabs[_tabIndex].SetActive(true);
+    }
+
 }

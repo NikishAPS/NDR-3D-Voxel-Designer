@@ -3,34 +3,81 @@ using CustomUnityEvents;
 
 public class Switcher : Widget
 {
-    public int Value => _value;
+    public int Value
+    {
+        get => _value;
+        set
+        {
+            _value = value;
+        }
+    }
+
     [SerializeField] private int _value;
-    private SwitcherButton _selectedButton;
     [SerializeField] private EventInt SwitchEvent;
+    [SerializeField] private SwitcherButton[] _switcherButtons;
+    [SerializeField] private SwitcherButton _curSwitcherButton;
+    [SerializeField] private SwitcherButton _selectedSwitcherButton;
 
 
-
-    public override void OnInit()
+    public override void OnInitImage()
     {
-        _selectedButton = GetComponentsInChildren<SwitcherButton>()[0];
-        SetButtonColor(_selectedButton, _selectedColor);
-        _value = _selectedButton.Value;
+        Init();
+        foreach (SwitcherButton button in _switcherButtons)
+            button.Init();
     }
 
-    public void Switch(SwitcherButton button)
+    public override bool Inside()
     {
-        SetButtonColor(_selectedButton, _defaultColor);
-        _selectedButton = button;
-        SetButtonColor(_selectedButton, _selectedColor);
+        foreach (SwitcherButton button in _switcherButtons)
+        {
+            if (button.Inside(InputEvent.MousePosition))
+            {
+                _curSwitcherButton = button;
+                return true;
+            }
+        }
 
-        _value = button.Value;
-
-        SwitchEvent?.Invoke(_value);
+        _curSwitcherButton = null;
+        return false;
     }
 
-    private void SetButtonColor(SwitcherButton switcherButton, Color color)
+    public override void SetColor(Color color)
     {
-        switcherButton.DefaultColor = color;
-        switcherButton.Image.color = color;
+        foreach (SwitcherButton button in _switcherButtons)
+        {
+            if(button != _selectedSwitcherButton)
+                button.SetColor(_defaultColor);
+            else
+                button.SetColor(_selectedColor);
+        }
+
+        _curSwitcherButton?.SetColor(color);
     }
+
+
+
+    public override void OnClick()
+    {
+        if(_curSwitcherButton != null)
+        {
+            _selectedSwitcherButton = _curSwitcherButton;
+            _value = _selectedSwitcherButton.Value;
+            SwitchEvent?.Invoke(_value);
+        }
+    }
+   
+    public void SwitchButtons(SwitcherButton button)
+    {
+        button?.SetColor(_defaultColor);
+        _curSwitcherButton = button;
+    }
+
+    private void Init()
+    {
+        _switcherButtons = GetComponentsInChildren<SwitcherButton>();
+        _curSwitcherButton = null;
+        _selectedSwitcherButton = _switcherButtons[0];
+        _value = _selectedSwitcherButton.Value;
+    }
+
 }

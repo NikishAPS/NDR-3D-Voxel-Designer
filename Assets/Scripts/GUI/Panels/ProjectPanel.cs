@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class ProjectPanel : Panel
 {
-    private QuestionPanel _questionPanel;
+    public Switcher ModeSwitcher => _modeSwitcher;
 
-    public override void OnInit()
-    {
-        _questionPanel = PanelManager.GetPanel<QuestionPanel>();
-    }
+    [SerializeField] private QuestionPanel _questionPanel;
+    [SerializeField] private Switcher _modeSwitcher;
 
     public void TryCreateNewProject()
     {
@@ -37,6 +35,11 @@ public class ProjectPanel : Panel
     public void LoadOBJ()
     {
         OBJControl.Import();
+    }
+
+    public void OnSwitchMode(int mode)
+    {
+        ModeManager.SwitchMode(mode);
     }
 
     

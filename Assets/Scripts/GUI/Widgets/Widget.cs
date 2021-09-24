@@ -41,6 +41,16 @@ public class Widget : MonoBehaviour
         _selectedColor = new Color(231f / 255f, 231f / 255f, 231f / 255f);
 
 
+    public virtual void OnInitRectTransform()
+    {
+        _rectTransform = GetComponent<RectTransform>();
+    }
+
+    public virtual void OnInitImage()
+    {
+        _image = GetComponent<Image>();
+    }
+
     public virtual bool Inside()
     {
         return _rectTransform.Inside(Input.mousePosition);
@@ -91,12 +101,10 @@ public class Widget : MonoBehaviour
 
     private void Awake()
     {
-        _rectTransform = GetComponent<RectTransform>();
-        _image = GetComponent<Image>();
+        OnInitRectTransform();
+        OnInitImage();
 
-        if (_image != null) _image.color = _defaultColor;
-
-
+        SetColor(_defaultColor);
     }
 
     private void Start()

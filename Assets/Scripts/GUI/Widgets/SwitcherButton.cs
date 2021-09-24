@@ -1,21 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class SwitcherButton : Widget
+public class SwitcherButton : MonoBehaviour
 {
-    public int Value => _value;
+    public int Value
+    {
+        get => _value;
+        set => _value = value;
+    }
+
     [SerializeField] private int _value;
-    private Switcher _switcher;
+    [SerializeField] private RectTransform _rectTransform;
+    [SerializeField] private Image _image;
 
-    public override void OnInit()
+    public void Init()
     {
-        _switcher = GetComponentInParent<Switcher>();
+        _rectTransform = GetComponent<RectTransform>();
+        _image = GetComponent<Image>();
     }
 
-    public override void OnClick()
+    public bool Inside(Vector3 point)
     {
-        _switcher.Switch(this);
+        return _rectTransform.Inside(point);
     }
+
+    public void SetColor(Color color)
+    {
+        _image.color = color;
+    }
+
 }

@@ -26,6 +26,7 @@ public class BuildMode : Mode
 
     public override void OnMouseMove()
     {
+        
         RayCast();
 
         if (_castResult != null)
@@ -82,6 +83,8 @@ public class BuildMode : Mode
             _voxelAreaMode = 2;
 
             //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
+
+            
 
             GridManager.Grids[Direction.Left].Set(true,
                 new Vector3Int(Mathf.Min(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), 0, Mathf.Min(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)),
