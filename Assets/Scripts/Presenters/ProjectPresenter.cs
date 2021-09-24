@@ -12,7 +12,7 @@
 
     public static void SwitchMode(int mode)
     {
-        PanelManager.GetPanel<ProjectPanel>().ModeSwitcher.Value = mode;
+        PanelManager.GetPanel<ProjectPanel>().ModeSwitcher.Switch(mode);
         ModeManager.SwitchMode(mode);
     }
 }

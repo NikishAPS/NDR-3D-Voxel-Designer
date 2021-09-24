@@ -3,21 +3,13 @@ using CustomUnityEvents;
 
 public class Switcher : Widget
 {
-    public int Value
-    {
-        get => _value;
-        set
-        {
-            _value = value;
-        }
-    }
+    public int Value => _value;
 
     [SerializeField] private int _value;
     [SerializeField] private EventInt SwitchEvent;
     [SerializeField] private SwitcherButton[] _switcherButtons;
     [SerializeField] private SwitcherButton _curSwitcherButton;
     [SerializeField] private SwitcherButton _selectedSwitcherButton;
-
 
     public override void OnInitImage()
     {
@@ -65,11 +57,13 @@ public class Switcher : Widget
             SwitchEvent?.Invoke(_value);
         }
     }
-   
-    public void SwitchButtons(SwitcherButton button)
+
+    public void Switch(int index)
     {
-        button?.SetColor(_defaultColor);
-        _curSwitcherButton = button;
+        if (index < 0 || index >= _switcherButtons.Length) return;
+
+        _selectedSwitcherButton = _switcherButtons[index];
+        SetColor(_defaultColor);
     }
 
     private void Init()
