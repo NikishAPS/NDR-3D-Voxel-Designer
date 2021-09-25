@@ -61,6 +61,7 @@ public class Switcher : Widget
     public void Switch(int index)
     {
         if (index < 0 || index >= _switcherButtons.Length) return;
+        if (_switcherButtons[index] == _selectedSwitcherButton) return;
 
         _selectedSwitcherButton = _switcherButtons[index];
         SetColor(_defaultColor);

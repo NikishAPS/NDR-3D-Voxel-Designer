@@ -4,4 +4,5 @@ using System.Collections;
 public delegate void Void();
 public delegate bool Bool();
 
-public delegate void VoidVector3(Vector3 vector3);
+public delegate void VoidInt(int value);
+public delegate void VoidVector3(Vector3 value);

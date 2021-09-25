@@ -39,7 +39,12 @@ public class ProjectPanel : Panel
 
     public void OnSwitchMode(int mode)
     {
-        ModeManager.SwitchMode(mode);
+        Invoker.Execute(new SwitchModeCommand(mode));
+    }
+
+    private void OnSetMode(int mode)
+    {
+        _modeSwitcher.Switch(mode);
     }
 
     

@@ -4,6 +4,8 @@
     private static  Mode[] _modes = new Mode[0];
     private static Mode _curMode => _modes[_mode];
 
+    public static VoidInt SwitchModeEvent;
+
     static ModeManager()
     {
         _mode = 0;
@@ -25,6 +27,8 @@
         _modes[_mode].OnDisable();
         _mode = value;
         _modes[_mode].OnEnable();
+
+        SwitchModeEvent?.Invoke(value);
     }
 
     public static void OnMouseMove()
