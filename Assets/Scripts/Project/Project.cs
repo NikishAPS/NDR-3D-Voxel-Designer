@@ -11,12 +11,12 @@ public class Project : MonoBehaviour
     {
         public void Collect()
         {
-            _chunksManagerData = ChunksManager.GetData();
+            _chunksManagerData = ChunkManager.GetData();
         }
         public void Distribute()
         {
             //SceneData.Chunk.SetData(_chunkData);
-            ChunksManager.SetData(_chunksManagerData);
+            ChunkManager.SetData(_chunksManagerData);
             Saved = true;
         }
 
@@ -37,7 +37,7 @@ public class Project : MonoBehaviour
 
         //chunk data
         [SerializeField]
-        private ChunksManagerData _chunksManagerData;
+        private ChunkManagerData _chunksManagerData;
     }
 
     private static Project _this;
@@ -87,8 +87,8 @@ public class Project : MonoBehaviour
         _name = name;
         _data.SetSaveLocation(saveLocation);
 
-        ChunksManager.InitChunks();
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunksManager.FieldSize.x, 1, ChunksManager.FieldSize.z);
+        ChunkManager.InitChunks();
+        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
         GridManager.Grids[Direction.Down].Active = true;
     }
 
@@ -189,14 +189,14 @@ public class Project : MonoBehaviour
     {
         return;
 
-        if(ChunksManager.Vertices != null)
+        if(ChunkManager.Vertices != null)
         {
-            for(int i = 0; i < ChunksManager.Vertices.Length;i ++)
+            for(int i = 0; i < ChunkManager.Vertices.Length;i ++)
             {
-                if(ChunksManager.Vertices[i] != null)
+                if(ChunkManager.Vertices[i] != null)
                 {
                     Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(ChunksManager.Vertices[i].Position, 0.1f);
+                    Gizmos.DrawSphere(ChunkManager.Vertices[i].Position, 0.1f);
                 }
             }
         }

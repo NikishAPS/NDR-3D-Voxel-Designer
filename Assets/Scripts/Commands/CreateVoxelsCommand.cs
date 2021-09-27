@@ -23,7 +23,7 @@ public class CreateVoxelsCommand : Command
             {
                 for (int z = _startVoxelArea.z; z != _endVoxelArea.z; z += steps.z)
                 {
-                    if (!ChunksManager.TryCreateVoxel(new Vector3Int(x, y, z)))
+                    if (!ChunkManager.TryCreateVoxel(new Vector3Int(x, y, z)))
                     {
                         continue;
                     }
@@ -31,6 +31,6 @@ public class CreateVoxelsCommand : Command
             }
         }
 
-        ChunksManager.UpdateChunkMeshes();
+        ChunkManager.UpdateChunkMeshes();
     }
 }

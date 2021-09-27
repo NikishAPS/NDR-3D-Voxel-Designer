@@ -26,7 +26,7 @@ public class RestartProjectPanel : Panel
                 panel.Open();
         }
 
-        ChunksManager.Release();
+        ChunkManager.Release();
         GridManager.Grids[Direction.Down].Active = false;
     }
 }

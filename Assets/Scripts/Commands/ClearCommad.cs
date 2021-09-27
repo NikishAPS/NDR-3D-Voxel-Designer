@@ -6,6 +6,6 @@ public class ClearCommad : Command
 {
     public override void Execute()
     {
-        ChunksManager.Release();
+        ChunkManager.Release();
     }
 }

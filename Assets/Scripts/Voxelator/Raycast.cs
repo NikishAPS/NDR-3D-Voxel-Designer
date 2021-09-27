@@ -45,12 +45,12 @@ public static class Raycast
             //continue;
 
             //curVoxel = SceneData.Chunk.GetVoxelByPos(pointInt);
-            curVoxel = ChunksManager.GetVoxel(pointInt);
+            curVoxel = ChunkManager.GetVoxel(pointInt);
 
             if (curVoxel != null)
             {
                 //lastVoxel = SceneData.Chunk.GetVoxelByPos(lastPointInt);
-                lastVoxel = ChunksManager.GetVoxel(lastPointInt);
+                lastVoxel = ChunkManager.GetVoxel(lastPointInt);
 
                 return new CastResult(lastVoxel, curVoxel, lastPointInt, pointInt);
 
@@ -106,7 +106,7 @@ public static class Raycast
                 {
                     for (float z = startVertex.z; z <= endVertex.z; z++)
                     {
-                        vertex = ChunksManager.GetVertex(new Vector3(x, y, z));
+                        vertex = ChunkManager.GetVertex(new Vector3(x, y, z));
 
                         if (vertex != null)
                         {

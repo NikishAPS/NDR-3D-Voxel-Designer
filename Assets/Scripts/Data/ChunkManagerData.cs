@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [Serializable]
-public class ChunksManagerData
+public class ChunkManagerData
 {
     public int IncrementOption;
     public Vector3Int FieldSize;
@@ -10,7 +10,7 @@ public class ChunksManagerData
     public VertexData[] VerticesData;
     public ChunkData[] ChunksData;
 
-    public ChunksManagerData(
+    public ChunkManagerData(
         int incrementOption,
         Vector3Int fieldSize,
         Vector3Int chunkSizes,

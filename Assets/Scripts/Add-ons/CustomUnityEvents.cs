@@ -26,4 +26,7 @@ namespace CustomUnityEvents
     [Serializable]
     public class EventColor : UnityEvent<Color> { }
 
+    [Serializable]
+    public class EventBool : UnityEvent<bool> { }
+
 }

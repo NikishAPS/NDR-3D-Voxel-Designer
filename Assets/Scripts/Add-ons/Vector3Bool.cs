@@ -4,14 +4,11 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class Vector3Bool
+public struct Vector3Bool
 {
-    public bool X, Y, Z;
-
-    public Vector3Bool()
-    {
-        X = Y = Z = false;
-    }
+    public bool X { get; set; }
+    public bool Y { get; set; }
+    public bool Z { get; set; }
 
     public Vector3Bool(bool x, bool y, bool z)
     {
@@ -27,4 +24,5 @@ public class Vector3Bool
     public bool IsTrue => X || Y || Z;
 
     public bool IsPureTrue => X && Y && Z;
+
 }

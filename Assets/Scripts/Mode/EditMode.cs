@@ -33,7 +33,7 @@ public class EditMode : Mode, IDrag
             {
                 if (castResult.Vertex != null)
                 {
-                    ChunksManager.SelectedVertex = castResult.Vertex;
+                    ChunkManager.SelectedVertex = castResult.Vertex;
                     Axes.Position = castResult.Vertex.Position;
                     Axes.Active = true;
                     _vertex = castResult.Vertex;
@@ -51,14 +51,14 @@ public class EditMode : Mode, IDrag
 
     public bool OnTryDrag(DragTransform dragValue)
     {
-        return ChunksManager.TryMoveVertex(dragValue);
+        return ChunkManager.TryMoveVertex(dragValue);
     }
 
     public DragTransform GetDragCoordinates()
     {
-        if(ChunksManager.SelectedVertex != null)
+        if(ChunkManager.SelectedVertex != null)
         {
-            return new DragTransform(ChunksManager.SelectedVertex.GetOffset() * ChunksManager.IncrementOption, Vector3.zero);
+            return new DragTransform(ChunkManager.SelectedVertex.GetOffset() * ChunkManager.IncrementOption, Vector3.zero);
         }
 
         return null;

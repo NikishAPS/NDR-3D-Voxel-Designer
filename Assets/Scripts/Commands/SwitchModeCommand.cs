@@ -15,7 +15,6 @@ public class SwitchModeCommand : Command
 
     public override void Execute()
     {
-        ModeManager.SwitchMode(_mode);
+        Presenter.SwitchMode(_mode);
     }
-
 }

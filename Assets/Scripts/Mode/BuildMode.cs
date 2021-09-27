@@ -88,7 +88,7 @@ public class BuildMode : Mode
 
             GridManager.Grids[Direction.Left].Set(true,
                 new Vector3Int(Mathf.Min(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), 0, Mathf.Min(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)),
-                new Vector3Int(Mathf.Max(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), ChunksManager.FieldSize.y, Mathf.Max(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)));
+                new Vector3Int(Mathf.Max(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), ChunkManager.FieldSize.y, Mathf.Max(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)));
                 //new Vector3Int(_startVoxelAreaPosition.x, ChunksManager.FieldSize.y, _endVoxelAreaPosition.z));
 
 
@@ -110,7 +110,7 @@ public class BuildMode : Mode
         if (_castResult != null)
         {
             //MonoBehaviour.print(_castResult.lastPoint);
-            if (ChunksManager.InField(_castResult.lastPoint))
+            if (ChunkManager.InField(_castResult.lastPoint))
             {
                 Extractor.Position = _castResult.lastPoint;
                 Extractor.Active = true;

@@ -9,6 +9,6 @@
 
     public override void Execute()
     {
-        ChunksManager.VoxelId = _voxelId;
+        ChunkManager.VoxelId = _voxelId;
     }
 }

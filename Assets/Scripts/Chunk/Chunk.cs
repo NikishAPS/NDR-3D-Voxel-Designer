@@ -24,7 +24,7 @@ public class Chunk
     {
         Position = position;
         Size = size;
-        GlobalPosition = Position * ChunksManager.ChunkSize;
+        GlobalPosition = Position * ChunkManager.ChunkSize;
 
         Voxels = new Voxel[Size.x * Size.y * Size.z];
         SelectedVoxels = new Voxel[Voxels.Length];
@@ -36,7 +36,7 @@ public class Chunk
     {
         Position = chunkData.Position;
         Size = chunkData.Size;
-        GlobalPosition = Position * ChunksManager.ChunkSize;
+        GlobalPosition = Position * ChunkManager.ChunkSize;
         FaceCount = chunkData.FaceCount;
 
         Voxels = new Voxel[Size.x * Size.y * Size.z];
@@ -74,7 +74,7 @@ public class Chunk
         return GetVoxelByGlobalPos(SelectedVoxels, globalVoxelPos);
     }
 
-    public bool TryToCreateVoxel(int id, Vector3Int globalVoxelPos)
+    public bool TryCreateVoxel(int id, Vector3Int globalVoxelPos)
     {
         int index = VoxelatorManager.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
 
@@ -155,7 +155,7 @@ public class Chunk
                     {
                         for (int j = 0; j < 4; j++)
                         {
-                            vertices[i4 + j] = ChunksManager.GetVertex(VoxelMesh.VoxelVertices[i * 4 + j] + voxel.Position).Position - Position;
+                            vertices[i4 + j] = ChunkManager.GetVertex(VoxelMesh.VoxelVertices[i * 4 + j] + voxel.Position).Position - Position;
                         }
 
                         for(int j = 0; j < 6; j++)
@@ -221,7 +221,7 @@ public class Chunk
                     {
                         for(int l = 0; l < 4; l++)
                         {
-                            Vector3 vertexOffset = ChunksManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + selectedVoxel.Position).GetOffset();
+                            Vector3 vertexOffset = ChunkManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + selectedVoxel.Position).GetOffset();
 
                             vertices[j + l] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
                             vertices[j + l + 4] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l + 4] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
@@ -266,10 +266,10 @@ public class Chunk
 
         _mesh = new Mesh();
         _chunk.AddComponent<MeshFilter>().mesh = _mesh;
-        _chunk.AddComponent<MeshRenderer>().material = ChunksManager.ChunkMaterial;
+        _chunk.AddComponent<MeshRenderer>().material = ChunkManager.ChunkMaterial;
         _selectedMesh = new Mesh();
         _selectedChunk.AddComponent<MeshFilter>().mesh = _selectedMesh;
-        _selectedChunk.AddComponent<MeshRenderer>().material = ChunksManager.SelectedChunkMaterial;
+        _selectedChunk.AddComponent<MeshRenderer>().material = ChunkManager.SelectedChunkMaterial;
     }
 
     private bool InArray(Vector3 arraySize, Vector3 point)
@@ -326,7 +326,7 @@ public class Chunk
 
         for(int i = 0; i < Direction.Directions.Length; i++)
         {
-            if (ChunksManager.GetVoxel(voxel.Position + Direction.Directions[i]) == null) voxel.SetFace(i, true);
+            if (ChunkManager.GetVoxel(voxel.Position + Direction.Directions[i]) == null) voxel.SetFace(i, true);
             else voxel.SetFace(i, false);
         }
 

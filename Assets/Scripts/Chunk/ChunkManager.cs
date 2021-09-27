@@ -2,13 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public static class ChunksManager
+public static class ChunkManager
 {
     public static int VoxelId { get; set; }
     public static int IncrementOption { get; private set; }
     public static Vector3Int FieldSize { get; private set; }
     public static Vector3Int VerticesArraySize { get; private set; }
     public static Vector3 Center => FieldSize.ToVector3() * 0.5f;
+
+    public static Vector3Bool Mirror
+    {
+        get => _mirror;
+        set
+        {
+            _mirror = value;
+            UpdateMirror();
+        }
+    }
 
     public static Material ChunkMaterial => VoxelatorManager.Project.ChunkMaterial;
     public static Material SelectedChunkMaterial => VoxelatorManager.Project.SelectedChunkMaterial;
@@ -25,6 +35,7 @@ public static class ChunksManager
     public static Vector3 MiddleSelectedPos { get; private set; }
     public static int SelectedVoxelCount => _selectedVoxelPositions.Count;
 
+    private static Vector3Bool _mirror;
     private static Vector3Int _chunkSizes;
     private static List<Chunk> _nonUpdatedChunks = new List<Chunk>();
     private static LinkedList<Vector3Int> _selectedVoxelPositions = new LinkedList<Vector3Int>();
@@ -247,7 +258,7 @@ public static class ChunksManager
         for (int i = 0; i < voxels.Length; i++)
         {
             Chunk chunk = GetChunk(voxels[i].Position);
-            if (chunk.TryToCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
+            if (chunk.TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
             {
                 if (chunk.TryToSelectVoxel(voxels[i].Position + roundedOffset))
                 {
@@ -328,7 +339,7 @@ public static class ChunksManager
         for (int i = 0; i < voxels.Length; i++)
         {
             Chunk chunk = GetChunk(voxels[i].Position);
-            if (chunk.TryToCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
+            if (chunk.TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
             {
                 if (chunk.TryToSelectVoxel(voxels[i].Position + roundedOffset))
                 {
@@ -414,7 +425,7 @@ public static class ChunksManager
         return ((pos + Vector3.one * 0.5f) * IncrementOption).RoundToFloat() / IncrementOption - Vector3.one * 0.5f;
     }
 
-    public static ChunksManagerData GetData()
+    public static ChunkManagerData GetData()
     {
         ChunkData[] chunksData = new ChunkData[Chunks.Length];
         for (int i = 0; i < chunksData.Length; i++)
@@ -429,10 +440,10 @@ public static class ChunksManager
             else
                 verticesData[i] = new Vertex(Vector3.one * -1).GetData();
         }
-        return new ChunksManagerData(IncrementOption, FieldSize, _chunkSizes, verticesData, chunksData);
+        return new ChunkManagerData(IncrementOption, FieldSize, _chunkSizes, verticesData, chunksData);
     }
 
-    public static void SetData(ChunksManagerData chunksManagerData)
+    public static void SetData(ChunkManagerData chunksManagerData)
     {
         if (Chunks != null)
             Release();
@@ -458,25 +469,70 @@ public static class ChunksManager
         _nonUpdatedChunks = Chunks.ToList();
         UpdateChunkMeshes();
 
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunksManager.FieldSize.x, 1, ChunksManager.FieldSize.z);
+        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
         GridManager.Grids[Direction.Down].Active = true;
     }
 
-
     public static bool TryCreateVoxel(Vector3Int globalVoxelPos)
     {
-        Chunk chunk = GetChunk(globalVoxelPos);
-        if (chunk == null) return false;
-
-        if (chunk.TryToCreateVoxel(VoxelId, globalVoxelPos))
+        if(TryCreateVoxelAux(globalVoxelPos))
         {
-            CreateVertices(globalVoxelPos);
+            if (_mirror.IsTrue)
+            {
+                Vector3Int reflectedPos = FieldSize - globalVoxelPos - Vector3Int.one;
 
-            UpdateChunksAround(globalVoxelPos);
+                if (_mirror.X) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, globalVoxelPos.y, globalVoxelPos.z));
+                if (_mirror.Y) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, reflectedPos.y, globalVoxelPos.z));
+                if (_mirror.Z) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, globalVoxelPos.y, reflectedPos.z));
+                if (_mirror.X && _mirror.Y) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, reflectedPos.y, globalVoxelPos.z));
+                if (_mirror.X && _mirror.Z) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, globalVoxelPos.y, reflectedPos.z));
+                if (_mirror.Y && _mirror.Z) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, reflectedPos.y, reflectedPos.z));
+                if (_mirror.X && _mirror.Y && _mirror.Z) TryCreateVoxelAux(reflectedPos);
+            }
 
             return true;
         }
 
+        return false;
+
+        //Chunk chunk = GetChunk(globalVoxelPos);
+        //if (chunk == null) return false;
+
+        //if (chunk.TryCreateVoxel(VoxelId, globalVoxelPos))
+        //{
+        //    CreateVertices(globalVoxelPos);
+        //    UpdateChunksAround(globalVoxelPos);
+
+        //    /*
+        //     * if (_mirror.X) {}
+        //     * if (_mirror.Y) {}
+        //     * if (_mirror.Z) {}
+        //     * if (_mirror.X && _mirror.Y) {}
+        //     * if (_mirror.X && _mirror.Z) {}
+        //     * if (_mirror.Y && _mirror.Z) {}
+        //     * if (_mirror.X && _mirror.Y && _mirror.Z) {}
+        //     * */
+
+        //    return true;
+        //}
+
+        //return false;
+    }
+
+    //auxiliary method
+    private static bool TryCreateVoxelAux(Vector3Int globalVoxelPos)
+    {
+        Chunk chunk = GetChunk(globalVoxelPos);
+        if (chunk == null) return false;
+
+        if(chunk.TryCreateVoxel(VoxelId, globalVoxelPos))
+        {
+            CreateVertices(globalVoxelPos);
+            UpdateChunksAround(globalVoxelPos);
+
+            return true;
+        }
+            
         return false;
     }
 
@@ -602,6 +658,11 @@ public static class ChunksManager
         }
 
         _nonUpdatedChunks.Clear();
+    }
+
+    private static void UpdateMirror()
+    {
+
     }
 
 }

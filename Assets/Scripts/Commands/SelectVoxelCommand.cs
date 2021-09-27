@@ -12,7 +12,7 @@ public class SelectVoxelCommand : Command
 
     public override void Execute()
     {
-        ChunksManager.SelectVoxel(_globalVoxelPos);
+        ChunkManager.SelectVoxel(_globalVoxelPos);
         Project.Saved = false;
     }
 }

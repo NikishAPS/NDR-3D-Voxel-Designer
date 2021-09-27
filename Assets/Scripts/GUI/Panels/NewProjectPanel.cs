@@ -34,7 +34,7 @@ public class NewProjectPanel : Panel
 
         ScreenAxes.Active = true;
 
-        ChunksManager.SetParameters(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
+        ChunkManager.SetParameters(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
         VoxelatorManager.Project.Init(_projectNameField.String, _projectSaveLocationField.String);
 
         Close();

@@ -1,14 +1,13 @@
 ﻿public static class ModeManager
 {
-    private static int _mode = -1;
-    private static  Mode[] _modes = new Mode[0];
-    private static Mode _curMode => _modes[_mode];
+    public static int Mode { get; private set; }
 
-    public static VoidInt SwitchModeEvent;
+    private static Mode[] _modes;
+    private static Mode _curMode => _modes[Mode];
 
     static ModeManager()
     {
-        _mode = 0;
+        Mode = 0;
         _modes = new Mode[]
         {
             new BuildMode(),
@@ -17,18 +16,16 @@
             new OBJMode()
         };
 
-        _modes[_mode].OnEnable();
+        _curMode.OnEnable();
     }
 
     public static void SwitchMode(int value)
     {
-        if (_mode < 0 || _mode >= _modes.Length) return;
+        if (Mode < 0 || Mode >= _modes.Length) return;
 
-        _modes[_mode].OnDisable();
-        _mode = value;
-        _modes[_mode].OnEnable();
-
-        SwitchModeEvent?.Invoke(value);
+        _curMode.OnDisable();
+        Mode = value;
+        _curMode.OnEnable();
     }
 
     public static void OnMouseMove()
