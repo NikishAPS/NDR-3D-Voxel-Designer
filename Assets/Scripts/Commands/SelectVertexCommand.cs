@@ -7,11 +7,12 @@ public class SelectVertexCommand : Command
 
     public SelectVertexCommand(Vertex vertex)
     {
-        _vertex = new Vertex(vertex);
+        _vertex = vertex;
     }
 
     public override void Execute()
     {
-        Presenter.SelectVertex(_vertex.GetOffset());
+        ChunkManager.SelectedVertex = _vertex;
+        Presenter.EditVertex();
     }
 }

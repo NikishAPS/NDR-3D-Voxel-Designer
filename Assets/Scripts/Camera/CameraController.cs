@@ -76,6 +76,8 @@ public class CameraController : MonoBehaviour
 
     private void OnMouseScroll()
     {
+        if (InputEvent.GetXHold || InputEvent.GetYHold || InputEvent.GetZHold) return;
+
         float lastZoom = _zoom;
         float speed = _zoom * _zoomSpeed;
 
