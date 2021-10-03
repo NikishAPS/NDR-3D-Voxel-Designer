@@ -31,14 +31,19 @@ public class InputEvent : MonoBehaviour
     public static Vector3 MouseSpeed { get; private set; }
 
     //keyboard events
-    public static Void Delete;
     public static bool LShift => Input.GetKey(KeyCode.LeftShift);
     public static bool LShiftDown => Input.GetKeyDown(KeyCode.LeftShift);
     public static bool GetDelete => Input.GetKeyDown(KeyCode.Delete);
+    public static bool GetXHold => Input.GetKey(KeyCode.X);
+    public static bool GetYHold => Input.GetKey(KeyCode.Y);
+    public static bool GetZHold => Input.GetKey(KeyCode.Z);
+
+    public static Void Delete;
+    public static Void XHold;
+    public static Void YHold;
+    public static Void ZHold;
 
     private Vector3 _prevMousePosition;
-
-
 
     private void Update()
     {
@@ -52,11 +57,15 @@ public class InputEvent : MonoBehaviour
         if (GetRMouseDown) RMouseDown?.Invoke();
         if (GetRMouseHold) RMouseHold?.Invoke();
         if (GetRMouseUp) RMouseUp?.Invoke();
-        if (GetDelete) Delete?.Invoke();
         if (GetMMouseDown) MMouseDown?.Invoke();
         if (GetMMouseHold) MMouseHold?.Invoke();
         if (GetMMouseUp) MMouseUp?.Invoke();
-
         if (GetMouseScroll != 0) MouseScroll?.Invoke();
+
+        if (GetDelete) Delete?.Invoke();
+        if (GetXHold) XHold?.Invoke();
+        if (GetYHold) YHold?.Invoke();
+        if (GetZHold) ZHold?.Invoke();
     }
+
 }
