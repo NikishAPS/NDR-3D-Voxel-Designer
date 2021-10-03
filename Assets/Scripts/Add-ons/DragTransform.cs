@@ -13,6 +13,12 @@ public class DragTransform
         Scale = Vector3.zero;
     }
 
+    public DragTransform(Vector3 position)
+    {
+        Position = position;
+        Scale = Vector3.zero;
+    }
+
     public DragTransform(Vector3 position, Vector3 scale)
     {
         Position = position;
