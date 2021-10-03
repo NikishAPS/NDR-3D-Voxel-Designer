@@ -15,8 +15,8 @@ public static class ChunkManager
         get => _mirror;
         set
         {
-            _mirror = value;
-            UpdateMirror();
+            _reflector.Mirror = value;
+            UpdateReflection(value);
         }
     }
 
@@ -27,7 +27,7 @@ public static class ChunkManager
     public static Vertex[] Vertices { get; private set; }
 
 
-    public static readonly Vector3Int ChunkSize = new Vector3Int(1, 1, 1) * 16;
+    public static readonly Vector3Int ChunkSize = new Vector3Int(1, 1, 1) * 64;
 
     public static Vertex SelectedVertex { get; set; }
     public static Vector3Int[] SelectedVoxelPositions => _selectedVoxelPositions.ToArray();
@@ -39,7 +39,7 @@ public static class ChunkManager
     private static Vector3Int _chunkSizes;
     private static List<Chunk> _nonUpdatedChunks = new List<Chunk>();
     private static LinkedList<Vector3Int> _selectedVoxelPositions = new LinkedList<Vector3Int>();
-
+    private static Reflector _reflector;
 
     public static void SetVoxelIdByColor(Color color)
     {
@@ -79,6 +79,7 @@ public static class ChunkManager
 
         Chunks = new Chunk[_chunkSizes.x * _chunkSizes.y * _chunkSizes.z];
         Vertices = new Vertex[VerticesArraySize.x * VerticesArraySize.y * VerticesArraySize.z];
+        _reflector = new Reflector(FieldSize);
 
         for (int x = 0; x < _chunkSizes.x; x++)
         {
@@ -103,7 +104,7 @@ public static class ChunkManager
 
     public static void Release()
     {
-        for(int i = 0; i < Chunks.Length; i++)
+        for (int i = 0; i < Chunks.Length; i++)
         {
             Chunks[i].Release();// = null; //Вызов деструктора 
         }
@@ -126,52 +127,39 @@ public static class ChunkManager
         return InField(globalVoxelPos) ? GetChunk(globalVoxelPos).GetVoxel(globalVoxelPos) : null;
     }
 
-    public static Voxel GetSelectedVoxel(Vector3Int globalVoxelPos)
-    {
-        return InField(globalVoxelPos) ? GetChunk(globalVoxelPos).GetSelectedVoxel(globalVoxelPos) : null;
-    }
-
     public static Vertex GetSelectedVertex()
     {
         return SelectedVertex;
     }
 
-    public static Vertex GetVertex(Vector3 globalVertexPos)
+    public static Vertex GetVertex(Vector3 pivotVertexPos)
     {
-        int index = GetVertexIndex(globalVertexPos);
+        int index = GetVertexIndex(pivotVertexPos);
         return index < 0 ? null : Vertices[index];
     }
 
-
-    public static void CreateVoxels(Vector3Int startVoxelArea, Vector3Int endVoxelArea)
+    public static void CreateVoxel(Vector3Int globalVoxelPos)
     {
-        Vector3Int steps = (endVoxelArea - startVoxelArea).Sign();
-        endVoxelArea += steps;
+        Chunk chunk = GetChunk(globalVoxelPos);
 
-        for (int x = startVoxelArea.x; x != endVoxelArea.x; x += steps.x)
+        if (chunk != null)
         {
-            for (int y = startVoxelArea.y; y != endVoxelArea.y; y += steps.y)
+            if (chunk.TryCreateVoxel(VoxelId, globalVoxelPos))
             {
-                for (int z = startVoxelArea.z; z != endVoxelArea.z; z += steps.z)
-                {
-                    if (!TryCreateVoxel(new Vector3Int(x, y, z)))
-                    {
-                        continue;
-                    }
-                }
+                UpdateChunksAround(globalVoxelPos);
             }
         }
 
-        UpdateChunkMeshes();
     }
-    
+
     public static void DeleteSelectedVoxels()
     {
         if (_selectedVoxelPositions.Count == 0) return;
 
         foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
         {
-            DeleteVoxel(selectedVoxelPosition);
+            //DeleteVoxel(selectedVoxelPosition);
+            TryDeleteVoxel(selectedVoxelPosition);
         }
         _selectedVoxelPositions.Clear();
         MiddleSelectedPos = Vector3.zero;
@@ -190,16 +178,16 @@ public static class ChunkManager
             UpdateChunkSelectedMeshes();
             MiddleSelectedPos = (MiddleSelectedPos * _selectedVoxelPositions.Count);
             _selectedVoxelPositions.AddLast(globalVoxelPos);
-            MiddleSelectedPos = (MiddleSelectedPos  + globalVoxelPos) / _selectedVoxelPositions.Count;
+            MiddleSelectedPos = (MiddleSelectedPos + globalVoxelPos) / _selectedVoxelPositions.Count;
         }
     }
 
     public static void ResetVoxelSelection()
     {
-        foreach(Vector3Int _selectedVoxelPosition in _selectedVoxelPositions)
+        foreach (Vector3Int _selectedVoxelPosition in _selectedVoxelPositions)
         {
             Chunk chunk = GetChunk(_selectedVoxelPosition);
-            if(chunk != null)
+            if (chunk != null)
             {
                 chunk.ResetVoxelSelection(_selectedVoxelPosition);
                 UpdateChunksAround(_selectedVoxelPosition);
@@ -216,24 +204,27 @@ public static class ChunkManager
         if (_selectedVoxelPositions.Count == 0) return false;
 
         Vector3Int roundedOffset = dragValue.Position.RoundToInt();
+        if (roundedOffset == Vector3Int.zero) return false;
 
         //checking limits
         foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
         {
             if (!InField(selectedVoxelPosition + roundedOffset) ||
                 GetVoxel(selectedVoxelPosition + roundedOffset) != null &&
-                GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return false;
+                //GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return false;
+                //!GetSelectedVoxelStatus(selectedVoxelPosition + roundedOffset)) return false;
+                !GetVoxel(selectedVoxelPosition + roundedOffset).Selected) return false;
         }
 
         //copying voxels
         Voxel[] voxels = new Voxel[_selectedVoxelPositions.Count];
         Vertex[] vertices = new Vertex[voxels.Length * 8];
-        Vector3[] verticesPos = new Vector3[1];
         {
             int i = 0;
             foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
             {
-                voxels[i] = new Voxel(GetVoxel(selectedVoxelPosition));
+                //voxels[i] = new Voxel(GetVoxel(selectedVoxelPosition));
+                voxels[i] = GetVoxel(selectedVoxelPosition);
                 Vector3[] vertexPositions = GetVertexPositions(selectedVoxelPosition);
 
                 int j = 0;
@@ -250,7 +241,8 @@ public static class ChunkManager
         //deleting voxels
         foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
         {
-            DeleteVoxel(selectedVoxelPosition);
+            //DeleteVoxel(selectedVoxelPosition);
+            TryDeleteVoxel(selectedVoxelPosition);
         }
         _selectedVoxelPositions.Clear();
 
@@ -258,7 +250,8 @@ public static class ChunkManager
         for (int i = 0; i < voxels.Length; i++)
         {
             Chunk chunk = GetChunk(voxels[i].Position);
-            if (chunk.TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
+            //if (chunk.TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
+            if (TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
             {
                 if (chunk.TryToSelectVoxel(voxels[i].Position + roundedOffset))
                 {
@@ -272,13 +265,18 @@ public static class ChunkManager
 
                         int adjacentVoxelsCount = Vertices[index] != null ? Vertices[index].AdjacentVoxelsCount + 1 : 1;
 
-                        Vertices[index] = new Vertex(vertices[i * 8 + j].PivotPosition + roundedOffset, vertices[i * 8 + j].GetOffset());
+                        Vertices[index] = new Vertex(vertices[i * 8 + j].PivotPosition + roundedOffset, vertices[i * 8 + j].Offset);
                         Vertices[index].AdjacentVoxelsCount = adjacentVoxelsCount;
+
+                        Vector3[] reflectedVertexPivotPositions = _reflector.GetReflectedPositions(Vertices[index].PivotPosition);
+                        Vector3[] reflectedVertexPositions = _reflector.GetReflectedPositions(Vertices[index].Position);
+                        for(int k = 0; k < reflectedVertexPivotPositions.Length; k++)
+                            GetVertex(reflectedVertexPivotPositions[k]).Position = reflectedVertexPositions[k];
 
                         j++;
                     }
-                }
 
+                }
             }
 
         }
@@ -292,129 +290,58 @@ public static class ChunkManager
         return true;
     }
 
-    public static Vector3? MoveSelectedVoxels(Vector3 offset)
-    {
-        if (_selectedVoxelPositions.Count == 0) return null;
-
-        Vector3Int roundedOffset = offset.RoundToInt();
-
-        //checking limits
-        foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
-        {
-            if (!InField(selectedVoxelPosition + roundedOffset) ||
-                GetVoxel(selectedVoxelPosition + roundedOffset) != null &&
-                GetSelectedVoxel(selectedVoxelPosition + roundedOffset) == null) return null;
-        }
-
-        //copying voxels
-        Voxel[] voxels = new Voxel[_selectedVoxelPositions.Count];
-        Vertex[] vertices = new Vertex[voxels.Length * 8];
-        Vector3[] verticesPos = new Vector3[1];
-        {
-            int i = 0;
-            foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
-            {
-                voxels[i] = new Voxel(GetVoxel(selectedVoxelPosition));
-                Vector3[] vertexPositions = GetVertexPositions(selectedVoxelPosition);
-
-                int j = 0;
-                foreach (Vector3 vertexPosition in vertexPositions)
-                {
-                    vertices[i * 8 + j] = new Vertex(GetVertex(vertexPosition));
-                    j++;
-                }
-
-                i++;
-            }
-        }
-
-        //deleting voxels
-        foreach (Vector3Int selectedVoxelPosition in _selectedVoxelPositions)
-        {
-            DeleteVoxel(selectedVoxelPosition);
-        }
-        _selectedVoxelPositions.Clear();
-
-        //creating voxels
-        for (int i = 0; i < voxels.Length; i++)
-        {
-            Chunk chunk = GetChunk(voxels[i].Position);
-            if (chunk.TryCreateVoxel(voxels[i].Id, voxels[i].Position + roundedOffset))
-            {
-                if (chunk.TryToSelectVoxel(voxels[i].Position + roundedOffset))
-                {
-                    _selectedVoxelPositions.AddLast(voxels[i].Position + roundedOffset);
-                    UpdateChunksAround(voxels[i].Position);
-
-                    int j = 0;
-                    foreach (Vector3 vertexPosition in GetVertexPositions(voxels[i].Position + roundedOffset))
-                    {
-                        int index = GetVertexIndex(vertexPosition);
-
-                        int adjacentVoxelsCount = Vertices[index] != null ? Vertices[index].AdjacentVoxelsCount + 1 : 1;
-
-                        Vertices[index] = new Vertex(vertices[i * 8 + j].PivotPosition + roundedOffset, vertices[i * 8 + j].GetOffset());
-                        Vertices[index].AdjacentVoxelsCount = adjacentVoxelsCount;
-
-                        j++;
-                    }
-                }
-
-            }
-
-        }
-
-        //SceneData.DragSystem.OffsetPosition(roundedOffset);
-
-        UpdateAllChunkMeshes();
-
-        return roundedOffset;
-    }
-
     public static bool TryMoveVertex(DragTransform dragValue)
     {
         Vector3 offset = RoundVertexPointPos(dragValue.Position);
 
         if (SelectedVertex == null || offset == Vector3.zero) return false;
 
-        Vector3 vertexOffset = SelectedVertex.GetOffset();
+        Vector3 vertexOffset = SelectedVertex.Offset;
         Vector3 newVertexPos = offset + vertexOffset;
 
         if (newVertexPos.x < -1.5) offset.x = -vertexOffset.x - 1.5f; else if (newVertexPos.x > 1.5f) offset.x = 1.5f - vertexOffset.x;
         if (newVertexPos.y < -1.5) offset.y = -vertexOffset.y - 1.5f; else if (newVertexPos.y > 1.5f) offset.y = 1.5f - vertexOffset.y;
         if (newVertexPos.z < -1.5) offset.z = -vertexOffset.z - 1.5f; else if (newVertexPos.z > 1.5f) offset.z = 1.5f - vertexOffset.z;
 
-        SelectedVertex.Offset(offset);
+        SelectedVertex.Shift(offset);
         UpdateChunksAround(SelectedVertex.PivotPosition.ToVector3Int());
+
+        Vector3[] reflectedPivotPositions = _reflector.GetReflectedPositions(SelectedVertex.PivotPosition);
+        Vector3[] reflectedPositions = _reflector.GetReflectedPositions(SelectedVertex.Position);
+        for(int i = 0; i < reflectedPivotPositions.Length; i++)
+        {
+            GetVertex(reflectedPivotPositions[i]).Position = reflectedPositions[i];
+            UpdateChunksAround(reflectedPositions[i].ToVector3Int());
+        }
+
+        Presenter.EditVertex();
+
         UpdateAllChunkMeshes();
 
         dragValue.Position = offset;
         return true;
     }
 
-    public static Vector3? MoveVertex(Vector3 offset)
+    public static void SetVertexPosition(Vector3 pivotVertexPosition, Vector3 position)
     {
-        offset = RoundVertexPointPos(offset);
+        Vertex vertex = GetVertex(pivotVertexPosition);
+        if (vertex == null) return;
 
-        if (SelectedVertex == null || offset == Vector3.zero) return null;
+        vertex.Position = position;
+        ClampVertex(vertex);
+    }
 
-        Vector3 vertexOffset = SelectedVertex.GetOffset();
-        Vector3 newVertexPos = offset + vertexOffset;
+    public static void SetVertexPositionWithUpdateChunks(Vector3 pivotVertexPosition, Vector3 position)
+    {
+        SetVertexPosition(pivotVertexPosition, position);
 
-        if (newVertexPos.x < -1.5) offset.x = -vertexOffset.x - 1.5f; else if (newVertexPos.x > 1.5f) offset.x = 1.5f - vertexOffset.x;
-        if (newVertexPos.y < -1.5) offset.y = -vertexOffset.y - 1.5f; else if (newVertexPos.y > 1.5f) offset.y = 1.5f - vertexOffset.y;
-        if (newVertexPos.z < -1.5) offset.z = -vertexOffset.z - 1.5f; else if (newVertexPos.z > 1.5f) offset.z = 1.5f - vertexOffset.z;
-
-        SelectedVertex.Offset(offset);
-        UpdateChunksAround(SelectedVertex.PivotPosition.ToVector3Int());
+        UpdateChunksAround(pivotVertexPosition.ToVector3Int());
         UpdateAllChunkMeshes();
-
-        return offset;
     }
 
     public static void SetSelectedMeshActive(bool active)
     {
-        for(int i = 0; i < Chunks.Length; i++)
+        for (int i = 0; i < Chunks.Length; i++)
         {
             Chunks[i].SetActiveSelectedMesh(active);
         }
@@ -458,7 +385,7 @@ public static class ChunkManager
             Chunks[i] = new Chunk(chunksManagerData.ChunksData[i]);
         }
         Vertices = new Vertex[chunksManagerData.VerticesData.Length];
-        for(int i = 0; i < Vertices.Length; i++)
+        for (int i = 0; i < Vertices.Length; i++)
         {
             if (chunksManagerData.VerticesData[i].PivotPosition != Vector3.one * -1)
                 Vertices[i] = new Vertex(chunksManagerData.VerticesData[i]);
@@ -475,64 +402,43 @@ public static class ChunkManager
 
     public static bool TryCreateVoxel(Vector3Int globalVoxelPos)
     {
-        if(TryCreateVoxelAux(globalVoxelPos))
-        {
-            if (_mirror.IsTrue)
-            {
-                Vector3Int reflectedPos = FieldSize - globalVoxelPos - Vector3Int.one;
+        return TryCreateVoxel(VoxelId, globalVoxelPos);
+    }
 
-                if (_mirror.X) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, globalVoxelPos.y, globalVoxelPos.z));
-                if (_mirror.Y) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, reflectedPos.y, globalVoxelPos.z));
-                if (_mirror.Z) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, globalVoxelPos.y, reflectedPos.z));
-                if (_mirror.X && _mirror.Y) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, reflectedPos.y, globalVoxelPos.z));
-                if (_mirror.X && _mirror.Z) TryCreateVoxelAux(new Vector3Int(reflectedPos.x, globalVoxelPos.y, reflectedPos.z));
-                if (_mirror.Y && _mirror.Z) TryCreateVoxelAux(new Vector3Int(globalVoxelPos.x, reflectedPos.y, reflectedPos.z));
-                if (_mirror.X && _mirror.Y && _mirror.Z) TryCreateVoxelAux(reflectedPos);
-            }
+    public static bool TryCreateVoxel(int voxelId, Vector3Int globalVoxelPosition)
+    {
+        if (TryCreateVoxelWithoutReflection(voxelId, globalVoxelPosition))
+        {
+            Voxel tailVoxel = Voxel.Head;
+            if (_mirror.X) for (Voxel voxel = tailVoxel; voxel != null; voxel = voxel.Next) TryReflectVoxelByX(voxel);
+            if (_mirror.Y) for (Voxel voxel = tailVoxel; voxel != null; voxel = voxel.Next) TryReflectVoxelByY(voxel);
+            if (_mirror.Z) for (Voxel voxel = tailVoxel; voxel != null; voxel = voxel.Next) TryReflectVoxelByZ(voxel);
 
             return true;
         }
 
         return false;
-
-        //Chunk chunk = GetChunk(globalVoxelPos);
-        //if (chunk == null) return false;
-
-        //if (chunk.TryCreateVoxel(VoxelId, globalVoxelPos))
-        //{
-        //    CreateVertices(globalVoxelPos);
-        //    UpdateChunksAround(globalVoxelPos);
-
-        //    /*
-        //     * if (_mirror.X) {}
-        //     * if (_mirror.Y) {}
-        //     * if (_mirror.Z) {}
-        //     * if (_mirror.X && _mirror.Y) {}
-        //     * if (_mirror.X && _mirror.Z) {}
-        //     * if (_mirror.Y && _mirror.Z) {}
-        //     * if (_mirror.X && _mirror.Y && _mirror.Z) {}
-        //     * */
-
-        //    return true;
-        //}
-
-        //return false;
     }
 
     //auxiliary method
-    private static bool TryCreateVoxelAux(Vector3Int globalVoxelPos)
+    private static bool TryCreateVoxelWithoutReflection(Vector3Int globalVoxelPos)
+    {
+        return TryCreateVoxelWithoutReflection(VoxelId, globalVoxelPos);
+    }
+
+    private static bool TryCreateVoxelWithoutReflection(int voxelId, Vector3Int globalVoxelPos)
     {
         Chunk chunk = GetChunk(globalVoxelPos);
         if (chunk == null) return false;
 
-        if(chunk.TryCreateVoxel(VoxelId, globalVoxelPos))
+        if (chunk.TryCreateVoxel(voxelId, globalVoxelPos))
         {
             CreateVertices(globalVoxelPos);
             UpdateChunksAround(globalVoxelPos);
 
             return true;
         }
-            
+
         return false;
     }
 
@@ -555,15 +461,23 @@ public static class ChunkManager
 
     private static void CreateVertices(Vector3Int globalVoxelPos)
     {
-        foreach(Vector3 vertexPosition in GetVertexPositions(globalVoxelPos))
+        foreach (Vector3 vertexPosition in GetVertexPositions(globalVoxelPos))
         {
             CreateVertex(vertexPosition);
         }
     }
 
-    private static Vector3Int GetChunkPos(Vector3 point)
+    private static void ClampVertex(Vertex vertex)
     {
-        return point.Div(ChunkSize).ToVector3Int();
+        Vector3 offset = vertex.Offset;
+        if (offset.x < -1.5f) vertex.Offset = new Vector3(-1.5f, offset.y, offset.z); else
+        if (offset.x > +1.5f) vertex.Offset = new Vector3(+1.5f, offset.y, offset.z);
+
+        if (offset.y < -1.5f) vertex.Offset = new Vector3(offset.x, -1.5f, offset.z); else
+        if (offset.y > +1.5f) vertex.Offset = new Vector3(offset.x, +1.5f, offset.z);
+
+        if (offset.z < -1.5f) vertex.Offset = new Vector3(offset.x, offset.y, -1.5f); else
+        if (offset.z > +1.5f) vertex.Offset = new Vector3(offset.x, offset.y, +1.5f);
     }
 
     private static Vector3[] GetVertexPositions(Vector3Int globalVoxelPos)
@@ -580,6 +494,11 @@ public static class ChunkManager
             globalVoxelPos + new Vector3(+0.5f, +0.5f, +0.5f),
             globalVoxelPos + new Vector3(-0.5f, +0.5f, +0.5f)
         };
+    }
+
+    private static Vector3Int GetChunkPos(Vector3 point)
+    {
+        return point.Div(ChunkSize).ToVector3Int();
     }
 
     private static void DeleteVoxel(Vector3Int globalVoxelPos)
@@ -601,11 +520,50 @@ public static class ChunkManager
         }
     }
 
+    private static bool TryDeleteVoxel(Vector3Int globalVoxelPosition)
+    {
+        if(TryDeleteVoxelWithoutReflection(globalVoxelPosition))
+        {
+            foreach(Vector3 reflectedPosition in _reflector.GetReflectedPositions(globalVoxelPosition))
+            {
+                TryDeleteVoxelWithoutReflection(reflectedPosition.ToVector3Int());
+            }
+
+            //if (_mirror.X) TryDeleteVoxelWithoutReflection(_reflector.GetReflectedPositionByX(globalVoxelPosition).ToVector3Int());
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryDeleteVoxelWithoutReflection(Vector3Int globalVoxelPosition)
+    {
+        Chunk chunk = GetChunk(globalVoxelPosition);
+        if (chunk == null) return false;
+
+        if (chunk.TryToDeleteVoxel(globalVoxelPosition))
+        {
+            //deleting vertices
+            foreach (Vector3 vertexPosition in GetVertexPositions(globalVoxelPosition))
+            {
+                int index = GetVertexIndex(vertexPosition);
+                if (Vertices[index].AdjacentVoxelsCount > 1) Vertices[index].AdjacentVoxelsCount--;
+                else Vertices[index] = null;
+            }
+
+            UpdateChunksAround(globalVoxelPosition);
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static void TryToAddNonUpdatedChunk(Chunk chunk)
     {
         if (chunk == null) return;
 
-        for(int i = 0; i < _nonUpdatedChunks.Count; i++)
+        for (int i = 0; i < _nonUpdatedChunks.Count; i++)
         {
             if (_nonUpdatedChunks[i] == chunk)
                 return;
@@ -631,7 +589,7 @@ public static class ChunkManager
 
     public static void UpdateChunkMeshes()
     {
-        for(int i = 0; i < _nonUpdatedChunks.Count; i++)
+        for (int i = 0; i < _nonUpdatedChunks.Count; i++)
         {
             _nonUpdatedChunks[i].UpdateMesh();
         }
@@ -660,9 +618,171 @@ public static class ChunkManager
         _nonUpdatedChunks.Clear();
     }
 
-    private static void UpdateMirror()
+    private static bool TryReflectVoxelByX(Voxel voxel)
     {
+        if (voxel == null) return false;
+        Vector3Int reflectedPosition = _reflector.GetReflectedPositionByX(voxel.Position).ToVector3Int();
+        Chunk chunk = GetChunk(reflectedPosition);
 
+        if (chunk.TryCreateVoxel(voxel.Id, reflectedPosition))
+        {
+            foreach (Vector3 vertexPosition in GetVertexPositions(voxel.Position))
+            {
+                Vertex vertex = GetVertex(vertexPosition);
+
+                Vector3 reflectedVertexPosition = _reflector.GetReflectedPositionByX(vertexPosition);
+                CreateVertex(reflectedVertexPosition);
+                Vertex reflectedVertex = GetVertex(reflectedVertexPosition);
+
+                reflectedVertex.Offset = new Vector3(-vertex.Offset.x, vertex.Offset.y, vertex.Offset.z);
+            }
+
+            UpdateChunksAround(reflectedPosition);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReflectVoxelByY(Voxel voxel)
+    {
+        if (voxel == null) return false;
+        Vector3Int reflectedPosition = _reflector.GetReflectedPositionByY(voxel.Position).ToVector3Int();
+        Chunk chunk = GetChunk(reflectedPosition);
+
+        if (chunk.TryCreateVoxel(voxel.Id, reflectedPosition))
+        {
+            foreach (Vector3 vertexPosition in GetVertexPositions(voxel.Position))
+            {
+                Vertex vertex = GetVertex(vertexPosition);
+
+                Vector3 reflectedVertexPosition = _reflector.GetReflectedPositionByY(vertexPosition);
+                CreateVertex(reflectedVertexPosition);
+                Vertex reflectedVertex = GetVertex(reflectedVertexPosition);
+
+                reflectedVertex.Offset = new Vector3(vertex.Offset.x, -vertex.Offset.y, vertex.Offset.z);
+            }
+
+            UpdateChunksAround(reflectedPosition);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReflectVoxelByZ(Voxel voxel)
+    {
+        if (voxel == null) return false;
+        Vector3Int reflectedPosition = _reflector.GetReflectedPositionByZ(voxel.Position).ToVector3Int();
+        Chunk chunk = GetChunk(reflectedPosition);
+
+        if (chunk.TryCreateVoxel(voxel.Id, reflectedPosition))
+        {
+            foreach (Vector3 vertexPosition in GetVertexPositions(voxel.Position))
+            {
+                Vertex vertex = GetVertex(vertexPosition);
+
+                Vector3 reflectedVertexPosition = _reflector.GetReflectedPositionByZ(vertexPosition);
+                CreateVertex(reflectedVertexPosition);
+                Vertex reflectedVertex = GetVertex(reflectedVertexPosition);
+
+                reflectedVertex.Offset = new Vector3(vertex.Offset.x, vertex.Offset.y, -vertex.Offset.z);
+            }
+
+            UpdateChunksAround(reflectedPosition);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void UpdateReflection(Vector3Bool mirror)
+    {
+        if (Voxel.Head != null)
+        {
+            if (mirror.X != _mirror.X)
+            {
+                if (mirror.X)
+                    ReflectVoxelsByX();
+                else
+                    DeleteReflectionByX();
+            }
+            if (mirror.Y != _mirror.Y)
+            {
+                if (mirror.Y)
+                    ReflectVoxelsByY();
+                else
+                    DeleteReflectionByY();
+            }
+            if (mirror.Z != _mirror.Z)
+            {
+                if (mirror.Z)
+                    ReflectVoxelsByZ();
+                else
+                    DeleteReflectionByZ();
+            }
+
+            UpdateChunkMeshes();
+        }
+
+        _mirror = mirror;
+    }
+
+    private static void ReflectVoxelsByX()
+    {
+        for (Voxel voxel = Voxel.Head; voxel != null; voxel = voxel.Prev)
+            TryReflectVoxelByX(voxel);
+    }
+
+    private static void ReflectVoxelsByY()
+    {
+        for (Voxel voxel = Voxel.Head; voxel != null; voxel = voxel.Prev)
+            TryReflectVoxelByY(voxel);
+    }
+
+    private static void ReflectVoxelsByZ()
+    {
+        for (Voxel voxel = Voxel.Head; voxel != null; voxel = voxel.Prev)
+            TryReflectVoxelByZ(voxel);
+    }
+
+    private static void DeleteReflectionByX()
+    {
+        Voxel voxel = Voxel.Head;
+        while (voxel != null)
+        {
+            Vector3Int voxelPosition = voxel.Position;
+            voxel = voxel.Prev;
+            if (voxelPosition.x > FieldSize.x / 2 - 1)
+                DeleteVoxel(voxelPosition);
+        }
+    }
+
+    private static void DeleteReflectionByY()
+    {
+        Voxel voxel = Voxel.Head;
+        while (voxel != null)
+        {
+            Vector3Int voxelPosition = voxel.Position;
+            voxel = voxel.Prev;
+            if (voxelPosition.y > FieldSize.y / 2 - 1)
+                DeleteVoxel(voxelPosition);
+        }
+    }
+
+    private static void DeleteReflectionByZ()
+    {
+        Voxel voxel = Voxel.Head;
+        while (voxel != null)
+        {
+            Vector3Int voxelPosition = voxel.Position;
+            voxel = voxel.Prev;
+            if (voxelPosition.z > FieldSize.z / 2 - 1)
+                DeleteVoxel(voxelPosition);
+        }
     }
 
 }

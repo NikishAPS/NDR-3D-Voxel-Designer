@@ -44,7 +44,7 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
         _this = FindObjectOfType<ScreenAxes>();
 
         InputEvent.MouseMove += OnMouseMove;
-        InputEvent.LMouseDown += OnLMouseDown;
+        //InputEvent.LMouseDown += OnLMouseDown;
         CameraController.MoveEvent += OnCameraMove;
 
         gameObject.SetActive(false);

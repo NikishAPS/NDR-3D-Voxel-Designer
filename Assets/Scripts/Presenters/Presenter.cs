@@ -4,11 +4,11 @@ public static class Presenter
 {
     public static Void ChangeModeEvent;
     public static Void ChangeMirrorEvent;
-    public static Void SelectVertexEvent;
+    public static Void EditVertexEvent;
 
     public static int Mode => ModeManager.Mode;
     public static Vector3Bool Mirror => ChunkManager.Mirror;
-    public static Vector3 VertexOffset => ChunkManager.SelectedVertex.GetOffset();
+    public static Vertex Vertex => ChunkManager.SelectedVertex;
 
     public static bool Saved
     {
@@ -27,8 +27,14 @@ public static class Presenter
         ChangeModeEvent?.Invoke();
     }
 
-    public static void SelectVertex(Vector3 vertexOffet)
+    public static void EditVertex()
     {
-        SelectVertexEvent?.Invoke();
+        EditVertexEvent?.Invoke();
     }
+
+    public static void SetVertexPosition(Vector3 pivotVertexPosition, Vector3 position)
+    {
+        ChunkManager.SetVertexPositionWithUpdateChunks(pivotVertexPosition, position);
+    }
+
 }

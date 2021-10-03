@@ -50,4 +50,9 @@ public class OBJMode : Mode, IDrag
 
         return null;
     }
+
+    public void OnEndDrag(DragTransform dragValue)
+    {
+
+    }
 }

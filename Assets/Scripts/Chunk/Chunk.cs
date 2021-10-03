@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class Chunk
 {
@@ -8,7 +9,6 @@ public class Chunk
     public readonly Vector3Int GlobalPosition;
 
     public readonly Voxel[] Voxels;
-    public readonly Voxel[] SelectedVoxels;
 
     public int FaceCount { get; private set; }
     public int SelectedFaceCount { get; private set; }
@@ -27,7 +27,6 @@ public class Chunk
         GlobalPosition = Position * ChunkManager.ChunkSize;
 
         Voxels = new Voxel[Size.x * Size.y * Size.z];
-        SelectedVoxels = new Voxel[Voxels.Length];
 
         CreateMeshes();
     }
@@ -40,7 +39,7 @@ public class Chunk
         FaceCount = chunkData.FaceCount;
 
         Voxels = new Voxel[Size.x * Size.y * Size.z];
-        SelectedVoxels = new Voxel[Voxels.Length];
+        //SelectedVoxels = new Voxel[Voxels.Length];
 
         CreateMeshes();
 
@@ -69,11 +68,6 @@ public class Chunk
         return GetVoxelByGlobalPos(Voxels, globalVoxelPos);
     }
 
-    public Voxel GetSelectedVoxel(Vector3Int globalVoxelPos)
-    {
-        return GetVoxelByGlobalPos(SelectedVoxels, globalVoxelPos);
-    }
-
     public bool TryCreateVoxel(int id, Vector3Int globalVoxelPos)
     {
         int index = VoxelatorManager.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
@@ -95,10 +89,10 @@ public class Chunk
         int index = GetVoxelIndexByGlobalPos(globalVoxelPos);
 
         FaceCount -= Voxels[index].FaceCount;
-        SelectedFaceCount -= SelectedVoxels[index].FaceCount;
+        if(Voxels[index].Selected) SelectedFaceCount -= Voxels[index].FaceCount;
 
+        Voxels[index].Release();
         Voxels[index] = null;
-        SelectedVoxels[index] = null;
 
         UpdateVoxelsAround(Voxels, globalVoxelPos);
 
@@ -110,10 +104,10 @@ public class Chunk
     public bool TryToSelectVoxel(Vector3Int globalVoxelPos)
     {
         int index = GetVoxelIndexByGlobalPos(globalVoxelPos);
-        if (index < 0 || Voxels[index] == null || SelectedVoxels[index] != null) return false;
+        if (index < 0 || Voxels[index] == null || Voxels[index].Selected) return false;
 
-        SelectedVoxels[index] = new Voxel(Voxels[index]);
-        SelectedFaceCount += SelectedVoxels[index].FaceCount;
+        SelectedFaceCount += Voxels[index].FaceCount;
+        GetVoxel(globalVoxelPos).Selected = true;
 
         return true;
     }
@@ -122,10 +116,10 @@ public class Chunk
     {
         int index = GetVoxelIndexByGlobalPos(globaVoxelPos);
 
-        if (index < 0 || SelectedVoxels[index] == null) return; 
+        if (index < 0 || !Voxels[index].Selected) return; 
 
-        SelectedFaceCount -= SelectedVoxels[index].FaceCount;
-        SelectedVoxels[index] = null;
+        SelectedFaceCount -= Voxels[index].FaceCount;
+        Voxels[index].Selected = false;
     }
 
     public void SetActiveSelectedMesh(bool active)
@@ -145,7 +139,11 @@ public class Chunk
         int i4 = 0;
         int i6 = 0;
 
-        foreach(Voxel voxel in Voxels)
+        float uvX = 0;
+        float uvY = 0;
+        float offset = SceneData.TextureMul / 2f;
+
+        foreach (Voxel voxel in Voxels)
         {
             if(voxel != null)
             {
@@ -163,27 +161,30 @@ public class Chunk
                             triangles[i6 + j] = VoxelMesh.VoxelFaceTriangles[j] + i4;
                         }
 
-                        float v1 = SceneData.TextureMul * ((voxel.Id - 1) % SceneData.TextureSize) + SceneData.TextureMul;
-                        float v2 = 1 - SceneData.TextureMul * (int)(voxel.Id / (SceneData.TextureSize + 1));
-                        float offset = SceneData.TextureMul / 2f;
+                        //float v1 = SceneData.TextureMul * ((voxel.Id - 1) % SceneData.TextureSize) + SceneData.TextureMul;
+                        //float v2 = 1 - SceneData.TextureMul * (int)(voxel.Id / (SceneData.TextureSize + 1));
 
-                        uv[i4 + 0] = new Vector2(v1 - offset, v2 - SceneData.TextureMul + offset);
-                        uv[i4 + 1] = new Vector2(v1 - offset, v2 - offset);
-                        uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - offset);
-                        uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - SceneData.TextureMul + offset);
-
-
-                        float x = (voxel.Id - 1) % SceneData.TextureSize + 1;
-                        float y = (voxel.Id - 1) / (SceneData.TextureSize) + 1;
+                        //uv[i4 + 0] = new Vector2(v1 - offset, v2 - SceneData.TextureMul + offset);
+                        //uv[i4 + 1] = new Vector2(v1 - offset, v2 - offset);
+                        //uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - offset);
+                        //uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - SceneData.TextureMul + offset);
 
 
-                        x = x / SceneData.TextureSize;
-                        y = 1 - y / SceneData.TextureSize;
+                        //float x = (voxel.Id - 1) % SceneData.TextureSize + 1;
+                        //float y = (voxel.Id - 1) / (SceneData.TextureSize) + 1;
+                        //float offset = SceneData.TextureMul / 2f;
 
-                        uv[i4 + 0] = new Vector2(x - offset, y + offset);
-                        uv[i4 + 2] = new Vector2(x - offset, y + SceneData.TextureMul - offset);
-                        uv[i4 + 3] = new Vector2(x - SceneData.TextureMul + offset, y + SceneData.TextureMul - offset);
-                        uv[i4 + 1] = new Vector2(x - SceneData.TextureMul + offset, y + offset);
+
+                        //x = x / SceneData.TextureSize;
+                        //y = 1 - y / SceneData.TextureSize;
+
+                        uvX = voxel.UV.x;
+                        uvY = voxel.UV.y;
+
+                        uv[i4 + 0] = new Vector2(uvX - offset, uvY + offset);
+                        uv[i4 + 2] = new Vector2(uvX - offset, uvY + SceneData.TextureMul - offset);
+                        uv[i4 + 3] = new Vector2(uvX - SceneData.TextureMul + offset, uvY + SceneData.TextureMul - offset);
+                        uv[i4 + 1] = new Vector2(uvX - SceneData.TextureMul + offset, uvY + offset);
 
                         i4 += 4;
                         i6 += 6;
@@ -211,20 +212,20 @@ public class Chunk
         int j = 0;
         int k = 0;
 
-        foreach (Voxel selectedVoxel in SelectedVoxels)
+        foreach (Voxel voxel in Voxels)
         {
-            if(selectedVoxel != null)
+            if (voxel != null && voxel.Selected)
             {
-                for (int i = 0; i < selectedVoxel.Faces.Length; i++)
+                for (int i = 0; i < voxel.Faces.Length; i++)
                 {
-                    if(selectedVoxel.Faces[i])
+                    if(voxel.Faces[i])
                     {
                         for(int l = 0; l < 4; l++)
                         {
-                            Vector3 vertexOffset = ChunkManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + selectedVoxel.Position).GetOffset();
+                            Vector3 vertexOffset = ChunkManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + voxel.Position).Offset;
 
-                            vertices[j + l] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
-                            vertices[j + l + 4] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l + 4] + vertexOffset) * 1.001f + selectedVoxel.Position - Position;
+                            vertices[j + l] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l] + vertexOffset) * 1.001f + voxel.Position - Position;
+                            vertices[j + l + 4] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l + 4] + vertexOffset) * 1.001f + voxel.Position - Position;
                         }
 
                         for (int l = 0; l < 24; l++)
@@ -323,6 +324,7 @@ public class Chunk
         if (voxel == null) return;
 
         FaceCount -= voxel.FaceCount;
+        if(voxel.Selected) SelectedFaceCount -= voxel.FaceCount;
 
         for(int i = 0; i < Direction.Directions.Length; i++)
         {
@@ -349,6 +351,7 @@ public class Chunk
         //else voxel.SetFace(Direction.Forward, false);
 
         FaceCount += voxel.FaceCount;
+        if(voxel.Selected) SelectedFaceCount += voxel.FaceCount;
     }
     private void UpdateVoxelsAround(Voxel[] voxels, Vector3Int globalVoxelPos)
     {

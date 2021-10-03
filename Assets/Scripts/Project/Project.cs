@@ -188,7 +188,6 @@ public class Project : MonoBehaviour
     private void OnDrawGizmos()
     {
         return;
-
         if(ChunkManager.Vertices != null)
         {
             for(int i = 0; i < ChunkManager.Vertices.Length;i ++)
@@ -200,6 +199,8 @@ public class Project : MonoBehaviour
                 }
             }
         }
+
+        
 
         //return;
         //if(ChunksManager.Chunks != null)

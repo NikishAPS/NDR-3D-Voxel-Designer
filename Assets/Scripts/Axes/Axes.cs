@@ -2,8 +2,6 @@
 
 public class Axes : MonoBehaviour
 {
-    private static Axes _this;
-    [SerializeField] private CoordinateDisplay _coordinates;
 
     public static bool Active
     {
@@ -63,10 +61,10 @@ public class Axes : MonoBehaviour
         }
     }
 
-    //public delegate Vector3? DragEvent(Vector3 dragValue); //return drag value
+    private static Axes _this;
+    private static DragTransform _offset = new DragTransform();
+    [SerializeField] private CoordinateDisplay _coordinates;
 
-    //public static DragEvent DragPosition; 
-    //public static DragEvent DragScale;
 
     private IDrag _dragObject;
     private Axis[] _positionAxes, _scaleAxes;
@@ -160,6 +158,7 @@ public class Axes : MonoBehaviour
     {
         _initialDragValue = new DragTransform(transform);
         _highlightedAxis?.OnStartDrag(_initialDragValue);
+        _offset = DragTransform.Zero;
     }
 
     private void OnLMouseHold()
@@ -174,6 +173,7 @@ public class Axes : MonoBehaviour
             {
                 _initialDragValue.Position += dragValue.Position;
                 _highlightedAxis.OffsetDragPoint(dragValue);
+                _offset += dragValue;
             }
         }
     }
@@ -183,6 +183,7 @@ public class Axes : MonoBehaviour
         if (_isDrag)
         {
             //_highlightedAxis.OnEndDrag();
+            _dragObject.OnEndDrag(_offset);
             Position = _initialDragValue.Position;
             SetSelectedAxis(null);
             _isDrag = false;

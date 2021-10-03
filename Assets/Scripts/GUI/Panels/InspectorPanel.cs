@@ -19,6 +19,10 @@ public class InspectorPanel : Panel, IColor
         _colorPickerPanel = PanelManager.GetPanel<ColorPickerPanel>();
         SetColor(_buildColor);
         Presenter.ChangeModeEvent += OnSwitchTab;
+        Presenter.EditVertexEvent += OnEditVertex;
+
+        for(int i = 1; i < _tabs.Length; i++)
+            _tabs[i].SetActive(false);
     }
 
     public void OnOpenColorPickerPanel()
@@ -40,16 +44,26 @@ public class InspectorPanel : Panel, IColor
         ChunkManager.SetVoxelIdByColor(color);
     }
 
+    public void OnMoveVertex(int value)
+    {
+        if (Presenter.Vertex == null) return;
+
+        Vector3 position = new Vector3(_vertexOffsetX.Value, _vertexOffsetY.Value, _vertexOffsetZ.Value) / ChunkManager.IncrementOption + 
+            Presenter.Vertex.PivotPosition;
+
+        Invoker.Execute(new SetVertexPositionCommand(Presenter.Vertex.PivotPosition, position));
+    }
+
     private void OnSwitchTab()
     {
         SwitchTab(Presenter.Mode);
     }
 
-    private void OnSelectVertex()
+    private void OnEditVertex()
     {
-        _vertexOffsetX.Value = Presenter.VertexOffset.x;
-        _vertexOffsetY.Value = Presenter.VertexOffset.y;
-        _vertexOffsetZ.Value = Presenter.VertexOffset.z;
+        _vertexOffsetX.Value = Presenter.Vertex.Offset.x * ChunkManager.IncrementOption;
+        _vertexOffsetY.Value = Presenter.Vertex.Offset.y * ChunkManager.IncrementOption;
+        _vertexOffsetZ.Value = Presenter.Vertex.Offset.z * ChunkManager.IncrementOption;
     }
 
     private void SwitchTab(int tabIndex)

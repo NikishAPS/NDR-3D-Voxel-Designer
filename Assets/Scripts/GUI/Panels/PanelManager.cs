@@ -140,7 +140,7 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold,
         {
             foreach (Widget widget in widgets)
             {
-                if(widget.Inside())
+                if(widget.Active && widget.Inside())
                 {
                     return widget;
                 }

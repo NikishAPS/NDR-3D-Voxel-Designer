@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ViewPanel : Panel
 {
+    [SerializeField] private ScreenAxes _screenAxes;
+
     public override void OnMouseMove()
     {
         if (ScreenAxes.CurAxis != null) return;
@@ -13,7 +13,9 @@ public class ViewPanel : Panel
 
     public override void OnLMouseDown()
     {
+        _screenAxes.OnLMouseDown();
         if (ScreenAxes.CurAxis != null) return;
+
         ModeManager.OnLMouseDown();
     }
 

@@ -93,9 +93,15 @@ public class SelectMode : Mode, IDrag
     {
         if(ChunkManager.SelectedVoxelCount == 1)
         {
-            return new DragTransform(ChunkManager.GetSelectedVoxel(ChunkManager.SelectedVoxelPositions[0]).Position, Vector3.zero);
+            return new DragTransform(ChunkManager.SelectedVoxelPositions[0], Vector3.zero);
+            //return new DragTransform(ChunkManager.GetSelectedVoxel(ChunkManager.SelectedVoxelPositions[0]).Position, Vector3.zero);
         }
 
         return null;
+    }
+
+    public void OnEndDrag(DragTransform dragValue)
+    {
+
     }
 }

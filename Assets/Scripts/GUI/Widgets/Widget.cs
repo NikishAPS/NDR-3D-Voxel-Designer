@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class Widget : MonoBehaviour
 {
+    public bool Active { get; set; }
+
     public Vector2 Position
     {
         get => _rectTransform != null ? (Vector2)_rectTransform.position : Vector2.zero;
@@ -110,5 +112,15 @@ public class Widget : MonoBehaviour
     private void Start()
     {
         OnInit();
+    }
+
+    private void OnEnable()
+    {
+        Active = true;
+    }
+
+    private void OnDisable()
+    {
+        Active = false;
     }
 }

@@ -5,7 +5,11 @@ using UnityEngine;
 public class Vertex
 {
     public readonly Vector3 PivotPosition;
-    public Vector3 Position { get; private set; }
+    public Vector3 Position { get; set; }
+    public Vector3 Offset {
+        get => Position - PivotPosition;
+        set => Position = PivotPosition + value;
+    }
     public int AdjacentVoxelsCount { get; set; }
 
     public Vertex()
@@ -36,24 +40,9 @@ public class Vertex
         Position = vertexData.Position;
     }
 
-    public void Offset(Vector3 offset)
+    public void Shift(Vector3 value)
     {
-        Position += offset;
-    }
-
-    public void SetOffset(Vector3 offset)
-    {
-        Position = PivotPosition + offset;
-    }
-
-    public void SetPosition(Vector3 position)
-    {
-        Position = position;
-    }
-
-    public Vector3 GetOffset()
-    {
-        return Position - PivotPosition;
+        Position += value;
     }
 
     public VertexData GetData()
