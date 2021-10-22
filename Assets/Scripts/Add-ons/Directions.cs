@@ -5,12 +5,12 @@ using UnityEngine;
 
 public static class Direction
 {
-    public static int Left => 0;
-    public static int Right => 1;
-    public static int Down => 2;
-    public static int Up => 3;
-    public static int Back => 4;
-    public static int Forward => 5;
+    public static int Left => (int)DirectionType.Left;
+    public static int Right => (int)DirectionType.Right;
+    public static int Down => (int)DirectionType.Down;
+    public static int Up => (int)DirectionType.Up;
+    public static int Back => (int)DirectionType.Back;
+    public static int Forward => (int)DirectionType.Forward;
 
     public static readonly Vector3Int[] Directions =
     {
