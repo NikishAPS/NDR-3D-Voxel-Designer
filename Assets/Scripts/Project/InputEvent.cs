@@ -2,6 +2,9 @@
 
 public class InputEvent : MonoBehaviour
 {
+    //app events
+    public static Void WindowResize;
+
     //mouse events
     public static bool GetLMouseDown => Input.GetMouseButtonDown(0);
     public static bool GetLMouseHold => Input.GetMouseButton(0);
@@ -43,13 +46,24 @@ public class InputEvent : MonoBehaviour
     public static Void YHold;
     public static Void ZHold;
 
+    private Resolution _prevResolution;
     private Vector3 _prevMousePosition;
 
     private void Update()
     {
+        if(Screen.currentResolution.width != _prevResolution.height ||
+            Screen.currentResolution.width != _prevResolution.height)
+        {
+            WindowResize?.Invoke();
+            _prevResolution = Screen.currentResolution;
+        }
+
         MouseSpeed = MousePosition - _prevMousePosition;
-        if (MouseSpeed != Vector3.zero) MouseMove?.Invoke();
-        _prevMousePosition = MousePosition;
+        if (MouseSpeed != Vector3.zero)
+        {
+            MouseMove?.Invoke();
+            _prevMousePosition = MousePosition;
+        }
 
         if (GetLMouseDown) LMouseDown?.Invoke();
         if (GetLMouseHold) LMouseHold?.Invoke();

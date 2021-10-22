@@ -30,11 +30,17 @@ public static class Raycast
             pointInt = point.RoundToInt();
 
             //if (pointInt.y < 0 && lastPointInt.y == 0)
-            
+
             //if is gird
-            if(!GridManager.IsGrid(pointInt) && GridManager.IsGrid(lastPointInt))
+            if (!GridManager.IsGrid(pointInt) && GridManager.IsGrid(lastPointInt))
             {
                 return new CastResult(null, null, lastPointInt, pointInt);
+            }
+
+            if(false)
+            if(GridManager.IsGrid(pointInt))
+            {
+                return new CastResult(null, null, pointInt, pointInt);
             }
 
             //lastPointInt = pointInt;

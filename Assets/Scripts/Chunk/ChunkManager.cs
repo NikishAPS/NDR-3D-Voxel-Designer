@@ -396,8 +396,8 @@ public static class ChunkManager
         _nonUpdatedChunks = Chunks.ToList();
         UpdateChunkMeshes();
 
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
-        GridManager.Grids[Direction.Down].Active = true;
+        //GridManager._grid[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
+        //GridManager._grid[Direction.Down].Active = true;
     }
 
     public static bool TryCreateVoxel(Vector3Int globalVoxelPos)

@@ -1,43 +1,43 @@
 ﻿using UnityEngine;
 
-public static class GridManager
+public class GridManager : MonoBehaviour
 {
-    public static readonly Grid[] Grids;
+    private static GridManager _this;
+    public static Grid[] Grids { get; private set; }
 
-    static GridManager()
+    public static Vector3Int Size
     {
-        Grids = Object.FindObjectsOfType<Grid>();   
-        for (int i = 0; i < Grids.Length; i++)
+        set
         {
-            for(int j = i; j < Grids.Length; j++)
+            _this.transform.localScale = value.ToVector3();
+            foreach (Grid grid in Grids)
             {
-                if(Direction.Directions[i] == -Grids[j].transform.up)
-                {
-                    Grid grid = Grids[i];
-                    Grids[i] = Grids[j];
-                    Grids[j] = grid;
-                    Grids[i].Active = false;
-                }
+                grid.SetOffset(0);
+                grid.UpdateTiling();
             }
         }
     }
 
+    public string wall;
     public static bool IsGrid(Vector3Int position)
     {
-        foreach(Grid grid in Grids)
+        _this.wall = "";
+        foreach (Grid grid in Grids)
         {
             if(grid.Active)
             {
-                if (grid.IsGrid(position))
+                if(grid.IsGrid(position))
+                {
+                    _this.wall = grid.transform.name;
                     return true;
+                }
             }
         }
 
         return false;
     }
 
-
-    public static Grid GetFaceGrid(Vector3 direction)
+    public static Grid GetWallGridByDirection(Vector3 direction)
     {
         int[] indexes = new int[4]
         {
@@ -48,7 +48,7 @@ public static class GridManager
         int indexMin = 0;
         for(int i = 0; i < indexes.Length; i++)
         {
-            float angle = Vector3.Angle(-Direction.Directions[indexes[i]], direction);
+            float angle = Vector3.Angle(Direction.Directions[indexes[i]], direction);
             if (angle > minAngle)
             {
                 minAngle = angle;
@@ -58,5 +58,30 @@ public static class GridManager
 
         return Grids[indexes[indexMin]];
     }
+
+    private void Start()
+    {
+        _this = FindObjectOfType<GridManager>();
+
+        Grids = FindObjectsOfType<Grid>();
+
+        for (int i = 0; i < Grids.Length; i++)
+        {
+            for (int j = i + 1; j < Grids.Length; j++)
+            {
+                //if (Direction.Directions[i] == -Grids[j].transform.forward)
+                if (Direction.Directions[i] == -Grids[j].Normal)
+                {
+                    Grid grid = Grids[i];
+                    Grids[i] = Grids[j];
+                    Grids[j] = grid;
+                    //_grids[i].Active = false;
+                }
+            }
+            Grids[i].Active = false;
+        }
+    }
+
+
 }
 

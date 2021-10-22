@@ -88,8 +88,15 @@ public class Project : MonoBehaviour
         _data.SetSaveLocation(saveLocation);
 
         ChunkManager.InitChunks();
-        GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
+        //GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
+        //GridManager.Grids[Direction.Down].Active = true;
+
+        //foreach (Grid grid in GridManager.Grids)
+        //    grid.Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
+        //GridManager.Grids[Direction.Down].Active = true;
+
         GridManager.Grids[Direction.Down].Active = true;
+        GridManager.Size = ChunkManager.FieldSize;
     }
 
     public static void Ouit()
@@ -146,10 +153,11 @@ public class Project : MonoBehaviour
 
     private bool ExitProcessing()
     {
-        if (!Saved)
+        if (!Saved || true)
         {
             Ouit();
         }
+        return true;
         return Saved;
     }
 

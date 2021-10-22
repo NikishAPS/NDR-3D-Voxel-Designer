@@ -7,6 +7,8 @@ public class BuildMode : Mode
     private CastResult _castResult;
     private Vector3Int _startVoxelAreaPosition;
     private Vector3Int _endVoxelAreaPosition;
+    private bool _multiBuilding = false;
+    private Grid _wall;
 
     /*
      * 0 - non
@@ -17,89 +19,91 @@ public class BuildMode : Mode
 
     public override void OnEnable()
     {
+
     }
 
     public override void OnDisable()
     {
         Extractor.Active = false;
+
     }
 
     public override void OnMouseMove()
     {
-        
-        RayCast();
 
-        if (_castResult != null)
+        //RayCast();
+
+        if (IsGridOrVoxel())
         {
-            Vector3Int endPos = Extractor.Position.ToVector3Int();
-
-            if(_voxelAreaMode == 2)
-                _endVoxelAreaPosition.y = endPos.y;
-            else
-                _endVoxelAreaPosition = endPos;
-
-            if (_voxelAreaMode == 0)
+            if (_multiBuilding)
             {
-                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetPosition();
-            }
-            else //(_voxelAreaMode != 0)
-            {
+                _endVoxelAreaPosition = _castResult.lastPoint;
+                Vector3 middleVoxelAreaPosition = (_startVoxelAreaPosition + _endVoxelAreaPosition) / 2;
+
                 Extractor.Position = (_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f;
                 Extractor.Scale = (_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one;
-                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
+
+                //MoveGrid();
+            }
+            else
+            {
+                Extractor.Position = _castResult.lastPoint;
             }
         }
     }
 
     public override void OnLMouseDown()
     {
-        if (_voxelAreaMode == 0) _startVoxelAreaPosition = _endVoxelAreaPosition;
-        else GridManager.Grids[Direction.Left].Active = false;
-
-        //ChunksManager.CreateVoxels(_startVoxelAreaPosition, _endVoxelAreaPosition);
         Invoker.Execute(new CreateVoxelsCommand(_startVoxelAreaPosition, _endVoxelAreaPosition));
 
         _voxelAreaMode = 0;
         ResetExtractor();
+
+        _multiBuilding = false;
     }
 
     public override void OnRMouseDown()
     {
-        if (_castResult != null)
-        {
-            if (_voxelAreaMode == 0)
-            {
-                //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
-                _startVoxelAreaPosition = Extractor.Position.ToVector3Int();
-                _voxelAreaMode = 1;
-            }
-        }
+        if (_castResult == null) return;
+        ResetWall();
+        _startVoxelAreaPosition = _castResult.lastPoint;
+        _multiBuilding = true;
     }
 
     public override void OnRMouseUp()
     {
-        if (_voxelAreaMode != 0)
+        if(_multiBuilding)
         {
-            _voxelAreaMode = 2;
-
-            //VoxelatorManager.Coordinates.Value = SceneData.Extractor.GetScale();
-
-            
-
-            GridManager.Grids[Direction.Left].Set(true,
-                new Vector3Int(Mathf.Min(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), 0, Mathf.Min(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)),
-                new Vector3Int(Mathf.Max(_startVoxelAreaPosition.x, _endVoxelAreaPosition.x), ChunkManager.FieldSize.y, Mathf.Max(_startVoxelAreaPosition.z, _endVoxelAreaPosition.z)));
-                //new Vector3Int(_startVoxelAreaPosition.x, ChunksManager.FieldSize.y, _endVoxelAreaPosition.z));
-
-
-            for (int i = 0; i < Direction.Directions.Length; i++)
-                if (i != Direction.Down && i != Direction.Up)
-                    return;
-            //GridManager.Grids[Direction.Left].Size = new Vector3Int(_endVoxelAreaPosition.z - _startVoxelAreaPosition.z + 1 , 1, ChunksManager.FieldSize.y);
+            SetWall();
         }
     }
 
+    private void SetWall()
+    {
+        if (_multiBuilding)
+        {
+            Grid newWall = GridManager.GetWallGridByDirection(-Camera.main.transform.forward);
 
+            if (newWall != _wall)
+            {
+                if (_wall != null) _wall.Active = false;
+                _wall = newWall;
+                _wall.Active = true;
+
+                _wall.SetOffset((int)_endVoxelAreaPosition.Mul(_wall.Normal.ToVector3Int()).magnitude);
+            }
+        }
+
+
+    }
+
+    private void ResetWall()
+    {
+        if (_wall == null) return;
+
+        _wall.Active = false;
+        _wall = null;
+    }
 
     private void RayCast()
     {
@@ -122,10 +126,52 @@ public class BuildMode : Mode
         }
     }
 
+    private void MoveGrid()
+    {
+        int gridOffset = (int)((Extractor.Position - (Extractor.Scale / 2)).Mul(_wall.Normal) + Vector3.one * 0.5f).magnitude;
+        _wall.SetOffset(gridOffset);
+
+
+        _wall.SetOffset((int)_endVoxelAreaPosition.Mul(_wall.Normal.ToVector3Int()).magnitude);
+
+
+        return;
+
+        if (_wall == GridManager.Grids[Direction.Left])
+            _wall.SetOffset(_startVoxelAreaPosition.x < _endVoxelAreaPosition.x ? _startVoxelAreaPosition.x : _endVoxelAreaPosition.x);
+        else if (_wall == GridManager.Grids[Direction.Right])
+            _wall.SetOffset(_startVoxelAreaPosition.x < _endVoxelAreaPosition.x ? _startVoxelAreaPosition.x : _endVoxelAreaPosition.x);
+        else if (_wall == GridManager.Grids[Direction.Back])
+            _wall.SetOffset(_startVoxelAreaPosition.z < _endVoxelAreaPosition.z ? _startVoxelAreaPosition.z : _endVoxelAreaPosition.z);
+        else if (_wall == GridManager.Grids[Direction.Forward])
+            _wall.SetOffset(_startVoxelAreaPosition.z < _endVoxelAreaPosition.z ? _startVoxelAreaPosition.z : _endVoxelAreaPosition.z);
+    }
+
     private void ResetExtractor()
     {
         Extractor.Position = _endVoxelAreaPosition;
         Extractor.Scale = Vector3.one;
+    }
+
+    private bool IsGridOrVoxel()
+    {
+        _castResult = Raycast.CastByMouse(SceneData.RayLength);
+        if (_castResult != null)
+        {
+            if (ChunkManager.InField(_castResult.lastPoint))
+            {
+                //Extractor.Position = _castResult.lastPoint;
+                Extractor.Active = true;
+                return true;
+            }
+            else
+            {
+                _castResult = null;
+                return false;
+            }
+        }
+
+        return false;
     }
 
 }

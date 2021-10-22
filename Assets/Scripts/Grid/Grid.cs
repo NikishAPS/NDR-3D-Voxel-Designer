@@ -1,15 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
-    [SerializeField]
-    private MeshRenderer _meshRenderer;
-
-    private float _yOffset = -0.51f;
-
-
     public bool Active
     {
         get => gameObject.activeSelf;
@@ -22,45 +14,67 @@ public class Grid : MonoBehaviour
         set => transform.localPosition = value;
     }
 
-    public Vector3Int Size
-    {
-        get => transform.localScale.ToVector3Int();
-        set
-        {
-            _meshRenderer.material.SetTextureScale("_MainTex", new Vector3(value.x, value.z));
-            transform.localScale = new Vector3(value.x, 1, value.z);
+    public Vector3Int Size { get; private set; }
 
-            float meshPositionX = (value.x * 0.5f - 0.5f) / value.x;
-            float meshPositionz = (value.z * 0.5f - 0.5f) / value.z;
-            _meshRenderer.transform.localPosition = new Vector3(meshPositionX, _yOffset, meshPositionz);
-        }
-    }
+    public Vector3Int Area { get; private set; }
+
+    public Vector3 Normal { get; private set; }
+
+    [SerializeField] private MeshRenderer _meshRenderer;
+    [SerializeField] private DirectionType _normalType;
+    private float _yOffset = -0.51f;
+    private Vector3 _offset;
 
     public bool IsGrid(Vector3Int position)
     {
-        return VoxelatorManager.WithinTheArray(Size, GetLocalPosition(position));
+        return VoxelatorManager.WithinTheArray(Size, position - _offset);
+
+        return
+            position.x >= Position.x && position.x < Position.x + Size.x &&
+            position.y >= Position.y && position.y < Position.y + Size.y &&
+            position.z >= Position.z && position.z < Position.z + Size.z;
     }
 
-    public void Set(bool active, Vector3Int startPoint, Vector3Int endPoint)
+    public void SetOffset(int offset)
     {
-        Active = active;
+        transform.localPosition = (Normal * offset).Div(transform.lossyScale);
 
-        Vector3Int localStartPoint = GetLocalPosition(startPoint);
-        Vector3Int localEndPoint = GetLocalPosition(endPoint);
-        int sign = (int)Mathf.Sign(localEndPoint.x - localStartPoint.x);
-
-        Position = sign > 0 ? startPoint : new Vector3Int(endPoint.x, startPoint.y, endPoint.z);
-
-        localEndPoint.x += sign;
-
-        Size = (localEndPoint - localStartPoint).Abs();
+        _offset = (Normal * offset) + _meshRenderer.transform.localPosition.Mul(_meshRenderer.transform.lossyScale) +
+            (Normal - Vector3.one.Mul(Normal.Abs()));
     }
 
-
-
-    private Vector3Int GetLocalPosition(Vector3Int point)
+    public void UpdateTiling()
     {
-        return transform.InverseTransformPoint(point).Mul(Size).ToVector3Int();
+        _meshRenderer.material.SetTextureScale("_MainTex", new Vector3(_meshRenderer.transform.lossyScale.x,
+            _meshRenderer.transform.lossyScale.y));
+
+        //_meshRenderer.transform.localPosition =
+        //    new Vector3((size.x * 0.5f - 0.5f) / size.x, (size.y * 0.5f - 0.5f) / size.y, -0.5f / size.z);
+
+        Size = (transform.lossyScale.Mul(Vector3.one - Normal.Abs()) + Normal.Abs()).RoundToInt();
+    }
+
+    private void Awake()
+    {
+        if (_meshRenderer == null)
+            _meshRenderer = GetComponent<MeshRenderer>();
+
+        Normal = Direction.Directions[(int)_normalType];
+    }
+
+    private void Start()
+    {
+        return;
+
+        Mesh mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        CustomMesh planeMesh = MeshGenerator.GenerateHorizontalPlane(Vector3.one * 0.5f);
+        mesh.SetCustomMesh(planeMesh);
+
+        mesh.RecalculateNormals();
+        mesh.Optimize();
+
     }
 
 }
