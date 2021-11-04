@@ -1,177 +1,156 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildMode : Mode
 {
-    private CastResult _castResult;
     private Vector3Int _startVoxelAreaPosition;
     private Vector3Int _endVoxelAreaPosition;
-    private bool _multiBuilding = false;
-    private Grid _wall;
+    private Vector3Int _fixPosition;
+    private MathPlane _plane;
+    private BuildStage _buildStage;
 
-    /*
-     * 0 - non
-     * 1 - horizontal
-     * 2 - vertical 
-     */
-    private int _voxelAreaMode;
+    private enum BuildStage
+    {
+        Aim,    //set the starting point of the building zone
+        Plane,  // set the size of the building zone on the plane
+        Axis    //set the length of the building zone alone the current axis
+    }
+
 
     public override void OnEnable()
     {
+        CameraController.MoveEvent += OnCameraMove;
+        Extractor.Active = true;
 
+        UpdatePlane();
+        _buildStage = BuildStage.Aim;
+        OnMouseMove();
     }
 
     public override void OnDisable()
     {
+        CameraController.MoveEvent -= OnCameraMove;
+
         Extractor.Active = false;
 
     }
 
+    public void OnCameraMove()
+    {
+        UpdatePlane();
+    }
+
     public override void OnMouseMove()
     {
+       
 
-        //RayCast();
+        CastResult castResult = Cast();
 
-        if (IsGridOrVoxel())
+
+        switch(_buildStage)
         {
-            if (_multiBuilding)
-            {
-                _endVoxelAreaPosition = _castResult.lastPoint;
-                Vector3 middleVoxelAreaPosition = (_startVoxelAreaPosition + _endVoxelAreaPosition) / 2;
+            case BuildStage.Aim:
+                {
+                    if (castResult != null)
+                    {
+                        _startVoxelAreaPosition = castResult.lastPoint;
+                        _endVoxelAreaPosition = _startVoxelAreaPosition;
 
-                Extractor.Position = (_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f;
-                Extractor.Scale = (_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one;
+                        Extractor.Position = _startVoxelAreaPosition;
+                    }
+                    break;
+                }
 
-                //MoveGrid();
-            }
-            else
-            {
-                Extractor.Position = _castResult.lastPoint;
-            }
+            case BuildStage.Plane:
+                {
+                    Vector3Int intersection = _plane.GetIntersection(
+                       Camera.main.ScreenToWorldPoint(Input.mousePosition),
+                       Camera.main.transform.forward
+                       ).RoundToInt();
+
+                    if (ChunkManager.InField(intersection))
+                        _endVoxelAreaPosition = intersection;
+
+                    _fixPosition = _endVoxelAreaPosition;
+
+                    break;
+                }
+
+            case BuildStage.Axis:
+                {
+                    Vector3 center = (_startVoxelAreaPosition + _fixPosition) / 2;
+                    Vector3Int offsetAlongAxis = Direction.GetCursorOffsetAlongAxis(center).RoundToInt();
+                    offsetAlongAxis += _fixPosition;
+
+                    if(ChunkManager.InField(offsetAlongAxis))
+                        _endVoxelAreaPosition = offsetAlongAxis;
+
+                    break;
+                }
         }
+
+        Vector3 middleVoxelAreaPosition = (_startVoxelAreaPosition + _endVoxelAreaPosition) / 2;
+
+        Extractor.Position = (_startVoxelAreaPosition + _endVoxelAreaPosition).ToVector3() * 0.5f;
+        Extractor.Scale = (_endVoxelAreaPosition - _startVoxelAreaPosition).Abs() + Vector3.one;
     }
 
     public override void OnLMouseDown()
     {
         Invoker.Execute(new CreateVoxelsCommand(_startVoxelAreaPosition, _endVoxelAreaPosition));
 
-        _voxelAreaMode = 0;
-        ResetExtractor();
+        Extractor.Position = _endVoxelAreaPosition;
+        Extractor.Scale = Vector3.one;
+        _startVoxelAreaPosition = _endVoxelAreaPosition = _fixPosition = Vector3Int.zero;
 
-        _multiBuilding = false;
+        _buildStage = BuildStage.Aim;
     }
 
     public override void OnRMouseDown()
     {
-        if (_castResult == null) return;
-        ResetWall();
-        _startVoxelAreaPosition = _castResult.lastPoint;
-        _multiBuilding = true;
+        if (Cast() == null) return;
+
+        _buildStage = BuildStage.Plane;
+        OnMouseMove();
     }
 
     public override void OnRMouseUp()
     {
-        if(_multiBuilding)
-        {
-            SetWall();
-        }
+        if (_buildStage != BuildStage.Plane) return;
+
+        _buildStage = BuildStage.Axis;
+        OnMouseMove();
     }
 
-    private void SetWall()
+    private CastResult Cast()
     {
-        if (_multiBuilding)
-        {
-            Grid newWall = GridManager.GetWallGridByDirection(-Camera.main.transform.forward);
-
-            if (newWall != _wall)
-            {
-                if (_wall != null) _wall.Active = false;
-                _wall = newWall;
-                _wall.Active = true;
-
-                _wall.SetOffset((int)_endVoxelAreaPosition.Mul(_wall.Normal.ToVector3Int()).magnitude);
-            }
-        }
-
-
+        return Raycast.CastByMouse(SceneData.RayLength);
     }
 
-    private void ResetWall()
+    private void UpdatePlane()
     {
-        if (_wall == null) return;
+        Vector3Int normal = Direction.GetNormalByView();
 
-        _wall.Active = false;
-        _wall = null;
+        //Vector3Int firstPoint = normal * _startVoxelAreaPosition;
+        //Vector3Int secondPoint = firstPoint + (Vector3Int.one - normal).Mul(ChunkManager.FieldSize) * 100;
+
+        //BoundsInt bounds = new BoundsInt(firstPoint, secondPoint);
+        //_boxCollider.Bounds = bounds;
+
+        Tuple<Vector3Int, Vector3Int> perpendicularDirection = Direction.GetPerpendicularDirections(normal);
+
+        Vector3 point1 = perpendicularDirection.Item1 + _startVoxelAreaPosition;
+        Vector3 point2 = perpendicularDirection.Item2 + _startVoxelAreaPosition;
+        Vector3 point3 = point1 + point2 - _startVoxelAreaPosition;
+        _plane = new MathPlane(point1, point2, point3);
+
+        p1 = point1;
+        p2 = point2;
+        p3 = point3;
     }
 
-    private void RayCast()
-    {
-        _castResult = null;
-        //SceneData.Extractor.SetActive(false);
-
-        _castResult = Raycast.CastByMouse(SceneData.RayLength);
-        if (_castResult != null)
-        {
-            //MonoBehaviour.print(_castResult.lastPoint);
-            if (ChunkManager.InField(_castResult.lastPoint))
-            {
-                Extractor.Position = _castResult.lastPoint;
-                Extractor.Active = true;
-            }
-            else
-            {
-                _castResult = null;
-            }
-        }
-    }
-
-    private void MoveGrid()
-    {
-        int gridOffset = (int)((Extractor.Position - (Extractor.Scale / 2)).Mul(_wall.Normal) + Vector3.one * 0.5f).magnitude;
-        _wall.SetOffset(gridOffset);
-
-
-        _wall.SetOffset((int)_endVoxelAreaPosition.Mul(_wall.Normal.ToVector3Int()).magnitude);
-
-
-        return;
-
-        if (_wall == GridManager.Grids[Direction.Left])
-            _wall.SetOffset(_startVoxelAreaPosition.x < _endVoxelAreaPosition.x ? _startVoxelAreaPosition.x : _endVoxelAreaPosition.x);
-        else if (_wall == GridManager.Grids[Direction.Right])
-            _wall.SetOffset(_startVoxelAreaPosition.x < _endVoxelAreaPosition.x ? _startVoxelAreaPosition.x : _endVoxelAreaPosition.x);
-        else if (_wall == GridManager.Grids[Direction.Back])
-            _wall.SetOffset(_startVoxelAreaPosition.z < _endVoxelAreaPosition.z ? _startVoxelAreaPosition.z : _endVoxelAreaPosition.z);
-        else if (_wall == GridManager.Grids[Direction.Forward])
-            _wall.SetOffset(_startVoxelAreaPosition.z < _endVoxelAreaPosition.z ? _startVoxelAreaPosition.z : _endVoxelAreaPosition.z);
-    }
-
-    private void ResetExtractor()
-    {
-        Extractor.Position = _endVoxelAreaPosition;
-        Extractor.Scale = Vector3.one;
-    }
-
-    private bool IsGridOrVoxel()
-    {
-        _castResult = Raycast.CastByMouse(SceneData.RayLength);
-        if (_castResult != null)
-        {
-            if (ChunkManager.InField(_castResult.lastPoint))
-            {
-                //Extractor.Position = _castResult.lastPoint;
-                Extractor.Active = true;
-                return true;
-            }
-            else
-            {
-                _castResult = null;
-                return false;
-            }
-        }
-
-        return false;
-    }
+    public static Vector3 p1, p2, p3;
 
 }

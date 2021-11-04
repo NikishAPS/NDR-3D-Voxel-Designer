@@ -21,6 +21,9 @@ public static class Raycast
         Voxel curVoxel = null;
         Voxel lastVoxel = null;
 
+        bool curCollision = false;
+        bool lastCollision = false;
+
         for (float f = 0; f < length; f += SceneData.RayStep)
         {
             direction = dir * f;
@@ -32,19 +35,12 @@ public static class Raycast
             //if (pointInt.y < 0 && lastPointInt.y == 0)
 
             //if is gird
-            if (!GridManager.IsGrid(pointInt) && GridManager.IsGrid(lastPointInt))
+            curCollision = VoxelBoxCollider.IsCollision(pointInt);
+            if (!curCollision && lastCollision)
             {
                 return new CastResult(null, null, lastPointInt, pointInt);
             }
-
-            if(false)
-            if(GridManager.IsGrid(pointInt))
-            {
-                return new CastResult(null, null, pointInt, pointInt);
-            }
-
-            //lastPointInt = pointInt;
-            //continue;
+            lastCollision = curCollision;
 
             //curVoxel = SceneData.Chunk.GetVoxelByPos(pointInt);
             curVoxel = ChunkManager.GetVoxel(pointInt);

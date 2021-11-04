@@ -51,8 +51,8 @@ public class InputEvent : MonoBehaviour
 
     private void Update()
     {
-        if(Screen.currentResolution.width != _prevResolution.height ||
-            Screen.currentResolution.width != _prevResolution.height)
+        if(Screen.currentResolution.width != _prevResolution.width ||
+            Screen.currentResolution.height != _prevResolution.height)
         {
             WindowResize?.Invoke();
             _prevResolution = Screen.currentResolution;

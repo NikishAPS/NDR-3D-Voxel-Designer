@@ -95,7 +95,7 @@ public class Project : MonoBehaviour
         //    grid.Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
         //GridManager.Grids[Direction.Down].Active = true;
 
-        GridManager.Grids[Direction.Down].Active = true;
+        //GridManager.Grids[Direction.Down].Active = true;
         GridManager.Size = ChunkManager.FieldSize;
     }
 
@@ -195,6 +195,22 @@ public class Project : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        bool b1 = false;
+        if(VoxelBoxCollider.Colliders != null)
+        {
+            foreach(VoxelBoxCollider collider in VoxelBoxCollider.Colliders)
+            {
+                Gizmos.color = b1 ? Color.green : Color.red;
+                Gizmos.DrawWireCube(collider.Bounds.Center, collider.Bounds.Size + Vector3.one);
+                b1 = true;
+            }
+        }
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(BuildMode.p1, BuildMode.p2);
+        Gizmos.DrawLine(BuildMode.p2, BuildMode.p3);
+        Gizmos.DrawLine(BuildMode.p1, BuildMode.p3);
+
         return;
         if(ChunkManager.Vertices != null)
         {
