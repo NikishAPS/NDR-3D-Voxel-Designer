@@ -73,6 +73,8 @@ public class BuildMode : Mode
                     if (ChunkManager.InField(intersection))
                         _endVoxelAreaPosition = intersection;
 
+                    //..!MonoBehaviour.print(_endVoxelAreaPosition);
+
                     _fixPosition = _endVoxelAreaPosition;
 
                     break;
@@ -90,6 +92,7 @@ public class BuildMode : Mode
                     break;
                 }
         }
+
 
         Vector3 middleVoxelAreaPosition = (_startVoxelAreaPosition + _endVoxelAreaPosition) / 2;
 

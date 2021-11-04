@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    public static Camera MainCamera { get; private set; }
     public static Void MoveEvent;
-    public static float Distance => Camera.main.orthographicSize;
+    public static float Distance => MainCamera.orthographicSize;
 
     private static CameraController _this;
 
-    [SerializeField] private Camera _axesCamera;
     [SerializeField] private float _sensitivity = 250f;
     [SerializeField] private float _minZoom = 1f, _maxZoom = 100f;
     [SerializeField] private float _zoomSpeed = 0.2f;
@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
 
     public static float GetDistance(Vector3 targerPosition)
     {
-        return Vector3.Distance(Camera.main.transform.position, targerPosition) + Camera.main.orthographicSize;
+        return Vector3.Distance(MainCamera.transform.position, targerPosition) + MainCamera.orthographicSize;
     }
 
     public static void SetViewDirectino(Vector3 viewDirection)
@@ -32,16 +32,18 @@ public class CameraController : MonoBehaviour
 
     private void Awake()
     {
+        MainCamera = GetComponent<Camera>();
+
         _this = FindObjectOfType<CameraController>();
         InputEvent.MMouseHold += OnMMouseHold;
         InputEvent.MouseScroll += OnMouseScroll;
 
-        _zoom = Camera.main.orthographicSize;
-        Camera.main.nearClipPlane = -_maxZoom;
-        Camera.main.nearClipPlane = -20;
+        _zoom = MainCamera.orthographicSize;
+        MainCamera.nearClipPlane = -_maxZoom;
+        MainCamera.nearClipPlane = -20;
 
-        _axesCamera.orthographicSize = Camera.main.orthographicSize;
-        _axesCamera.nearClipPlane = Camera.main.nearClipPlane;
+        //_axesCamera.orthographicSize = Camera.main.orthographicSize;
+        //_axesCamera.nearClipPlane = Camera.main.nearClipPlane;
 
         _target.y = 0;
         transform.position = _target;
@@ -98,8 +100,8 @@ public class CameraController : MonoBehaviour
             curzoom = Mathf.MoveTowards(curzoom, zoom, Time.deltaTime * 5 * speed);
             smooth = curzoom - smooth;
 
-            Camera.main.orthographicSize += smooth;
-            _axesCamera.orthographicSize = Camera.main.orthographicSize;
+            MainCamera.orthographicSize += smooth;
+            //_axesCamera.orthographicSize = Camera.main.orthographicSize;
 
             MoveEvent?.Invoke();
 

@@ -46,16 +46,21 @@ public class InputEvent : MonoBehaviour
     public static Void YHold;
     public static Void ZHold;
 
-    private Resolution _prevResolution;
+    private Canvas _canvas;
+    private Rect _prevCanvasRect;
     private Vector3 _prevMousePosition;
+
+    private void Awake()
+    {
+        _canvas = FindObjectOfType<Canvas>();
+    }
 
     private void Update()
     {
-        if(Screen.currentResolution.width != _prevResolution.width ||
-            Screen.currentResolution.height != _prevResolution.height)
+        if (_canvas.pixelRect != _prevCanvasRect)
         {
             WindowResize?.Invoke();
-            _prevResolution = Screen.currentResolution;
+            _prevCanvasRect = _canvas.pixelRect;
         }
 
         MouseSpeed = MousePosition - _prevMousePosition;

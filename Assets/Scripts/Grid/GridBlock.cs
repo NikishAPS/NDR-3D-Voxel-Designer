@@ -57,8 +57,6 @@ public class GridBlock : MonoBehaviour
                 points[1]
             });
 
-        print(points[0]);
-        print(points[1]);
         _mesh.SetCustomMesh(plane);
 
         _mesh.RecalculateNormals();

@@ -30,8 +30,6 @@ public class MathPlane
 
     public Vector3 GetIntersection(Vector3 point, Vector3 direction)
     {
-        direction.Normalize();
-
         Vector3 coef = new Vector3(A, B, C);
         float t = -(Vector3.Dot(coef, point) + D) / Vector3.Dot(coef, direction);
 

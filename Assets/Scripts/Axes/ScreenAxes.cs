@@ -5,6 +5,7 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
     public static ScreenAxis CurAxis { get; private set; }
     private static ScreenAxes _this;
 
+    [SerializeField] private Camera _axesCamera;
     [SerializeField] private float _size = 0.015f;
     [SerializeField] private RectTransform _screenPoint;
 
@@ -14,18 +15,20 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
         set => _this.gameObject.SetActive(value);
     }
 
-
-    public void OnCameraMove()
+    public void UpdateAxes()
     {
-        transform.position = Camera.main.ScreenToWorldPoint(_screenPoint.position);
+        transform.position = CameraController.MainCamera.ScreenToWorldPoint(_screenPoint.position);
         transform.rotation = Quaternion.identity;
         transform.localScale = Vector3.one * _size * CameraController.Distance;
+
+        _axesCamera.orthographicSize = CameraController.MainCamera.orthographicSize;
+        _axesCamera.nearClipPlane = CameraController.MainCamera.nearClipPlane;
     }
 
     public void OnMouseMove()
     {
         RaycastHit hit;
-        Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, LayerMask.GetMask("ScreenAxis"));
+        Physics.Raycast(CameraController.MainCamera.ScreenPointToRay(Input.mousePosition), out hit, LayerMask.GetMask("ScreenAxis"));
         SetCurrentAxis(hit.transform?.GetComponent<ScreenAxis>());
     }
 
@@ -44,15 +47,15 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
         _this = FindObjectOfType<ScreenAxes>();
 
         InputEvent.MouseMove += OnMouseMove;
-        //InputEvent.LMouseDown += OnLMouseDown;
-        CameraController.MoveEvent += OnCameraMove;
+        InputEvent.WindowResize += UpdateAxes;
+        CameraController.MoveEvent += UpdateAxes;
 
         gameObject.SetActive(false);
     }
 
     private void Start()
     {
-        OnCameraMove();
+        UpdateAxes();
     }
 
     private void SetCurrentAxis(ScreenAxis axis)
