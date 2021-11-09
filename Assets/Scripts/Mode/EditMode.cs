@@ -32,7 +32,7 @@ public class EditMode : Mode, IDrag
             _vertex = null;
             Axes.Active = false;
 
-            CastVertexResult castResult = Raycast.CastVertexByMouse(SceneData.RayLength);
+            VertexCastResult castResult = VoxelRaycast.VertexCastByMouse(SceneData.RayLength);
 
             if (castResult != null)
             {

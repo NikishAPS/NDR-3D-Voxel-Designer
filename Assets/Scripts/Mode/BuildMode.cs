@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildMode : Mode
@@ -44,10 +42,7 @@ public class BuildMode : Mode
 
     public override void OnMouseMove()
     {
-       
-
         CastResult castResult = Cast();
-
 
         switch(_buildStage)
         {
@@ -55,7 +50,7 @@ public class BuildMode : Mode
                 {
                     if (castResult != null)
                     {
-                        _startVoxelAreaPosition = castResult.lastPoint;
+                        _startVoxelAreaPosition = castResult.PreviousVoxelPosition;
                         _endVoxelAreaPosition = _startVoxelAreaPosition;
 
                         Extractor.Position = _startVoxelAreaPosition;
@@ -72,8 +67,8 @@ public class BuildMode : Mode
 
                     if (ChunkManager.InField(intersection))
                         _endVoxelAreaPosition = intersection;
-
-                    //..!MonoBehaviour.print(_endVoxelAreaPosition);
+                    else if (castResult != null)
+                        _endVoxelAreaPosition = castResult.PreviousVoxelPosition;
 
                     _fixPosition = _endVoxelAreaPosition;
 
@@ -129,7 +124,7 @@ public class BuildMode : Mode
 
     private CastResult Cast()
     {
-        return Raycast.CastByMouse(SceneData.RayLength);
+        return VoxelRaycast.CastByMouse(SceneData.RayLength);
     }
 
     private void UpdatePlane()
@@ -149,11 +144,6 @@ public class BuildMode : Mode
         Vector3 point3 = point1 + point2 - _startVoxelAreaPosition;
         _plane = new MathPlane(point1, point2, point3);
 
-        p1 = point1;
-        p2 = point2;
-        p3 = point3;
     }
-
-    public static Vector3 p1, p2, p3;
 
 }

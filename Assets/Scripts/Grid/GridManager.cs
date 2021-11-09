@@ -2,15 +2,16 @@
 
 public class GridManager : MonoBehaviour
 {
-    private static GridManager _this;
     public static GridBlock[] Grids { get; private set; }
+
+    private static GridManager _this;
     private static VoxelBoxCollider gridCollider;
 
     public static Vector3Int Size
     {
         set
         {
-            gridCollider.Bounds = new BoundsInt(Vector3Int.zero, new Vector3Int(value.x, 0, value.x));
+            gridCollider.Bounds = new BoundsInt(new Vector3Int(0, -1, 0), new Vector3Int(value.x, -1, value.x));
             gridCollider.Active = true;
 
             foreach (GridBlock grid in Grids)

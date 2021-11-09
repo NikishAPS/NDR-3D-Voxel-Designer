@@ -192,68 +192,6 @@ public class Project : MonoBehaviour
 
         return false;
     }
-
-    private void OnDrawGizmos()
-    {
-        bool b1 = false;
-        if(VoxelBoxCollider.Colliders != null)
-        {
-            foreach(VoxelBoxCollider collider in VoxelBoxCollider.Colliders)
-            {
-                Gizmos.color = b1 ? Color.green : Color.red;
-                Gizmos.DrawWireCube(collider.Bounds.Center, collider.Bounds.Size + Vector3.one);
-                b1 = true;
-            }
-        }
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(BuildMode.p1, BuildMode.p2);
-        Gizmos.DrawLine(BuildMode.p2, BuildMode.p3);
-        Gizmos.DrawLine(BuildMode.p1, BuildMode.p3);
-
-        return;
-        if(ChunkManager.Vertices != null)
-        {
-            for(int i = 0; i < ChunkManager.Vertices.Length;i ++)
-            {
-                if(ChunkManager.Vertices[i] != null)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(ChunkManager.Vertices[i].Position, 0.1f);
-                }
-            }
-        }
-
-        
-
-        //return;
-        //if(ChunksManager.Chunks != null)
-        //{
-        //    for(int i = 0; i < ChunksManager.Chunks.Length && ChunksManager.Chunks[i].Vertices != null; i++)
-        //    {
-        //        for(int j = 0; j < ChunksManager.Chunks[i].Vertices.Length; j++)
-        //        {
-        //            if(ChunksManager.Chunks[i].Vertices[j] != null)
-        //            {
-        //                Gizmos.color = Color.red;
-        //                Gizmos.DrawSphere(ChunksManager.Chunks[i].Vertices[j].Position, 0.1f);
-        //            }
-        //        }
-        //    }
-        //}
-
-        //return;
-
-        //if (ChunksManager.Chunks == null) return;
-
-        //Gizmos.color = Color.green;
-        //for (int i = 0; i < ChunksManager.Chunks.Length; i++)
-        //{
-        //    Vector3Int pos = ChunksManager.Chunks[i].Position;
-        //    Vector3Int size = ChunksManager.Chunks[i].Size;
-
-        //    Gizmos.DrawWireCube(pos.Mul(ChunksManager.ChunkSize) + size.ToVector3() * 0.5f - Vector3.one * 0.5f, size);
-        //}
-    }
+   
 }
 

@@ -37,5 +37,10 @@ public static class Vector3Extension
     {
         return new Vector3(Mathf.Abs(vector3.x), Mathf.Abs(vector3.y), Mathf.Abs(vector3.z));
     }
+    
+    public static Vector3 Sign(this Vector3 vector3)
+    {
+        return new Vector3(Mathf.Sign(vector3.x), Mathf.Sign(vector3.y), Mathf.Sign(vector3.z));
+    }
 
 }

@@ -1,12 +1,14 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     public static Camera MainCamera { get; private set; }
     public static Void MoveEvent;
-    public static float Distance => MainCamera.orthographicSize;
+    public static float Size => MainCamera.orthographicSize;
+    public static float Distance => MainCamera.nearClipPlane;
+    public static Vector3 ViewDirection => _this.transform.forward;
+    public static Vector3 WorldMouse => MainCamera.ScreenToWorldPoint(Input.mousePosition) + ViewDirection * Distance;
 
     private static CameraController _this;
 
@@ -64,7 +66,7 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            Vector2 mouseDir = -InputEvent.MouseSpeed * _sensitivity * Time.deltaTime  * Distance * 0.0005f;
+            Vector2 mouseDir = -InputEvent.MouseSpeed * _sensitivity * Time.deltaTime  * Size * 0.0005f;
 
             _target += transform.TransformDirection(mouseDir);
         }

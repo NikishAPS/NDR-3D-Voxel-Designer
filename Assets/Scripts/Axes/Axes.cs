@@ -94,7 +94,7 @@ public class Axes : MonoBehaviour
     public static void OnResize()
     {
         //float size = _this._pivotSize * Vector3.Distance(Position, Camera.main.transform.position);
-        float size = _this._pivotSize * CameraController.Distance;
+        float size = _this._pivotSize * CameraController.Size;
 
         Scale = Vector3.one * size;
 

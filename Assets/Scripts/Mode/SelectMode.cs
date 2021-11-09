@@ -37,12 +37,12 @@ public class SelectMode : Mode, IDrag
 
         if (!Axes.IsHighlightedAxis())
         {
-            _castResult = Raycast.CastByMouse(SceneData.RayLength);
+            _castResult = VoxelRaycast.CastByMouse(SceneData.RayLength);
             if (_castResult != null)
             {
-                if (ChunkManager.InField(_castResult.point))
+                if (ChunkManager.InField(_castResult.CurrentVoxelPosition))
                 {
-                    Extractor.Position = _castResult.point;
+                    Extractor.Position = _castResult.CurrentVoxelPosition;
                     Extractor.Active = true;
                     //VoxelatorManager.Coordinates.Value = _castResult.point;
                 }
@@ -60,12 +60,12 @@ public class SelectMode : Mode, IDrag
         {
             if (InputEvent.LShift)
             {
-                ChunkManager.SelectVoxel(_castResult.point);
+                ChunkManager.SelectVoxel(_castResult.CurrentVoxelPosition);
             }
             else
             {
                 ChunkManager.ResetVoxelSelection();
-                ChunkManager.SelectVoxel(_castResult.point);
+                ChunkManager.SelectVoxel(_castResult.CurrentVoxelPosition);
             }
 
             Axes.Position = ChunkManager.MiddleSelectedPos;

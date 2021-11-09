@@ -19,7 +19,7 @@ public class ScreenAxes : MonoBehaviour, IMouseMove, ILMouseDown
     {
         transform.position = CameraController.MainCamera.ScreenToWorldPoint(_screenPoint.position);
         transform.rotation = Quaternion.identity;
-        transform.localScale = Vector3.one * _size * CameraController.Distance;
+        transform.localScale = Vector3.one * _size * CameraController.Size;
 
         _axesCamera.orthographicSize = CameraController.MainCamera.orthographicSize;
         _axesCamera.nearClipPlane = CameraController.MainCamera.nearClipPlane;

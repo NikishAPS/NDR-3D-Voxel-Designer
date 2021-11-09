@@ -11753,9 +11753,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1339514359}
-  - component: {fileID: 1339514358}
   - component: {fileID: 1339514356}
-  - component: {fileID: 1339514357}
   m_Layer: 0
   m_Name: InputFieldCorrector
   m_TagString: Untagged
@@ -11775,44 +11773,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08983e4d3a86a704dbdd1cf8deae6b00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1339514357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1339514355}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50593f3f6d01d654499abfe4f17e1273, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _material: {fileID: 2100000, guid: d5f96f9a0f61760478f0a0df240063b0, type: 2}
---- !u!114 &1339514358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1339514355}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8214815c918043a4981a07964e9a8830, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _data:
-    _saveLocation: 
-    _chunksManagerData:
-      IncrementOption: 0
-      FieldSize: {x: 0, y: 0, z: 0}
-      ChunkSizes: {x: 0, y: 0, z: 0}
-      VerticesData: []
-      ChunksData: []
-  _name: 
-  _fileExtension: nrd
-  _chunkMaterial: {fileID: 2100000, guid: 53dbaa6ad710ba64a84c1a13b7cd079e, type: 2}
-  _selectedChunkMaterial: {fileID: 2100000, guid: d8552a1e19dbe4a4b8ce9d73fc9898e2,
-    type: 2}
 --- !u!4 &1339514359
 Transform:
   m_ObjectHideFlags: 0
@@ -19372,7 +19332,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2079436746}
   - component: {fileID: 2079436745}
-  - component: {fileID: 2079436747}
   - component: {fileID: 2079436748}
   m_Layer: 0
   m_Name: Project
@@ -19420,18 +19379,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2079436747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079436744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08983e4d3a86a704dbdd1cf8deae6b00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2079436748
 MonoBehaviour:
   m_ObjectHideFlags: 0
