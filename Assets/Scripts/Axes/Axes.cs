@@ -146,7 +146,7 @@ public class Axes : MonoBehaviour
 
     private void OnMouseMove()
     {
-        if (!_isDrag && !InputEvent.GetLMouseHold)
+        if (!_isDrag && !InputEvent.IsLMouseHold)
         {
             RaycastHit hit;
             Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, LayerMask.GetMask("Axis"));

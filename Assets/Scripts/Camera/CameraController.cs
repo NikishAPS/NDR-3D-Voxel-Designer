@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    public static Vector3 Position
+    {
+        get => _this.transform.position;
+        set => _this.transform.position = value;
+    }
     public static Camera MainCamera { get; private set; }
     public static Void MoveEvent;
     public static float Size => MainCamera.orthographicSize;
@@ -11,16 +16,10 @@ public class CameraController : MonoBehaviour
     public static Vector3 WorldMouse => MainCamera.ScreenToWorldPoint(Input.mousePosition) + ViewDirection * Distance;
 
     private static CameraController _this;
-
     [SerializeField] private float _sensitivity = 250f;
     [SerializeField] private float _minZoom = 1f, _maxZoom = 100f;
     [SerializeField] private float _zoomSpeed = 0.2f;
     [SerializeField] private float _viewChangingSpeed = 100f;
-
-    [SerializeField]
-    private Vector3 _target;
-
-    private float _zoom;
 
     public static float GetDistance(Vector3 targerPosition)
     {
@@ -39,16 +38,11 @@ public class CameraController : MonoBehaviour
         _this = FindObjectOfType<CameraController>();
         InputEvent.MMouseHold += OnMMouseHold;
         InputEvent.MouseScroll += OnMouseScroll;
+        InputEvent.SpaceDown += OnSpaceDown;
 
-        _zoom = MainCamera.orthographicSize;
         MainCamera.nearClipPlane = -_maxZoom;
         MainCamera.nearClipPlane = -20;
 
-        //_axesCamera.orthographicSize = Camera.main.orthographicSize;
-        //_axesCamera.nearClipPlane = Camera.main.nearClipPlane;
-
-        _target.y = 0;
-        transform.position = _target;
         transform.localEulerAngles = new Vector2(20f, 50f);
     }
 
@@ -66,46 +60,75 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            Vector2 mouseDir = -InputEvent.MouseSpeed * _sensitivity * Time.deltaTime  * Size * 0.0005f;
-
-            _target += transform.TransformDirection(mouseDir);
+            Vector2 mouseDirection = -InputEvent.MouseSpeed * _sensitivity * Time.deltaTime  * Size * 0.0005f;
+            transform.position += transform.TransformDirection(mouseDirection);
         }
-
-        //transform.position = transform.localRotation * (Vector3.forward) + _target;
-        //transform.position = transform.localRotation * (-Vector3.forward) + _target;
-        transform.position = _target;
 
         MoveEvent?.Invoke();
     }
 
     private void OnMouseScroll()
     {
-        if (InputEvent.GetXHold || InputEvent.GetYHold || InputEvent.GetZHold) return;
+        if (InputEvent.IsXHold || InputEvent.IsYHold || InputEvent.IsZHold) return;
 
-        float lastZoom = _zoom;
-        float speed = _zoom * _zoomSpeed;
-
-        _zoom -= InputEvent.GetMouseScroll * speed;
-        _zoom = Mathf.Clamp(_zoom, 1, 100);
-        StartCoroutine(Zooming(lastZoom, _zoom, speed));
+        float speed = MainCamera.orthographicSize * _zoomSpeed;
+        float zoom = MainCamera.orthographicSize - InputEvent.IsMouseScroll * speed;
+        StartCoroutine(Zooming(zoom, speed));
     }
 
-    
-
-    private IEnumerator Zooming(float lastZoom, float zoom, float speed)
+    private void OnSpaceDown()  
     {
-        float curzoom = lastZoom;
+        Vector3 target = ChunkManager.MiddleSelectedPos;
+        StartCoroutine(Moving(target, 10));
+    }
+    
+    private IEnumerator Moving(Vector3 target, float speed)
+    {
+        Vector3 currentPosition = transform.position;
 
-        while(curzoom != zoom)
+        while (currentPosition != target)
         {
-            float smooth = curzoom;
-            curzoom = Mathf.MoveTowards(curzoom, zoom, Time.deltaTime * 5 * speed);
-            smooth = curzoom - smooth;
+            Vector3 deltaPosition = currentPosition;
+            currentPosition = Vector3.MoveTowards(currentPosition, target, Time.deltaTime * speed);
+            deltaPosition = currentPosition - deltaPosition;
 
-            MainCamera.orthographicSize += smooth;
-            //_axesCamera.orthographicSize = Camera.main.orthographicSize;
+            transform.position += deltaPosition;
 
             MoveEvent?.Invoke();
+
+            yield return null;
+        }
+    }
+
+    //private IEnumerator Zooming(float lastZoom, float value, float speed)
+    private IEnumerator Zooming(float target, float speed)
+    {
+       //float curZoom = lastZoom;
+        float currentZoom = MainCamera.orthographicSize;
+
+        while(currentZoom != target)
+        {
+            float delta = currentZoom;
+            currentZoom = Mathf.MoveTowards(currentZoom, target, Time.deltaTime * 5 * speed);
+            delta = currentZoom - delta;
+
+            MainCamera.orthographicSize += delta;
+
+            bool isClamp = false;
+            if (MainCamera.orthographicSize <= _minZoom)
+            {
+                MainCamera.orthographicSize = _minZoom;
+                isClamp = true;
+            }
+            else if (MainCamera.orthographicSize >= _maxZoom)
+            {
+                MainCamera.orthographicSize = _maxZoom;
+                isClamp = true;
+            }
+
+            MoveEvent?.Invoke();
+
+            if (isClamp) break;
 
             yield return null;
         }
@@ -126,3 +149,16 @@ public class CameraController : MonoBehaviour
 
 }
 
+
+public struct Sq
+{
+
+}
+
+public static class Ex
+{
+    public static void F(this Sq sq)
+    {
+
+    }
+}

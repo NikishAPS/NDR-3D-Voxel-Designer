@@ -12,7 +12,7 @@ public class SelectMode : Mode, IDrag
     {
         ChunkManager.SetSelectedMeshActive(true);
         Axes.SetDragObject(this);
-        InputEvent.Delete += Delete;
+        InputEvent.DeleteDown += Delete;
 
         if(ChunkManager.SelectedVoxelCount > 0)
         {
@@ -27,7 +27,7 @@ public class SelectMode : Mode, IDrag
         Axes.Active = false;
         Extractor.Active = false;
 
-        InputEvent.Delete -= Delete;
+        InputEvent.DeleteDown -= Delete;
     }
 
     public override void OnMouseMove()
@@ -58,7 +58,7 @@ public class SelectMode : Mode, IDrag
     {
         if (_castResult != null)
         {
-            if (InputEvent.LShift)
+            if (InputEvent.IsLShiftHold)
             {
                 ChunkManager.SelectVoxel(_castResult.CurrentVoxelPosition);
             }

@@ -6,16 +6,16 @@ public class InputEvent : MonoBehaviour
     public static Void WindowResize;
 
     //mouse events
-    public static bool GetLMouseDown => Input.GetMouseButtonDown(0);
-    public static bool GetLMouseHold => Input.GetMouseButton(0);
-    public static bool GetLMouseUp => Input.GetMouseButtonUp(0);
-    public static bool GetRMouseDown => Input.GetMouseButtonDown(1);
-    public static bool GetRMouseHold => Input.GetMouseButton(1);
-    public static bool GetRMouseUp => Input.GetMouseButtonUp(1);
-    public static bool GetMMouseDown => Input.GetMouseButtonDown(2);
-    public static bool GetMMouseHold => Input.GetMouseButton(2);
-    public static bool GetMMouseUp => Input.GetMouseButtonUp(2);
-    public static float GetMouseScroll => Input.mouseScrollDelta.y;
+    public static bool IsLMouseDown => Input.GetMouseButtonDown(0);
+    public static bool IsLMouseHold => Input.GetMouseButton(0);
+    public static bool IsLMouseUp => Input.GetMouseButtonUp(0);
+    public static bool IsRMouseDown => Input.GetMouseButtonDown(1);
+    public static bool IsRMouseHold => Input.GetMouseButton(1);
+    public static bool IsRMouseUp => Input.GetMouseButtonUp(1);
+    public static bool IsMMouseDown => Input.GetMouseButtonDown(2);
+    public static bool IsMMouseHold => Input.GetMouseButton(2);
+    public static bool IsMMouseUp => Input.GetMouseButtonUp(2);
+    public static float IsMouseScroll => Input.mouseScrollDelta.y;
 
     public static Void MouseMove;
     public static Void LMouseDown;
@@ -34,17 +34,19 @@ public class InputEvent : MonoBehaviour
     public static Vector3 MouseSpeed { get; private set; }
 
     //keyboard events
-    public static bool LShift => Input.GetKey(KeyCode.LeftShift);
-    public static bool LShiftDown => Input.GetKeyDown(KeyCode.LeftShift);
-    public static bool GetDelete => Input.GetKeyDown(KeyCode.Delete);
-    public static bool GetXHold => Input.GetKey(KeyCode.X);
-    public static bool GetYHold => Input.GetKey(KeyCode.Y);
-    public static bool GetZHold => Input.GetKey(KeyCode.Z);
+    public static bool IsLShiftHold => Input.GetKey(KeyCode.LeftShift);
+    public static bool IsLShiftDown => Input.GetKeyDown(KeyCode.LeftShift);
+    public static bool IsDeleteDown => Input.GetKeyDown(KeyCode.Delete);
+    public static bool IsXHold => Input.GetKey(KeyCode.X);
+    public static bool IsYHold => Input.GetKey(KeyCode.Y);
+    public static bool IsZHold => Input.GetKey(KeyCode.Z);
+    public static bool IsSpaceDown => Input.GetKeyDown(KeyCode.Space);
 
-    public static Void Delete;
+    public static Void DeleteDown;
     public static Void XHold;
     public static Void YHold;
     public static Void ZHold;
+    public static Void SpaceDown;
 
     private Canvas _canvas;
     private Rect _prevCanvasRect;
@@ -70,21 +72,23 @@ public class InputEvent : MonoBehaviour
             _prevMousePosition = MousePosition;
         }
 
-        if (GetLMouseDown) LMouseDown?.Invoke();
-        if (GetLMouseHold) LMouseHold?.Invoke();
-        if (GetLMouseUp) LMouseUp?.Invoke();
-        if (GetRMouseDown) RMouseDown?.Invoke();
-        if (GetRMouseHold) RMouseHold?.Invoke();
-        if (GetRMouseUp) RMouseUp?.Invoke();
-        if (GetMMouseDown) MMouseDown?.Invoke();
-        if (GetMMouseHold) MMouseHold?.Invoke();
-        if (GetMMouseUp) MMouseUp?.Invoke();
-        if (GetMouseScroll != 0) MouseScroll?.Invoke();
+        if (IsLMouseDown) LMouseDown?.Invoke();
+        if (IsLMouseHold) LMouseHold?.Invoke();
+        if (IsLMouseUp) LMouseUp?.Invoke();
+        if (IsRMouseDown) RMouseDown?.Invoke();
+        if (IsRMouseHold) RMouseHold?.Invoke();
+        if (IsRMouseUp) RMouseUp?.Invoke();
+        if (IsMMouseDown) MMouseDown?.Invoke();
+        if (IsMMouseHold) MMouseHold?.Invoke();
+        if (IsMMouseUp) MMouseUp?.Invoke();
+        if (IsMouseScroll != 0) MouseScroll?.Invoke();
 
-        if (GetDelete) Delete?.Invoke();
-        if (GetXHold) XHold?.Invoke();
-        if (GetYHold) YHold?.Invoke();
-        if (GetZHold) ZHold?.Invoke();
+        if (IsDeleteDown) DeleteDown?.Invoke();
+        if (IsXHold) XHold?.Invoke();
+        if (IsYHold) YHold?.Invoke();
+        if (IsZHold) ZHold?.Invoke();
+
+        if (IsSpaceDown) SpaceDown?.Invoke();
     }
 
 }

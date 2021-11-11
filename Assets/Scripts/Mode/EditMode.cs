@@ -71,24 +71,24 @@ public class EditMode : Mode, IDrag
 
     public void OnXHold()
     {
-        if (_vertex == null || InputEvent.GetMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.right * InputEvent.GetMouseScroll / ChunkManager.IncrementOption;
+        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
+        Vector3 position = _vertex.Position + Vector3.right * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
         Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
         Presenter.EditVertex();
     }
 
     public void OnYHold()
     {
-        if (_vertex == null || InputEvent.GetMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.up * InputEvent.GetMouseScroll / ChunkManager.IncrementOption;
+        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
+        Vector3 position = _vertex.Position + Vector3.up * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
         Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
         Presenter.EditVertex();
     }
 
     public void OnZHold()
     {
-        if (_vertex == null || InputEvent.GetMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.forward * InputEvent.GetMouseScroll / ChunkManager.IncrementOption;
+        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
+        Vector3 position = _vertex.Position + Vector3.forward * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
         Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
         Presenter.EditVertex();
     }
