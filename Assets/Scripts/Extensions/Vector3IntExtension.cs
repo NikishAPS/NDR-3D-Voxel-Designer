@@ -42,4 +42,21 @@ public static class Vector3IntExtension
     {
         return new Vector3(Mathf.Sign(vector3Int.x), Mathf.Sign(vector3Int.y), Mathf.Sign(vector3Int.z)).ToVector3Int();
     }
+
+    public static int Max(this Vector3Int vector3Int)
+    {
+        return vector3Int.x > vector3Int.y ? (vector3Int.x > vector3Int.z ? vector3Int.x : vector3Int.z) :
+           vector3Int.y > vector3Int.z ? vector3Int.y : vector3Int.z;
+
+        if (vector3Int.x > vector3Int.y)
+        {
+            if (vector3Int.x > vector3Int.z) return vector3Int.x;
+            else return vector3Int.z;
+        }
+        else if (vector3Int.y > vector3Int.z)
+        {
+            return vector3Int.y;
+        }
+        else return vector3Int.z;
+    }
 }

@@ -48,14 +48,9 @@ public class InputEvent : MonoBehaviour
     public static Void ZHold;
     public static Void SpaceDown;
 
-    private Canvas _canvas;
+    [SerializeField] private Canvas _canvas;
     private Rect _prevCanvasRect;
     private Vector3 _prevMousePosition;
-
-    private void Awake()
-    {
-        _canvas = FindObjectOfType<Canvas>();
-    }
 
     private void Update()
     {

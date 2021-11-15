@@ -37,7 +37,7 @@ public class SelectMode : Mode, IDrag
 
         if (!Axes.IsHighlightedAxis())
         {
-            _castResult = VoxelRaycast.CastByMouse(SceneData.RayLength);
+            _castResult = VoxelRaycast.CastByMouse(SceneParameters.RayLength);
             if (_castResult != null)
             {
                 if (ChunkManager.InField(_castResult.CurrentVoxelPosition))

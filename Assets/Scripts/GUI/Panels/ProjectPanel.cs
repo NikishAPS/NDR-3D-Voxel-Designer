@@ -31,7 +31,7 @@ public class ProjectPanel : Panel
 
     public void TryCreateNewProject()
     {
-        if (!Project.Saved)
+        if (Project.Saved)
         {
             _questionPanel.Open();
             _questionPanel.SetTitles("Save before creating a new project?", "Save", "Don't Save", "Cacel");

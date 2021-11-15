@@ -6,7 +6,7 @@ public class ExitPanel : Panel
 {
     public void Exit()
     {
-        if (!Project.Saved)
+        if (Project.Saved)
         {
             Open();
         }

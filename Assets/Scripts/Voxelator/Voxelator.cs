@@ -2,15 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class VoxelatorManager
+public static class Voxelator
 {
-    public static readonly Project Project;
-
-    static VoxelatorManager()
-    {
-        Project = Object.FindObjectOfType<Project>();
-    }
-
     public static int GetIndex(Vector3Int arraySize, Vector3Int position)
     {
         return 

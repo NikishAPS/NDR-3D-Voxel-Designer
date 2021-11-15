@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
 
 public static class ChunkManager
 {
@@ -20,9 +21,6 @@ public static class ChunkManager
         }
     }
 
-    public static Material ChunkMaterial => VoxelatorManager.Project.ChunkMaterial;
-    public static Material SelectedChunkMaterial => VoxelatorManager.Project.SelectedChunkMaterial;
-
     public static Chunk[] Chunks { get; private set; }
     public static Vertex[] Vertices { get; private set; }
 
@@ -41,13 +39,32 @@ public static class ChunkManager
     private static LinkedList<Vector3Int> _selectedVoxelPositions = new LinkedList<Vector3Int>();
     private static Reflector _reflector;
 
+    private static Material _chunkMaterial;
+    private static Material _selectedChunkMaterial;
+
+    static ChunkManager()
+    {
+        _chunkMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/Chunk");
+        _selectedChunkMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/SelectedChunk");
+    }
+
+    public static void Init(Vector3Int fieldSize, int incrementOption)
+    {
+        FieldSize = fieldSize;
+        VerticesArraySize = FieldSize + Vector3Int.one;
+
+        IncrementOption = incrementOption;
+
+        CreateChunks();
+    }
+
     public static void SetVoxelIdByColor(Color color)
     {
         int r = (int)(color.r * 255);
         int g = (int)(color.g * 255);
         int b = (int)(color.b * 255);
 
-        int index = VoxelatorManager.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
+        int index = Voxelator.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
 
         VoxelId = index;
     }
@@ -58,49 +75,6 @@ public static class ChunkManager
         VerticesArraySize = FieldSize + Vector3Int.one;
     }
 
-    public static void SetParameters(Vector3Int size, int incrementOption)
-    {
-        FieldSize = size;
-        VerticesArraySize = FieldSize + Vector3Int.one;
-
-        IncrementOption = incrementOption;
-    }
-
-    public static void InitChunks()
-    {
-        VoxelId = 4096 * 4096;
-        MiddleSelectedPos = Vector3.zero;
-
-        _chunkSizes = new Vector3Int(
-             FieldSize.x % ChunkSize.x != 0 ? (int)(FieldSize.x / ChunkSize.x) + 1 : FieldSize.x / ChunkSize.x,
-             FieldSize.y % ChunkSize.y != 0 ? (int)(FieldSize.y / ChunkSize.y) + 1 : FieldSize.y / ChunkSize.y,
-             FieldSize.z % ChunkSize.z != 0 ? (int)(FieldSize.z / ChunkSize.z) + 1 : FieldSize.z / ChunkSize.z
-             );
-
-        Chunks = new Chunk[_chunkSizes.x * _chunkSizes.y * _chunkSizes.z];
-        Vertices = new Vertex[VerticesArraySize.x * VerticesArraySize.y * VerticesArraySize.z];
-        _reflector = new Reflector(FieldSize);
-
-        for (int x = 0; x < _chunkSizes.x; x++)
-        {
-            for (int y = 0; y < _chunkSizes.y; y++)
-            {
-                for (int z = 0; z < _chunkSizes.z; z++)
-                {
-                    Vector3Int chunkPos = new Vector3Int(x, y, z);
-
-                    Vector3Int chunkSize = new Vector3Int(
-                        x + 1 == _chunkSizes.x ? FieldSize.x - x * ChunkSize.x : ChunkSize.x,
-                        y + 1 == _chunkSizes.y ? FieldSize.y - y * ChunkSize.y : ChunkSize.y,
-                        z + 1 == _chunkSizes.z ? FieldSize.z - z * ChunkSize.z : ChunkSize.z
-                        );
-
-                    Chunks[(x * _chunkSizes.y + y) * _chunkSizes.z + z] =
-                        new Chunk(chunkPos, chunkSize);
-                }
-            }
-        }
-    }
 
     public static void Release()
     {
@@ -114,12 +88,12 @@ public static class ChunkManager
 
     public static bool InField(Vector3 position)
     {
-        return VoxelatorManager.WithinTheArray(FieldSize, position);
+        return Voxelator.WithinTheArray(FieldSize, position);
     }
 
     public static Chunk GetChunk(Vector3 position)
     {
-        return InField(position.ToVector3Int()) ? Chunks[VoxelatorManager.GetIndex(_chunkSizes, GetChunkPos(position))] : null;
+        return InField(position.ToVector3Int()) ? Chunks[Voxelator.GetIndex(_chunkSizes, GetChunkPos(position))] : null;
     }
 
     public static Voxel GetVoxel(Vector3Int globalVoxelPos)
@@ -420,6 +394,42 @@ public static class ChunkManager
         return false;
     }
 
+    private static void CreateChunks()
+    {
+        VoxelId = 4096 * 4096;
+        MiddleSelectedPos = Vector3.zero;
+
+        _chunkSizes = new Vector3Int(
+             FieldSize.x % ChunkSize.x != 0 ? (int)(FieldSize.x / ChunkSize.x) + 1 : FieldSize.x / ChunkSize.x,
+             FieldSize.y % ChunkSize.y != 0 ? (int)(FieldSize.y / ChunkSize.y) + 1 : FieldSize.y / ChunkSize.y,
+             FieldSize.z % ChunkSize.z != 0 ? (int)(FieldSize.z / ChunkSize.z) + 1 : FieldSize.z / ChunkSize.z
+             );
+
+        Chunks = new Chunk[_chunkSizes.x * _chunkSizes.y * _chunkSizes.z];
+        Vertices = new Vertex[VerticesArraySize.x * VerticesArraySize.y * VerticesArraySize.z];
+        _reflector = new Reflector(FieldSize);
+
+        for (int x = 0; x < _chunkSizes.x; x++)
+        {
+            for (int y = 0; y < _chunkSizes.y; y++)
+            {
+                for (int z = 0; z < _chunkSizes.z; z++)
+                {
+                    Vector3Int chunkPos = new Vector3Int(x, y, z);
+
+                    Vector3Int chunkSize = new Vector3Int(
+                        x + 1 == _chunkSizes.x ? FieldSize.x - x * ChunkSize.x : ChunkSize.x,
+                        y + 1 == _chunkSizes.y ? FieldSize.y - y * ChunkSize.y : ChunkSize.y,
+                        z + 1 == _chunkSizes.z ? FieldSize.z - z * ChunkSize.z : ChunkSize.z
+                        );
+
+                    Chunks[(x * _chunkSizes.y + y) * _chunkSizes.z + z] =
+                        new Chunk(chunkPos, chunkSize, _chunkMaterial, _selectedChunkMaterial);
+                }
+            }
+        }
+    }
+
     //auxiliary method
     private static bool TryCreateVoxelWithoutReflection(Vector3Int globalVoxelPos)
     {
@@ -444,7 +454,7 @@ public static class ChunkManager
 
     private static int GetVertexIndex(Vector3 globalVertexPos)
     {
-        return VoxelatorManager.GetIndex(VerticesArraySize, (globalVertexPos + new Vector3(0.5f, 0.5f, 0.5f)).ToVector3Int());
+        return Voxelator.GetIndex(VerticesArraySize, (globalVertexPos + new Vector3(0.5f, 0.5f, 0.5f)).ToVector3Int());
     }
 
     private static void CreateVertex(Vector3 globalVertexPos)

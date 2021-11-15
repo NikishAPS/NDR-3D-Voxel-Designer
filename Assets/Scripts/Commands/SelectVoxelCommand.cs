@@ -2,17 +2,16 @@
 
 public class SelectVoxelCommand : Command
 {
-    private Vector3Int _globalVoxelPos;
+    private Vector3Int _globalVoxelPosition;
 
-    public void SetAndExe(Vector3Int globalVoxelPosition)
+    public SelectVoxelCommand(Vector3Int globalVoxelPosition)
     {
-        _globalVoxelPos = globalVoxelPosition;
-        Invoker.Execute(this);
+        _globalVoxelPosition = globalVoxelPosition;
     }
 
     public override void Execute()
     {
-        ChunkManager.SelectVoxel(_globalVoxelPos);
+        ChunkManager.SelectVoxel(_globalVoxelPosition);
         Project.Saved = false;
     }
 }

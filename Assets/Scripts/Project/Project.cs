@@ -1,70 +1,21 @@
-﻿using FileBrowser;
-using System;
+﻿using System;
 using System.IO;
+using FileBrowser;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Project : MonoBehaviour
 {
-    [Serializable]
-    public class Data
-    {
-        public void Collect()
-        {
-            _chunksManagerData = ChunkManager.GetData();
-        }
-        public void Distribute()
-        {
-            //SceneData.Chunk.SetData(_chunkData);
-            ChunkManager.SetData(_chunksManagerData);
-            Saved = true;
-        }
-
-        public string GetSavePath()
-        {
-            return _saveLocation;
-        }
-
-        public void SetSaveLocation(string path)
-        {
-            _saveLocation = path;
-        }
-
-
-        //project data
-        [SerializeField]
-        private string _saveLocation;
-
-        //chunk data
-        [SerializeField]
-        private ChunkManagerData _chunksManagerData;
-    }
-
-    private static Project _this;
     private static StatisticsPanel _statisticsPanel;
 
     public static bool Saved { get; set; }
 
-    public Material ChunkMaterial => _chunkMaterial;
-    public Material SelectedChunkMaterial => _selectedChunkMaterial;
-
-    [SerializeField]
-    Data _data = new Data();
-
-    [SerializeField]
-    private string _name;
-
-    [SerializeField]
-    private string _fileExtension = "nrd";
-
-    [SerializeField]
-    private Material _chunkMaterial;
-    [SerializeField]
-    private Material _selectedChunkMaterial;
+    private static ProjectData _projectData = new ProjectData();
+    private static string _name;
+    private static string _fileExtension = "nrd";
 
     private void Awake()
     {
-        _this = FindObjectOfType<Project>();
         Application.wantsToQuit += ExitProcessing;
     }
 
@@ -73,35 +24,32 @@ public class Project : MonoBehaviour
         _statisticsPanel = PanelManager.GetPanel<StatisticsPanel>();
     }
 
-    private void OnDisable()
-    {
-        //ChunksManager.Release();
-    }
-
-
-
-    public void Init(string name, string saveLocation)
+    public static void Init(string name, string saveLocation)
     {
         Saved = true;
 
         _name = name;
-        _data.SetSaveLocation(saveLocation);
-
-        ChunkManager.InitChunks();
-        //GridManager.Grids[Direction.Down].Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
-        //GridManager.Grids[Direction.Down].Active = true;
-
-        //foreach (Grid grid in GridManager.Grids)
-        //    grid.Size = new Vector3Int(ChunkManager.FieldSize.x, 1, ChunkManager.FieldSize.z);
-        //GridManager.Grids[Direction.Down].Active = true;
-
-        //GridManager.Grids[Direction.Down].Active = true;
-        GridManager.Size = ChunkManager.FieldSize;
+        _projectData.SetSaveLocation(saveLocation);
     }
 
     public static void Ouit()
     {
         Application.Quit();
+    }
+
+    public static void Quit()
+    {
+        if (!Saved)
+        {
+            if (TryToSave())
+            {
+                Application.Quit();
+            }
+        }
+        else
+        {
+            Application.Quit();
+        }
     }
 
     public void Restart()
@@ -121,7 +69,7 @@ public class Project : MonoBehaviour
 
     public void SetSavePath(string path)
     {
-        _data.SetSaveLocation(path);
+        _projectData.SetSaveLocation(path);
     }
 
     public void Create()
@@ -163,13 +111,13 @@ public class Project : MonoBehaviour
 
     public static bool TryToSave()
     {
-        string path = StandaloneFileBrowser.SaveFilePanel("Save", _this._data.GetSavePath(), _this._name, _this._fileExtension);
+        string path = StandaloneFileBrowser.SaveFilePanel("Save", _projectData.GetSavePath(), _name, _fileExtension);
 
         if (!string.IsNullOrEmpty(path))
         {
-            _this._data.Collect();
-            _this._data.SetSaveLocation(path);
-            File.WriteAllText(path, JsonUtility.ToJson(_this._data));
+            _projectData.Collect();
+            _projectData.SetSaveLocation(path);
+            File.WriteAllText(path, JsonUtility.ToJson(_projectData));
 
             Saved = true;
 
@@ -181,11 +129,11 @@ public class Project : MonoBehaviour
 
     public static bool TryToLoad()
     {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _this._data.GetSavePath(), _this._fileExtension, false);
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Load", _projectData.GetSavePath(), _fileExtension, false);
         if (paths.Length > 0)
         {
-            _this._data = JsonUtility.FromJson<Data>(File.ReadAllText(paths[0]));
-            _this._data.Distribute();
+            _projectData = JsonUtility.FromJson<ProjectData>(File.ReadAllText(paths[0]));
+            _projectData.Distribute();
 
             return true;
         }

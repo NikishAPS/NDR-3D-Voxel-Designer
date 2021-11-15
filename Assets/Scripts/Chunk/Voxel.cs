@@ -132,8 +132,8 @@ public class Voxel
     private void UpdateUV()
     {
         UV = new Vector2(
-            ((Id - 1) % SceneData.TextureSize + 1) / (float)SceneData.TextureSize,
-            1 - ((Id - 1) / (SceneData.TextureSize) + 1) / (float)SceneData.TextureSize
+            ((Id - 1) % SceneParameters.TextureSize + 1) / (float)SceneParameters.TextureSize,
+            1 - ((Id - 1) / (SceneParameters.TextureSize) + 1) / (float)SceneParameters.TextureSize
             );
     }
 

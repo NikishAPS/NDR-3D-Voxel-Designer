@@ -124,7 +124,7 @@ public class BuildMode : Mode
 
     private CastResult Cast()
     {
-        return VoxelRaycast.CastByMouse(SceneData.RayLength);
+        return VoxelRaycast.CastByMouse(SceneParameters.RayLength);
     }
 
     private void UpdatePlane()

@@ -34,9 +34,13 @@ public class NewProjectPanel : Panel
 
         ScreenAxes.Active = true;
 
-        ChunkManager.SetParameters(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
-        VoxelatorManager.Project.Init(_projectNameField.String, _projectSaveLocationField.String);
+        Project.Init(_projectNameField.String, _projectSaveLocationField.String);
+        ChunkManager.Init(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
+        GridManager.Size = ChunkManager.FieldSize;
 
+        CameraController.Position = Vector3.zero;
+        CameraController.MainCamera.nearClipPlane = -ChunkManager.FieldSize.Max();
+        CameraController.MainCamera.farClipPlane = ChunkManager.FieldSize.Max();
         Close();
     }
 

@@ -43,4 +43,10 @@ public static class Vector3Extension
         return new Vector3(Mathf.Sign(vector3.x), Mathf.Sign(vector3.y), Mathf.Sign(vector3.z));
     }
 
+    public static float Max(this Vector3 vector3)
+    {
+        return vector3.x > vector3.y ? (vector3.x > vector3.z ? vector3.x : vector3.z) :
+           vector3.y > vector3.z ? vector3.y : vector3.z;
+    }
+
 }

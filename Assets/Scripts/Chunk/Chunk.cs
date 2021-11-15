@@ -20,13 +20,19 @@ public class Chunk
     private Mesh _mesh;
     private Mesh _selectedMesh;
 
-    public Chunk(Vector3Int position, Vector3Int size)
+    private Material _material;
+    private Material _selectedMaterial;
+
+    public Chunk(Vector3Int position, Vector3Int size, Material material, Material selectedMaterial)
     {
         Position = position;
         Size = size;
         GlobalPosition = Position * ChunkManager.ChunkSize;
 
         Voxels = new Voxel[Size.x * Size.y * Size.z];
+
+        _material = material;
+        _selectedMaterial = selectedMaterial;
 
         CreateMeshes();
     }
@@ -70,7 +76,7 @@ public class Chunk
 
     public bool TryCreateVoxel(int id, Vector3Int globalVoxelPos)
     {
-        int index = VoxelatorManager.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
+        int index = Voxelator.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
 
         if (index < 0 || Voxels[index] != null) return false;
 
@@ -141,7 +147,7 @@ public class Chunk
 
         float uvX = 0;
         float uvY = 0;
-        float offset = SceneData.TextureMul / 2f;
+        float offset = SceneParameters.TextureMul / 2f;
 
         foreach (Voxel voxel in Voxels)
         {
@@ -182,9 +188,9 @@ public class Chunk
                         uvY = voxel.UV.y;
 
                         uv[i4 + 0] = new Vector2(uvX - offset, uvY + offset);
-                        uv[i4 + 2] = new Vector2(uvX - offset, uvY + SceneData.TextureMul - offset);
-                        uv[i4 + 3] = new Vector2(uvX - SceneData.TextureMul + offset, uvY + SceneData.TextureMul - offset);
-                        uv[i4 + 1] = new Vector2(uvX - SceneData.TextureMul + offset, uvY + offset);
+                        uv[i4 + 2] = new Vector2(uvX - offset, uvY + SceneParameters.TextureMul - offset);
+                        uv[i4 + 3] = new Vector2(uvX - SceneParameters.TextureMul + offset, uvY + SceneParameters.TextureMul - offset);
+                        uv[i4 + 1] = new Vector2(uvX - SceneParameters.TextureMul + offset, uvY + offset);
 
                         i4 += 4;
                         i6 += 6;
@@ -267,10 +273,10 @@ public class Chunk
 
         _mesh = new Mesh();
         _chunk.AddComponent<MeshFilter>().mesh = _mesh;
-        _chunk.AddComponent<MeshRenderer>().material = ChunkManager.ChunkMaterial;
+        _chunk.AddComponent<MeshRenderer>().material = _material;
         _selectedMesh = new Mesh();
         _selectedChunk.AddComponent<MeshFilter>().mesh = _selectedMesh;
-        _selectedChunk.AddComponent<MeshRenderer>().material = ChunkManager.SelectedChunkMaterial;
+        _selectedChunk.AddComponent<MeshRenderer>().material = _selectedMaterial;
     }
 
     private bool InArray(Vector3 arraySize, Vector3 point)
