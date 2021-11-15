@@ -24,14 +24,16 @@ public static class ChunkManager
     public static Chunk[] Chunks { get; private set; }
     public static Vertex[] Vertices { get; private set; }
 
-
-    public static readonly Vector3Int ChunkSize = new Vector3Int(1, 1, 1) * 64;
+    public static readonly Vector3Int ChunkSize = SceneParameters.ChunkSize;
 
     public static Vertex SelectedVertex { get; set; }
     public static Vector3Int[] SelectedVoxelPositions => _selectedVoxelPositions.ToArray();
 
     public static Vector3 MiddleSelectedPos { get; private set; }
     public static int SelectedVoxelCount => _selectedVoxelPositions.Count;
+
+    public static bool VoxelGridActivity { set { foreach (Chunk chunk in Chunks) chunk.GridObj.SetActive(value); } }
+    public static bool SelectedVoxelGridActivity { set { foreach (Chunk chunk in Chunks) chunk.SelectedGridObj.SetActive(value); } }
 
     private static Vector3Bool _mirror;
     private static Vector3Int _chunkSizes;
@@ -40,12 +42,16 @@ public static class ChunkManager
     private static Reflector _reflector;
 
     private static Material _chunkMaterial;
-    private static Material _selectedChunkMaterial;
+    private static Material _chunkGridMaterial;
+    private static Material _chunkSelectedGridMaterial;
+
+    
 
     static ChunkManager()
     {
         _chunkMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/Chunk");
-        _selectedChunkMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/SelectedChunk");
+        _chunkGridMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/Grid");
+        _chunkSelectedGridMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/SelectedGrid");
     }
 
     public static void Init(Vector3Int fieldSize, int incrementOption)
@@ -313,14 +319,6 @@ public static class ChunkManager
         UpdateAllChunkMeshes();
     }
 
-    public static void SetSelectedMeshActive(bool active)
-    {
-        for (int i = 0; i < Chunks.Length; i++)
-        {
-            Chunks[i].SetActiveSelectedMesh(active);
-        }
-    }
-
     public static Vector3 RoundVertexPointPos(Vector3 pos)
     {
         return ((pos + Vector3.one * 0.5f) * IncrementOption).RoundToFloat() / IncrementOption - Vector3.one * 0.5f;
@@ -396,7 +394,7 @@ public static class ChunkManager
 
     private static void CreateChunks()
     {
-        VoxelId = 4096 * 4096;
+        VoxelId = SceneParameters.TextureSize * SceneParameters.TextureSize;
         MiddleSelectedPos = Vector3.zero;
 
         _chunkSizes = new Vector3Int(
@@ -424,10 +422,12 @@ public static class ChunkManager
                         );
 
                     Chunks[(x * _chunkSizes.y + y) * _chunkSizes.z + z] =
-                        new Chunk(chunkPos, chunkSize, _chunkMaterial, _selectedChunkMaterial);
+                        new Chunk(chunkPos, chunkSize, _chunkMaterial, _chunkGridMaterial, _chunkSelectedGridMaterial);
                 }
             }
         }
+
+        MonoBehaviour.print(_chunkSizes.x * _chunkSizes.y * _chunkSizes.z);
     }
 
     //auxiliary method

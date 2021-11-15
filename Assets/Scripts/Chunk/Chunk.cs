@@ -12,18 +12,21 @@ public class Chunk
 
     public int FaceCount { get; private set; }
     public int SelectedFaceCount { get; private set; }
+    public int VoxelCount { get; private set; }
 
-    private int _voxelCount;
+    public GameObject ChunkObj { get; private set; }
+    public GameObject GridObj { get; private set; }
+    public GameObject SelectedGridObj { get; private set; }
 
-    private GameObject _chunk;
-    private GameObject _selectedChunk;
-    private Mesh _mesh;
-    private Mesh _selectedMesh;
+    private Mesh _voxelMesh;
+    private Mesh _voxelGridMesh;
+    private Mesh _selectedVoxelGridMesh;
 
     private Material _material;
-    private Material _selectedMaterial;
+    private Material _gridMaterial;
+    private Material _selectedGridMaterial;
 
-    public Chunk(Vector3Int position, Vector3Int size, Material material, Material selectedMaterial)
+    public Chunk(Vector3Int position, Vector3Int size, Material material, Material gridMaterial, Material selectedMaterial)
     {
         Position = position;
         Size = size;
@@ -32,7 +35,8 @@ public class Chunk
         Voxels = new Voxel[Size.x * Size.y * Size.z];
 
         _material = material;
-        _selectedMaterial = selectedMaterial;
+        _gridMaterial = gridMaterial;
+        _selectedGridMaterial = selectedMaterial;
 
         CreateMeshes();
     }
@@ -66,7 +70,7 @@ public class Chunk
 
     public void Release()
     {
-        Object.Destroy(_chunk);
+        Object.Destroy(ChunkObj);
     }
 
     public Voxel GetVoxel(Vector3Int globalVoxelPos)
@@ -85,7 +89,7 @@ public class Chunk
         UpdateVoxel(Voxels[index]);
         UpdateVoxelsAround(Voxels, globalVoxelPos);
 
-        _voxelCount++;
+        VoxelCount++;
 
         return true;
     }
@@ -102,7 +106,7 @@ public class Chunk
 
         UpdateVoxelsAround(Voxels, globalVoxelPos);
 
-        _voxelCount--;
+        VoxelCount--;
 
         return true;
     }
@@ -128,14 +132,10 @@ public class Chunk
         Voxels[index].Selected = false;
     }
 
-    public void SetActiveSelectedMesh(bool active)
-    {
-        _chunk.transform.GetChild(0).gameObject.SetActive(active);
-    }
-
     public void UpdateMesh()
     {
-        _mesh.Clear();
+        _voxelMesh.Clear();
+        _voxelGridMesh.Clear();
 
         if (FaceCount == 0) return;
 
@@ -148,6 +148,11 @@ public class Chunk
         float uvX = 0;
         float uvY = 0;
         float offset = SceneParameters.TextureMul / 2f;
+
+        Vector3[] gridVertices = new Vector3[FaceCount * 8];
+        int[] gridTriangles = new int[FaceCount * 24];
+        int gj = 0;
+        int gk = 0;
 
         foreach (Voxel voxel in Voxels)
         {
@@ -167,23 +172,6 @@ public class Chunk
                             triangles[i6 + j] = VoxelMesh.VoxelFaceTriangles[j] + i4;
                         }
 
-                        //float v1 = SceneData.TextureMul * ((voxel.Id - 1) % SceneData.TextureSize) + SceneData.TextureMul;
-                        //float v2 = 1 - SceneData.TextureMul * (int)(voxel.Id / (SceneData.TextureSize + 1));
-
-                        //uv[i4 + 0] = new Vector2(v1 - offset, v2 - SceneData.TextureMul + offset);
-                        //uv[i4 + 1] = new Vector2(v1 - offset, v2 - offset);
-                        //uv[i4 + 2] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - offset);
-                        //uv[i4 + 3] = new Vector2(v1 - SceneData.TextureMul + offset, v2 - SceneData.TextureMul + offset);
-
-
-                        //float x = (voxel.Id - 1) % SceneData.TextureSize + 1;
-                        //float y = (voxel.Id - 1) / (SceneData.TextureSize) + 1;
-                        //float offset = SceneData.TextureMul / 2f;
-
-
-                        //x = x / SceneData.TextureSize;
-                        //y = 1 - y / SceneData.TextureSize;
-
                         uvX = voxel.UV.x;
                         uvY = voxel.UV.y;
 
@@ -194,22 +182,44 @@ public class Chunk
 
                         i4 += 4;
                         i6 += 6;
+
+                        //update grid
+                        for (int l = 0; l < 4; l++)
+                        {
+                            Vector3 vertexOffset = ChunkManager.GetVertex(VoxelMesh.SelectedVoxelVertices[i * 8 + l] + voxel.Position).Offset;
+
+                            gridVertices[gj + l] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l] + vertexOffset) * 1.001f + voxel.Position - Position;
+                            gridVertices[gj + l + 4] = (VoxelMesh.SelectedVoxelVertices[i * 8 + l + 4] + vertexOffset) * 1.001f + voxel.Position - Position;
+                        }
+
+                        for (int l = 0; l < 24; l++)
+                        {
+                            gridTriangles[gk + l] = VoxelMesh.SelectedVoxelFaceTriangles[l] + gj;
+                        }
+                        gj += 8;
+                        gk += 24;
                     }
                 }
             }
         }
 
-        _mesh.vertices = vertices;
-        _mesh.triangles = triangles;
-        _mesh.uv = uv;
+        _voxelMesh.vertices = vertices;
+        _voxelMesh.triangles = triangles;
+        _voxelMesh.uv = uv;
 
-        _mesh.Optimize();
-        _mesh.RecalculateNormals();
+        _voxelMesh.Optimize();
+        _voxelMesh.RecalculateNormals();
+
+        //update grid
+        _voxelGridMesh.vertices = gridVertices;
+        _voxelGridMesh.triangles = gridTriangles;
+        _voxelGridMesh.Optimize();
+        _voxelGridMesh.RecalculateNormals();
     }
 
     public void UpdateSelectedMesh()
     {
-        _selectedMesh.Clear();
+        _selectedVoxelGridMesh.Clear();
 
         if (SelectedFaceCount == 0) return;
 
@@ -246,11 +256,11 @@ public class Chunk
             }
         }
 
-        _selectedMesh.vertices = vertices;
-        _selectedMesh.triangles = triangles;
+        _selectedVoxelGridMesh.vertices = vertices;
+        _selectedVoxelGridMesh.triangles = triangles;
 
-        _selectedMesh.Optimize();
-        _selectedMesh.RecalculateNormals();
+        _selectedVoxelGridMesh.Optimize();
+        _selectedVoxelGridMesh.RecalculateNormals();
     }
 
     public ChunkData GetData()
@@ -268,23 +278,23 @@ public class Chunk
 
     private void CreateMeshes()
     {
-        _chunk = new GameObject().Create("Chunk", null, Position, Quaternion.identity);
-        _selectedChunk = new GameObject().Create("Selected Chunk", _chunk.transform, Position, Quaternion.identity);
+        //voxel
+        ChunkObj = new GameObject().Create("Chunk", null, Position, Quaternion.identity);
+        _voxelMesh = new Mesh();
+        ChunkObj.AddComponent<MeshFilter>().mesh = _voxelMesh;
+        ChunkObj.AddComponent<MeshRenderer>().material = _material;
 
-        _mesh = new Mesh();
-        _chunk.AddComponent<MeshFilter>().mesh = _mesh;
-        _chunk.AddComponent<MeshRenderer>().material = _material;
-        _selectedMesh = new Mesh();
-        _selectedChunk.AddComponent<MeshFilter>().mesh = _selectedMesh;
-        _selectedChunk.AddComponent<MeshRenderer>().material = _selectedMaterial;
-    }
+        //grid
+        GridObj = new GameObject().Create("Grid", ChunkObj.transform, Position, Quaternion.identity);
+        _voxelGridMesh = new Mesh();
+        GridObj.AddComponent<MeshFilter>().mesh = _voxelGridMesh;
+        GridObj.AddComponent<MeshRenderer>().material = _gridMaterial;
 
-    private bool InArray(Vector3 arraySize, Vector3 point)
-    {
-        return
-            point.x >= 0 && point.x < arraySize.x &&
-            point.y >= 0 && point.y < arraySize.y &&
-            point.z >= 0 && point.z < arraySize.z;
+        //selected grid
+        SelectedGridObj = new GameObject().Create("Selected Grid", ChunkObj.transform, Position, Quaternion.identity);
+        _selectedVoxelGridMesh = new Mesh();
+        SelectedGridObj.AddComponent<MeshFilter>().mesh = _selectedVoxelGridMesh;
+        SelectedGridObj.AddComponent<MeshRenderer>().material = _selectedGridMaterial;
     }
 
     //get position
@@ -300,7 +310,7 @@ public class Chunk
     //get index
     private int GetIndex(Vector3Int arraySize, Vector3Int pos)
     {
-        return (InArray(arraySize, pos)) ? (pos.x * arraySize.y + pos.y) * arraySize.z + pos.z : -1;
+        return (Voxelator.WithinTheArray(arraySize, pos)) ? (pos.x * arraySize.y + pos.y) * arraySize.z + pos.z : -1;
     }
     private int GetVoxelIndexByLocalPos(Vector3Int localVoxelPos)
     {

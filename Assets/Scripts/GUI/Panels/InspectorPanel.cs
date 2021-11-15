@@ -31,6 +31,11 @@ public class InspectorPanel : Panel, IColor
         _colorPickerPanel.ColorObject = this;
     }
 
+    public void OnSetActiveGrid(bool active)
+    {
+        ChunkManager.VoxelGridActivity = active;
+    }
+
     public void SetColor(Color color)
     {
         _buildColor = color;

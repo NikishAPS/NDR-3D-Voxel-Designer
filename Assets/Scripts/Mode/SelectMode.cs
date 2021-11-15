@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SelectMode : Mode, IDrag
 {
     private CastResult _castResult;
-
-
   
     public override void OnEnable()
     {
-        ChunkManager.SetSelectedMeshActive(true);
+        ChunkManager.SelectedVoxelGridActivity = true;
         Axes.SetDragObject(this);
         InputEvent.DeleteDown += Delete;
 
@@ -23,7 +19,7 @@ public class SelectMode : Mode, IDrag
 
     public override void OnDisable()
     {
-        ChunkManager.SetSelectedMeshActive(false);
+        ChunkManager.SelectedVoxelGridActivity = false;
         Axes.Active = false;
         Extractor.Active = false;
 
