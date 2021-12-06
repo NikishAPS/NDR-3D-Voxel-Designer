@@ -23,6 +23,9 @@ public static class ChunkManager
 
     public static Chunk[] Chunks { get; private set; }
     public static Vertex[] Vertices { get; private set; }
+    public static VoxelChunk[] VoxelChunks { get; private set; }
+    //public static GridSelectedChunk[] GridSelectedChunks { get; private set; }
+    public static VertexChunk[] VertexChunks { get; private set; }
 
     public static readonly Vector3Int ChunkSize = SceneParameters.ChunkSize;
 
@@ -32,11 +35,16 @@ public static class ChunkManager
     public static Vector3 MiddleSelectedPos { get; private set; }
     public static int SelectedVoxelCount => _selectedVoxelPositions.Count;
 
+
     public static bool VoxelGridActivity { set { foreach (Chunk chunk in Chunks) chunk.GridObj.SetActive(value); } }
     public static bool SelectedVoxelGridActivity { set { foreach (Chunk chunk in Chunks) chunk.SelectedGridObj.SetActive(value); } }
+    public static bool VertexActivity { set => _vertexMeshParent.SetActive(value); }
+
+    private static GameObject _vertexMeshParent;
+    private static GameObject[] _vertexMeshes;
 
     private static Vector3Bool _mirror;
-    private static Vector3Int _chunkSizes;
+    private static Vector3Int _chunksCount;
     private static List<Chunk> _nonUpdatedChunks = new List<Chunk>();
     private static LinkedList<Vector3Int> _selectedVoxelPositions = new LinkedList<Vector3Int>();
     private static Reflector _reflector;
@@ -44,14 +52,41 @@ public static class ChunkManager
     private static Material _chunkMaterial;
     private static Material _chunkGridMaterial;
     private static Material _chunkSelectedGridMaterial;
+    private static Material _vertexMaterial;
 
-    
+    public static void Create()
+    {
+        /*
+         if(CreateVoxel())
+         {
+            if(CreateVertex())
+            {
+                UpdateVertexChunk();
+            }
+
+        UpdateVoxelChunk();
+        }
+
+
+
+        UpdateChunks()
+        {
+            Go(UpdateChunk);
+            Go(UpdateGrid);
+            Go(UpdateVertices);
+
+            
+        }
+         */
+    }
 
     static ChunkManager()
     {
         _chunkMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/Chunk");
         _chunkGridMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/Grid");
         _chunkSelectedGridMaterial = ResourcesLoader.Load<Material>("Materials/Chunk/SelectedGrid");
+        _vertexMaterial = ResourcesLoader.Load<Material>("Materials/Vertex");
+
     }
 
     public static void Init(Vector3Int fieldSize, int incrementOption)
@@ -62,6 +97,12 @@ public static class ChunkManager
         IncrementOption = incrementOption;
 
         CreateChunks();
+
+        int count;
+        Vector3Int[] positions;
+        Vector3Int[] sizes;
+
+        GetChunkParameters(ChunkSize, out count, out positions, out sizes);
     }
 
     public static void SetVoxelIdByColor(Color color)
@@ -70,7 +111,7 @@ public static class ChunkManager
         int g = (int)(color.g * 255);
         int b = (int)(color.b * 255);
 
-        int index = Voxelator.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
+        int index = VoxelatorArray.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
 
         VoxelId = index;
     }
@@ -94,12 +135,12 @@ public static class ChunkManager
 
     public static bool InField(Vector3 position)
     {
-        return Voxelator.WithinTheArray(FieldSize, position);
+        return VoxelatorArray.WithinTheArray(FieldSize, position);
     }
 
     public static Chunk GetChunk(Vector3 position)
     {
-        return InField(position.ToVector3Int()) ? Chunks[Voxelator.GetIndex(_chunkSizes, GetChunkPos(position))] : null;
+        return InField(position.ToVector3Int()) ? Chunks[VoxelatorArray.GetIndex(_chunksCount, GetChunkPos(position))] : null;
     }
 
     public static Voxel GetVoxel(Vector3Int globalVoxelPos)
@@ -339,7 +380,7 @@ public static class ChunkManager
             else
                 verticesData[i] = new Vertex(Vector3.one * -1).GetData();
         }
-        return new ChunkManagerData(IncrementOption, FieldSize, _chunkSizes, verticesData, chunksData);
+        return new ChunkManagerData(IncrementOption, FieldSize, _chunksCount, verticesData, chunksData);
     }
 
     public static void SetData(ChunkManagerData chunksManagerData)
@@ -349,7 +390,7 @@ public static class ChunkManager
 
         IncrementOption = chunksManagerData.IncrementOption;
         InitField(chunksManagerData.FieldSize);
-        _chunkSizes = chunksManagerData.ChunkSizes;
+        _chunksCount = chunksManagerData.ChunkSizes;
 
         Chunks = new Chunk[chunksManagerData.ChunksData.Length];
         for (int i = 0; i < Chunks.Length; i++)
@@ -392,42 +433,129 @@ public static class ChunkManager
         return false;
     }
 
+    private static void GetChunkParameters(Vector3Int chunkSize, out int count, out Vector3Int[] positions, out Vector3Int[] sizes)
+    {
+        _chunksCount = new Vector3Int(
+             FieldSize.x % chunkSize.x != 0 ? (int)(FieldSize.x / chunkSize.x) + 1 : FieldSize.x / chunkSize.x,
+             FieldSize.y % chunkSize.y != 0 ? (int)(FieldSize.y / chunkSize.y) + 1 : FieldSize.y / chunkSize.y,
+             FieldSize.z % chunkSize.z != 0 ? (int)(FieldSize.z / chunkSize.z) + 1 : FieldSize.z / chunkSize.z
+             );
+
+        count = _chunksCount.x * _chunksCount.y * _chunksCount.z;
+        positions = new Vector3Int[count];
+        sizes = new Vector3Int[count];
+
+        for (int x = 0; x < _chunksCount.x; x++)
+        {
+            for (int y = 0; y < _chunksCount.y; y++)
+            {
+                for (int z = 0; z < _chunksCount.z; z++)
+                {
+                    Vector3Int currentChunkPosition = new Vector3Int(x, y, z);
+
+                    Vector3Int currentchunkSize = new Vector3Int(
+                        x + 1 == _chunksCount.x ? FieldSize.x - x * chunkSize.x : chunkSize.x,
+                        y + 1 == _chunksCount.y ? FieldSize.y - y * chunkSize.y : chunkSize.y,
+                        z + 1 == _chunksCount.z ? FieldSize.z - z * chunkSize.z : chunkSize.z
+                        );
+
+                        new Chunk(currentChunkPosition, currentchunkSize, _chunkMaterial, _chunkGridMaterial, _chunkSelectedGridMaterial);
+
+                    int index = (x * _chunksCount.y + y) * _chunksCount.z + z;
+
+                    positions[index] = currentChunkPosition;
+                    sizes[index] = currentchunkSize;
+
+                }
+            }
+        }
+    }
+
+    private static void CreateChunksTest()
+    {
+        return;
+
+        Vector3Int chunkCount, chunkSize;
+        int arraySize;
+
+        //voxelChunk
+        chunkSize = SceneParameters.VoxelChunkSize;
+        chunkCount = GetChunkCount(chunkSize);
+        arraySize = VoxelatorArray.GetFlatArraySize(chunkCount);
+        VoxelChunks = new VoxelChunk[arraySize];
+        for (int i = 0; i < arraySize; i++)
+            VoxelChunks[i] = new VoxelChunk(chunkSize * i, chunkSize, _chunkMaterial, "", null, null);
+
+        ////GridSelectedChunk
+        //chunkSize = SceneParameters.GridSelectedChunkSize;
+        //chunkCount = GetChunkCount(chunkSize);
+        //arraySize = Voxelator.GetFlatArraySize(chunkCount);
+        //GridSelectedChunks = new GridSelectedChunk[arraySize];
+        //for (int i = 0; i < arraySize; i++)
+        //    GridSelectedChunks[i] = new GridSelectedChunk(chunkSize * i, chunkSize, _chunkSelectedGridMaterial);
+
+        //VertexChunk
+        chunkSize = SceneParameters.VertexChunkSize;
+        chunkCount = GetChunkCount(chunkSize);
+        arraySize = VoxelatorArray.GetFlatArraySize(chunkCount);
+        VertexChunks = new VertexChunk[arraySize];
+        for (int i = 0; i < arraySize; i++)
+            VertexChunks[i] = new VertexChunk(chunkSize * i, chunkSize, _vertexMaterial, "");
+    }
+
     private static void CreateChunks()
     {
         VoxelId = SceneParameters.TextureSize * SceneParameters.TextureSize;
         MiddleSelectedPos = Vector3.zero;
 
-        _chunkSizes = new Vector3Int(
+        _chunksCount = new Vector3Int(
              FieldSize.x % ChunkSize.x != 0 ? (int)(FieldSize.x / ChunkSize.x) + 1 : FieldSize.x / ChunkSize.x,
              FieldSize.y % ChunkSize.y != 0 ? (int)(FieldSize.y / ChunkSize.y) + 1 : FieldSize.y / ChunkSize.y,
              FieldSize.z % ChunkSize.z != 0 ? (int)(FieldSize.z / ChunkSize.z) + 1 : FieldSize.z / ChunkSize.z
              );
 
-        Chunks = new Chunk[_chunkSizes.x * _chunkSizes.y * _chunkSizes.z];
+        Chunks = new Chunk[_chunksCount.x * _chunksCount.y * _chunksCount.z];
         Vertices = new Vertex[VerticesArraySize.x * VerticesArraySize.y * VerticesArraySize.z];
         _reflector = new Reflector(FieldSize);
 
-        for (int x = 0; x < _chunkSizes.x; x++)
+        for (int x = 0; x < _chunksCount.x; x++)
         {
-            for (int y = 0; y < _chunkSizes.y; y++)
+            for (int y = 0; y < _chunksCount.y; y++)
             {
-                for (int z = 0; z < _chunkSizes.z; z++)
+                for (int z = 0; z < _chunksCount.z; z++)
                 {
                     Vector3Int chunkPos = new Vector3Int(x, y, z);
 
                     Vector3Int chunkSize = new Vector3Int(
-                        x + 1 == _chunkSizes.x ? FieldSize.x - x * ChunkSize.x : ChunkSize.x,
-                        y + 1 == _chunkSizes.y ? FieldSize.y - y * ChunkSize.y : ChunkSize.y,
-                        z + 1 == _chunkSizes.z ? FieldSize.z - z * ChunkSize.z : ChunkSize.z
+                        x + 1 == _chunksCount.x ? FieldSize.x - x * ChunkSize.x : ChunkSize.x,
+                        y + 1 == _chunksCount.y ? FieldSize.y - y * ChunkSize.y : ChunkSize.y,
+                        z + 1 == _chunksCount.z ? FieldSize.z - z * ChunkSize.z : ChunkSize.z
                         );
 
-                    Chunks[(x * _chunkSizes.y + y) * _chunkSizes.z + z] =
+                    Chunks[(x * _chunksCount.y + y) * _chunksCount.z + z] =
                         new Chunk(chunkPos, chunkSize, _chunkMaterial, _chunkGridMaterial, _chunkSelectedGridMaterial);
                 }
             }
         }
 
-        MonoBehaviour.print(_chunkSizes.x * _chunkSizes.y * _chunkSizes.z);
+        
+
+        //////////////_vertexMeshParent = new GameObject().Create("Vertex", null, Vector3.zero, Quaternion.identity);
+
+    }
+
+    private static Vector3Int GetChunkCount(Vector3Int chunkSize)
+    {
+        return new Vector3Int(
+            FieldSize.x % chunkSize.x == 0 ? FieldSize.x / chunkSize.x : FieldSize.x / chunkSize.x + 1,
+            FieldSize.y % chunkSize.y == 0 ? FieldSize.y / chunkSize.y : FieldSize.y / chunkSize.y + 1,
+            FieldSize.z % chunkSize.z == 0 ? FieldSize.z / chunkSize.z : FieldSize.z / chunkSize.z + 1
+            );
+    }
+
+    private static Vector3Int GetLastChunkSize(Vector3Int chunkCount, Vector3Int chunkSize)
+    {
+        return FieldSize - chunkSize * (chunkCount - Vector3Int.one);
     }
 
     //auxiliary method
@@ -454,7 +582,7 @@ public static class ChunkManager
 
     private static int GetVertexIndex(Vector3 globalVertexPos)
     {
-        return Voxelator.GetIndex(VerticesArraySize, (globalVertexPos + new Vector3(0.5f, 0.5f, 0.5f)).ToVector3Int());
+        return VoxelatorArray.GetIndex(VerticesArraySize, (globalVertexPos + new Vector3(0.5f, 0.5f, 0.5f)).ToVector3Int());
     }
 
     private static void CreateVertex(Vector3 globalVertexPos)
@@ -794,5 +922,4 @@ public static class ChunkManager
                 DeleteVoxel(voxelPosition);
         }
     }
-
 }

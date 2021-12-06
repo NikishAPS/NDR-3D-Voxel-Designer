@@ -1,24 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class Voxelator
 {
-    public static int GetIndex(Vector3Int arraySize, Vector3Int position)
-    {
-        return 
-            /*if*/      WithinTheArray(arraySize, position) ?
-            /*then*/    (position.x * arraySize.y + position.y) * arraySize.z + position.z :
-            /*else*/    -1;
+    public static VoxelChunkManager VoxelChunkManager { get; set; }
 
+    public static void CreateVoxel(Vector3Int voxelPosition, int id)
+    {
+        VoxelChunkManager.CreateVoxel(voxelPosition, id);
+        VoxelChunk.VertexChunkManager.CreateVertices(voxelPosition);
     }
 
-    public static bool WithinTheArray(Vector3Int arraySize, Vector3 position)
+    public static void DeleteVoxel(Vector3Int voxelPosition)
     {
-        return
-            position.x >= 0 && position.x < arraySize.x &&
-            position.y >= 0 && position.y < arraySize.y &&
-            position.z >= 0 && position.z < arraySize.z;
+        VoxelChunkManager.DeleteVoxel(voxelPosition);
+    }
+    public static void DeleteSelectedVoxels()
+    {
+        VoxelChunkManager.DeleteSelectedVoxels();
+    }
+
+    public static void MoveVertex(Vector3Int vertexPosition, Vector3 vertexOffset)
+    {
+        VoxelChunk.VertexChunkManager.MoveVertex(vertexPosition, vertexOffset);
+        VoxelChunkManager.AddSurroundingChunksToUpdate(vertexPosition);
+    }
+
+    public static void SelectVoxel(Vector3Int voxelPosition, bool select)
+    {
+        VoxelChunkManager.SelectVoxel(voxelPosition, select);
+    }
+
+    public static void MoveSelectedVoxels(DragTransform dragValue)
+    {
+        VoxelChunkManager.MoveSelectedVoxels(dragValue);
+    }
+
+    public static void UpdateChunks()
+    {
+        VoxelChunkManager.UpdateChunks();
+        VoxelChunk.VertexChunkManager.UpdateChunks();
     }
 
 }

@@ -7,11 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
-  m_Shader: {fileID: 4800000, guid: 0b7f65a897a6b4e48b1359cd779a15e7, type: 3}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_Name: Vertex
+  m_Shader: {fileID: 7, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+  m_LightmapFlags: 6
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -57,34 +57,29 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _Cutoff: 0.5
+    - _Cutoff: 0
     - _DetailNormalMapScale: 1
+    - _DoubleMode: 0
     - _DstBlend: 0
-    - _GlossMapScale: 1
+    - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _GridOffsetX: 0
-    - _GridOffsetY: -0.14
-    - _GridSpacing: 10
-    - _GridSpacingX: 1
-    - _GridSpacingY: 1
-    - _GridStep: 10
-    - _GridThickness: 0.01
-    - _GridWidth: 1
-    - _Metallic: 0
+    - _GridSpacing: 0.1
+    - _GridThickness: 0.1
+    - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Size: 1
-    - _SmoothnessTextureChannel: 0
+    - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Width: 0.95
     - _ZWrite: 1
     m_Colors:
-    - _BackgroundColor: {r: 1, g: 1, b: 1, a: 0}
     - _BaseColour: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Color1: {r: 0.91725004, g: 0.91725004, b: 0.91725004, a: 1}
+    - _Color2: {r: 0, g: 0.40960622, b: 0.91725004, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GridColour: {r: 0.5, g: 1, b: 1, a: 1}
+    - _GridColour: {r: 1, g: 1, b: 1, a: 1}
+    - _HSV: {r: 0.59225005, g: 0.97874975, b: 0.91725004, a: 1}

@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Linq;
 
 public class Chunk
 {
@@ -80,7 +78,7 @@ public class Chunk
 
     public bool TryCreateVoxel(int id, Vector3Int globalVoxelPos)
     {
-        int index = Voxelator.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
+        int index = VoxelatorArray.GetIndex(Size, GetLocalVoxelPos(globalVoxelPos));
 
         if (index < 0 || Voxels[index] != null) return false;
 
@@ -167,7 +165,7 @@ public class Chunk
                             vertices[i4 + j] = ChunkManager.GetVertex(VoxelMesh.VoxelVertices[i * 4 + j] + voxel.Position).Position - Position;
                         }
 
-                        for(int j = 0; j < 6; j++)
+                        for(int j = 0; j < 6; j++) 
                         {
                             triangles[i6 + j] = VoxelMesh.VoxelFaceTriangles[j] + i4;
                         }
@@ -310,7 +308,7 @@ public class Chunk
     //get index
     private int GetIndex(Vector3Int arraySize, Vector3Int pos)
     {
-        return (Voxelator.WithinTheArray(arraySize, pos)) ? (pos.x * arraySize.y + pos.y) * arraySize.z + pos.z : -1;
+        return (VoxelatorArray.WithinTheArray(arraySize, pos)) ? (pos.x * arraySize.y + pos.y) * arraySize.z + pos.z : -1;
     }
     private int GetVoxelIndexByLocalPos(Vector3Int localVoxelPos)
     {
@@ -388,27 +386,5 @@ public class Chunk
         selectedVoxel = new Voxel(GetVoxelByGlobalPos(Voxels, selectedVoxel.Position));
         SelectedFaceCount += selectedVoxel.FaceCount;
     }
-
-    //create
-    //private void CreateVertex(Vector3 globalVertexPos)
-    //{
-    //    int index = GetVertexIndexByGlobalPos(globalVertexPos);
-
-    //    if (index < 0 || Vertices[index] != null) return;
-
-    //    Vertices[index] = new Vertex(globalVertexPos);
-    //}
-    //private void CreateVertices(Vector3Int globalVoxelPos)
-    //{
-    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, -0.5f, -0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, -0.5f, -0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, +0.5f, -0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, +0.5f, -0.5f));
-
-    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, -0.5f, +0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, -0.5f, +0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(+0.5f, +0.5f, +0.5f));
-    //    CreateVertex(globalVoxelPos + new Vector3(-0.5f, +0.5f, +0.5f));
-    //}
 
 }

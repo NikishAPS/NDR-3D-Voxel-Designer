@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class GameObjectExtension
 {
@@ -10,5 +11,12 @@ public static class GameObjectExtension
         gameObject.transform.rotation = rotation;
 
         return gameObject;
+    }
+
+    public static void  AddMeshRenderer(this GameObject gameObject, Material material, bool castShadow)
+    {
+        MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        meshRenderer.material = material;
+        meshRenderer.shadowCastingMode = castShadow ? ShadowCastingMode.On : ShadowCastingMode.Off;
     }
 }

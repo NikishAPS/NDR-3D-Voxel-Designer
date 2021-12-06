@@ -11,7 +11,7 @@ public class Vertex
         set => Position = PivotPosition + value;
     }
     public int AdjacentVoxelsCount { get; set; }
-
+    
     public Vertex()
     {
 

@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
 using UnityEngine;
 
 public static class MeshGenerator
 {
+    public readonly static CustomMesh SphereMesh;
+
+    static MeshGenerator()
+    {
+        //Mesh sphereMesh = ResourcesLoader.Load<GameObject>("Objects/VertexCube").GetComponent<MeshFilter>().sharedMesh;
+        Mesh sphereMesh = ResourcesLoader.Load<GameObject>("Objects/VertexSphere").GetComponent<MeshFilter>().sharedMesh;
+
+        SphereMesh = new CustomMesh(sphereMesh.vertices, null, sphereMesh.triangles);
+    }
+
     public static CustomMesh GenerateHorizontalPlane()
     {
         return GenerateHorizontalPlane(Vector3.zero);
@@ -67,5 +75,19 @@ public static class MeshGenerator
         };
 
         return new CustomMesh(vertices, uv, triangles);
+    }
+
+    public static CustomMesh GenereteSphere(Vector3Int vertexOffset, int trianglesOffset)
+    {
+        Vector3[] vertices = new Vector3[SphereMesh.Vertices.Length];
+        int[] triangles = new int[SphereMesh.Triangles.Length];
+
+        for (int i = 0; i < vertices.Length; i++)
+            vertices[i] = SphereMesh.Vertices[i] + vertexOffset;
+
+        for (int i = 0; i < triangles.Length; i++)
+            triangles[i] = SphereMesh.Triangles[i] + trianglesOffset;
+
+        return new CustomMesh(vertices, null, triangles);
     }
 }

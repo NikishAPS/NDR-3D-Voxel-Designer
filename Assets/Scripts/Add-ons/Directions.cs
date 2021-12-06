@@ -13,6 +13,18 @@ public static class Direction
     public static int Back => (int)DirectionType.Back;
     public static int Forward => (int)DirectionType.Forward;
 
+    public static readonly byte[] Masks =
+    {
+        0b000001,
+        0b000010,
+        0b000100,
+        0b001000,
+        0b010000,
+        0b100000
+    };
+
+    public static readonly byte[] InvMasks;
+
     public static readonly Vector3Int[] Directions =
     {
         new Vector3Int(-1, 0, 0),
@@ -22,6 +34,13 @@ public static class Direction
         new Vector3Int(0, 0, -1),
         new Vector3Int(0, 0, +1),
     };
+
+    static Direction()
+    {
+        InvMasks = new byte[Masks.Length];
+        for (int i = 0; i < InvMasks.Length; i++)
+            InvMasks[i] = (byte)~Masks[i];
+    }
 
     public static Vector3Int GetDirectionByType(DirectionType directionType)
     {
