@@ -17,6 +17,9 @@ public class Slider : Widget
             _inputField.text = _value.ToString();
         }
     }
+    public float Min { get => _min; set => _min = value; }
+    public float Max { get => _max; set => _max = value; }
+    public float Step { get => _step; set => _step = value; }
 
     [SerializeField] private int _value = 0;
     [SerializeField] private float _min = -1f, _max = 1f, _step = 0.1f;

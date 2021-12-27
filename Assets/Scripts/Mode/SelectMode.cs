@@ -6,20 +6,20 @@ public class SelectMode : Mode, IDrag
   
     public override void OnEnable()
     {
-        ChunkManager.SelectedVoxelGridActivity = true;
+        Voxelator.VoxelChunkManager.GridSelectedVoxelActivity = true;
         Axes.SetDragObject(this);
         InputEvent.DeleteDown += Delete;
 
-        if(ChunkManager.SelectedVoxelCount > 0)
+        if(VoxelUnit.SelectedCount > 0)
         {
-            Axes.Position = ChunkManager.MiddleSelectedPos;
+            Axes.Position = VoxelUnit.MiddleSelectedPosition;
             Axes.Active = true;
         }
     }
 
     public override void OnDisable()
     {
-        ChunkManager.SelectedVoxelGridActivity = false;
+        Voxelator.VoxelChunkManager.GridSelectedVoxelActivity = false;
         Axes.Active = false;
         Extractor.Active = false;
 
@@ -36,7 +36,7 @@ public class SelectMode : Mode, IDrag
             _castResult = VoxelRaycast.CastByMouse(SceneParameters.RayLength);
             if (_castResult != null)
             {
-                if (ChunkManager.InField(_castResult.CurrentVoxelPosition))
+                if (Voxelator.InsideField(_castResult.CurrentVoxelPosition))
                 {
                     Extractor.Position = _castResult.CurrentVoxelPosition;
                     Extractor.Active = true;
@@ -56,20 +56,23 @@ public class SelectMode : Mode, IDrag
         {
             if (InputEvent.IsLShiftHold)
             {
-                ChunkManager.SelectVoxel(_castResult.CurrentVoxelPosition);
+                Voxelator.SelectVoxel(_castResult.CurrentVoxelPosition, true);
             }
             else
             {
-                ChunkManager.ResetVoxelSelection();
-                ChunkManager.SelectVoxel(_castResult.CurrentVoxelPosition);
+                Voxelator.ResetVoxelSelection();
+                Voxelator.SelectVoxel(_castResult.CurrentVoxelPosition, true);
             }
 
-            Axes.Position = ChunkManager.MiddleSelectedPos;
+            Voxelator.UpdateChunks();
+
+            Axes.Position = VoxelUnit.MiddleSelectedPosition;
             Axes.Active = true;
         }
         else if (!Axes.IsHighlightedAxis())
         {
-            ChunkManager.ResetVoxelSelection();
+            Voxelator.ResetVoxelSelection();
+            Voxelator.UpdateChunks();
             Axes.Active = false;
         }
     }
@@ -77,27 +80,37 @@ public class SelectMode : Mode, IDrag
     public void Delete()
     {
         Axes.Active = false;
-        ChunkManager.DeleteSelectedVoxels();
+        Voxelator.DeleteSelectedVoxels();
+        Voxelator.UpdateChunks();
     }
 
-    public bool OnTryDrag(DragTransform dragValue)
+    public void OnStartDrag()
     {
-        return ChunkManager.MoveSelectedVoxels(dragValue);
+
     }
 
-    public DragTransform GetDragCoordinates()
+    public void OnDrag(DragTransform dragValue, out DragTransform dragResult)
     {
-        if(ChunkManager.SelectedVoxelCount == 1)
+        dragResult = new DragTransform();
+
+        Voxelator.DragSelectedVoxels(dragValue.Position, out dragResult.Position);
+        Voxelator.UpdateChunks();
+    }
+
+    public DragTransform? GetDragCoordinates()
+    {
+        if(VoxelUnit.SelectedCount == 1)
         {
-            return new DragTransform(ChunkManager.SelectedVoxelPositions[0], Vector3.zero);
-            //return new DragTransform(ChunkManager.GetSelectedVoxel(ChunkManager.SelectedVoxelPositions[0]).Position, Vector3.zero);
+            //return new DragTransform(ChunkManager.SelectedVoxelPositions[0], Vector3.zero);
+            return new DragTransform(VoxelUnit.SelectedHead.Position, Vector3.zero);
         }
 
         return null;
     }
 
-    public void OnEndDrag(DragTransform dragValue)
+    public void OnEndDrag(DragTransform dragResult)
     {
-
+        Invoker.Execute(new SaveSelectedVoxelDragValue(dragResult.Position));
     }
+
 }

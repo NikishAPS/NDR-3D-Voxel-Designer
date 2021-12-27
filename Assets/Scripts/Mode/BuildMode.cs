@@ -65,7 +65,7 @@ public class BuildMode : Mode
                        Camera.main.transform.forward
                        ).RoundToInt();
 
-                    if (ChunkManager.InField(intersection))
+                    if (Voxelator.InsideField(intersection))
                         _endVoxelAreaPosition = intersection;
                     else if (castResult != null)
                         _endVoxelAreaPosition = castResult.PreviousVoxelPosition;
@@ -81,7 +81,7 @@ public class BuildMode : Mode
                     Vector3Int offsetAlongAxis = Direction.GetCursorOffsetAlongAxis(center).RoundToInt();
                     offsetAlongAxis += _fixPosition;
 
-                    if(ChunkManager.InField(offsetAlongAxis))
+                    if(Voxelator.InsideField(offsetAlongAxis))
                         _endVoxelAreaPosition = offsetAlongAxis;
 
                     break;

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
+public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
 {
-    public Vector3 MiddleSelectedPosition { get; private set; }
+    public bool GridVoxelActivity { set { foreach (VoxelChunk chunk in Chunks) chunk.GridVoxelActive = value; } }
+    public bool GridSelectedVoxelActivity { set { foreach (VoxelChunk chunk in Chunks) chunk.GridSelectedVoxelActive = value; } }
 
     private Material _gridVoxelMaterial;
     private Material _gridSelectedVoxelMaterial;
@@ -34,7 +35,7 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
         if (chunk == null) return;
 
         chunk.DeleteUnit(position);
-        AddChunkToUpdate(chunk);
+        AddChunkToUpdate(chunk, true, true);
 
         UpdateVoxelsAround(position);
 
@@ -53,12 +54,12 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
 
         voxel.Select(select);
 
-        AddChunkToUpdate(chunk);
+        AddChunkToUpdate(chunk, false, true);
 
         //calculation MiddleSelectedPosition
-        int prevSelectedVoxelCount = VoxelUnit.SelectedCount + (select ? -1 : 1); 
-        MiddleSelectedPosition = MiddleSelectedPosition * prevSelectedVoxelCount + voxelPosition;
-        MiddleSelectedPosition /= VoxelUnit.SelectedCount;
+        //int prevSelectedVoxelCount = VoxelUnit.SelectedCount + (select ? -1 : 1); 
+        //MiddleSelectedPosition = MiddleSelectedPosition * prevSelectedVoxelCount + voxelPosition;
+        //MiddleSelectedPosition /= VoxelUnit.SelectedCount;
     }
 
     public void DeleteSelectedVoxels()
@@ -72,22 +73,24 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
         }
     }
 
-    public void MoveSelectedVoxels(DragTransform dragValue)
+    public void DragSelectedVoxels(Vector3 dragValue, out Vector3 dragResult)
     {
+        dragResult = Vector3.zero;
+
         if (VoxelUnit.SelectedCount == 0) return;
 
-        Vector3Int roundedOffset = dragValue.Position.RoundToInt();
+        Vector3Int roundedOffset = dragValue.RoundToInt();
         if (roundedOffset == Vector3Int.zero) return;
 
         //checking limits
-        VoxelUnit curVoxel = VoxelUnit.SelectedHead;
-        while (curVoxel != null)
+        VoxelUnit selectedVoxelIterator = VoxelUnit.SelectedHead;
+        while (selectedVoxelIterator != null)
         {
-            if (!InsideField(curVoxel.Position + roundedOffset) ||
-                GetUnit(curVoxel.Position + roundedOffset) != null &&
-                !GetUnit(curVoxel.Position + roundedOffset).IsSelected) return;
+            if (!InsideField(selectedVoxelIterator.Position + roundedOffset) ||
+                GetUnit(selectedVoxelIterator.Position + roundedOffset) != null &&
+                !GetUnit(selectedVoxelIterator.Position + roundedOffset).IsSelected) return;
 
-            curVoxel = curVoxel.Prev;
+            selectedVoxelIterator = selectedVoxelIterator.SelectedPrev;
         }
 
         //copying voxels
@@ -95,11 +98,11 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
         VertexUnit[] vertices = new VertexUnit[voxels.Length * 8];
         {
             int i = 0;
-            curVoxel = VoxelUnit.SelectedHead;
-            while(curVoxel != null)
+            selectedVoxelIterator = VoxelUnit.SelectedHead;
+            while (selectedVoxelIterator != null)
             {
-                voxels[i] = curVoxel;
-                curVoxel = curVoxel.SelectedPrev;
+                voxels[i] = selectedVoxelIterator;
+                selectedVoxelIterator = selectedVoxelIterator.SelectedPrev;
                 i++;
             }
         }
@@ -112,10 +115,70 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
         {
             CreateVoxel(voxels[i].Position + roundedOffset, voxels[i].Id);
             VoxelChunk.VertexChunkManager.CreateVertices(voxels[i].Position + roundedOffset);
+            SelectVoxel(voxels[i].Position + roundedOffset, true);
         }
 
         //MiddleSelectedPosition += roundedOffset;
-        dragValue.Position = roundedOffset;
+        //dragValue.Position = roundedOffset;
+
+        dragResult = roundedOffset;
+    }
+
+    //public void MoveSelectedVoxels(Vector3 dragValue)
+    //{
+    //    if (VoxelUnit.SelectedCount == 0) return;
+
+    //    Vector3Int roundedOffset = dragValue.Position.RoundToInt();
+    //    if (roundedOffset == Vector3Int.zero) return;
+
+    //    //checking limits
+    //    VoxelUnit curVoxel = VoxelUnit.SelectedHead;
+    //    while (curVoxel != null)
+    //    {
+    //        if (!InsideField(curVoxel.Position + roundedOffset) ||
+    //            GetUnit(curVoxel.Position + roundedOffset) != null &&
+    //            !GetUnit(curVoxel.Position + roundedOffset).IsSelected) return;
+
+    //        curVoxel = curVoxel.Prev;
+    //    }
+
+    //    //copying voxels
+    //    VoxelUnit[] voxels = new VoxelUnit[VoxelUnit.SelectedCount];
+    //    VertexUnit[] vertices = new VertexUnit[voxels.Length * 8];
+    //    {
+    //        int i = 0;
+    //        curVoxel = VoxelUnit.SelectedHead;
+    //        while(curVoxel != null)
+    //        {
+    //            voxels[i] = curVoxel;
+    //            curVoxel = curVoxel.SelectedPrev;
+    //            i++;
+    //        }
+    //    }
+
+    //    //deleting voxels
+    //    DeleteSelectedVoxels();
+
+    //    //creating voxels
+    //    for (int i = 0; i < voxels.Length; i++)
+    //    {
+    //        CreateVoxel(voxels[i].Position + roundedOffset, voxels[i].Id);
+    //        VoxelChunk.VertexChunkManager.CreateVertices(voxels[i].Position + roundedOffset);
+    //    }
+
+    //    //MiddleSelectedPosition += roundedOffset;
+    //    dragValue.Position = roundedOffset;
+    //}
+
+    public void ResetSelection()
+    {
+        VoxelUnit voxelIterator = VoxelUnit.Head;
+        while (voxelIterator != null)
+        {
+            SelectVoxel(voxelIterator.Position, false);
+
+            voxelIterator = voxelIterator.Prev;
+        }
     }
 
     protected override void OnLoadResources()
@@ -145,7 +208,8 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
             chunk.FaceCount -= voxel.FaceCount;
             voxel.FacesFlags = facesFlags;
             chunk.FaceCount += voxel.FaceCount;
-            AddChunkToUpdate(chunk);
+
+            AddChunkToUpdate(chunk, true, true);
         }
 
     }
@@ -168,6 +232,14 @@ public class VoxelChunkManager : IChunkManager<VoxelChunk, VoxelUnit>
     {
         foreach (Vector3Int vertexPosition in GetSurroundingPositions(voxelPosition))
             DeleteVertex(vertexPosition);
+    }
+
+    private void AddChunkToUpdate(VoxelChunk chunk, bool updateVoxelMeshFlag, bool updateGridSelectedVoxelMeshFlag)
+    {
+        chunk.UpdateVoxelMeshFlag = updateVoxelMeshFlag;
+        chunk.UpdateGridSelectedVoxelMeshFlag = updateGridSelectedVoxelMeshFlag;
+
+        AddChunkToUpdate(chunk);
     }
 
 }

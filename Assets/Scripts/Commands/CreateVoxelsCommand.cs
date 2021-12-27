@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CreateVoxelsCommand : Command
+public class CreateVoxelsCommand : ICommand
 {
     private Vector3Int _startVoxelArea, _endVoxelArea;
 
@@ -12,7 +12,7 @@ public class CreateVoxelsCommand : Command
         _endVoxelArea = endVoxelArea;
     }
 
-    public override void Execute()
+    public void Execute()
     {
         Vector3Int steps = (_endVoxelArea - _startVoxelArea).Sign();
         _endVoxelArea += steps;
@@ -23,14 +23,17 @@ public class CreateVoxelsCommand : Command
             {
                 for (int z = _startVoxelArea.z; z != _endVoxelArea.z; z += steps.z)
                 {
-                    if (!ChunkManager.TryCreateVoxel(new Vector3Int(x, y, z)))
-                    {
-                        continue;
-                    }
+                    Voxelator.CreateVoxel(new Vector3Int(x, y, z));
                 }
             }
         }
 
-        ChunkManager.UpdateChunkMeshes();
+        Voxelator.UpdateChunks();
     }
+
+    public void Undo()
+    {
+
+    }
+
 }

@@ -7,8 +7,6 @@ public abstract class Axis : MonoBehaviour
     [SerializeField] protected static Vector3 _initialDragPoint;
     [SerializeField] protected static Vector3 _initialDragPointProjection;
 
-
-
     public void SetHighlight(bool value)
     {
         _luminaire.SetActive(value);

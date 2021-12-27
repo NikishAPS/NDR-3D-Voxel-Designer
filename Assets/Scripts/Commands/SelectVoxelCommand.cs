@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class SelectVoxelCommand : Command
+public class SelectVoxelCommand : ICommand
 {
     private Vector3Int _globalVoxelPosition;
 
@@ -9,9 +9,14 @@ public class SelectVoxelCommand : Command
         _globalVoxelPosition = globalVoxelPosition;
     }
 
-    public override void Execute()
+    public void Execute()
     {
-        ChunkManager.SelectVoxel(_globalVoxelPosition);
+        Voxelator.SelectVoxel(_globalVoxelPosition, true);
         Project.Saved = false;
+    }
+
+    public void Undo()
+    {
+
     }
 }

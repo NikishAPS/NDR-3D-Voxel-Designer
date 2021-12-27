@@ -6,12 +6,12 @@ public class ProjectData
 {
     public void Collect()
     {
-        _chunksManagerData = ChunkManager.GetData();
+        //_chunksManagerData = ChunkManager.GetData();
     }
 
     public void Distribute()
     {
-        ChunkManager.SetData(_chunksManagerData);
+        //ChunkManager.SetData(_chunksManagerData);
     }
 
     public string GetSavePath()

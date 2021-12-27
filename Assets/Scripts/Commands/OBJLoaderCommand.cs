@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OBJLoaderCommand : Command
+public class OBJLoaderCommand : ICommand
 {
-    public override void Execute()
+    public void Execute()
     {
         OBJControl.Import();
+    }
+
+    public void Undo()
+    {
+
     }
 }

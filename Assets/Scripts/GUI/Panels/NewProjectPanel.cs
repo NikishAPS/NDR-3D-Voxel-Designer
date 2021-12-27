@@ -27,20 +27,20 @@ public class NewProjectPanel : Panel
 
     public void OnCreateNewProject()
     {
+        ScreenAxes.Active = true;
+
+        Project.Init(_projectNameField.String, _projectSaveLocationField.String);
+        Voxelator.Init(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
+        GridManager.Size = Voxelator.VoxelChunkManager.FieldSize;
+
+        CameraController.Position = Vector3.zero;
+        CameraController.MainCamera.nearClipPlane = -Voxelator.FieldSize.Max();
+        CameraController.MainCamera.farClipPlane = Voxelator.FieldSize.Max();
+
         PanelManager.GetPanel<ViewPanel>().Open();
         PanelManager.GetPanel<ProjectPanel>().Open();
         PanelManager.GetPanel<StatisticsPanel>().Open();
         PanelManager.GetPanel<InspectorPanel>().Open();
-
-        ScreenAxes.Active = true;
-
-        Project.Init(_projectNameField.String, _projectSaveLocationField.String);
-        ChunkManager.Init(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
-        GridManager.Size = ChunkManager.FieldSize;
-
-        CameraController.Position = Vector3.zero;
-        CameraController.MainCamera.nearClipPlane = -ChunkManager.FieldSize.Max();
-        CameraController.MainCamera.farClipPlane = ChunkManager.FieldSize.Max();
         Close();
     }
 

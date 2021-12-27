@@ -1,13 +1,28 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 
-public class VoxelChunk : IChunk<VoxelUnit>
+public class VoxelChunk : Chunk<VoxelUnit>
 {
     public static VertexChunkManager VertexChunkManager { get; set; }
-    public static bool GridVoxelActive { get => _gridChunksParent.activeSelf; set => _gridChunksParent.SetActive(value); }
 
-    private static Vector3Int[] VertexPosition = new Vector3Int[]
+    public bool UpdateVoxelMeshFlag { get; set; }
+    public bool UpdateGridSelectedVoxelMeshFlag { get; set; }
+
+    public int FaceCount { get; set; }
+    public int SelectedFaceCount { get; set; }
+
+    public bool GridVoxelActive { get => _gridVoxelGameObject.activeSelf; set => _gridVoxelGameObject.SetActive(value); }
+    public bool GridSelectedVoxelActive { get => _gridSelectedVoxelGameObject.activeSelf; set => _gridSelectedVoxelGameObject.SetActive(value); }
+
+    private readonly static GameObject _voxelChunksParent;
+    private readonly static GameObject _gridChunksParent;
+    private readonly static GameObject _gridSelectedChunksParent;
+    private readonly GameObject _gridVoxelGameObject;
+    private readonly GameObject _gridSelectedVoxelGameObject;
+    private readonly Mesh _gridVoxelMesh;
+    private readonly Mesh _gridSelectedVoxelMesh;
+
+    private static readonly Vector3Int[] VertexPositions = new Vector3Int[]
     {
             //left
             new Vector3Int(0, 0, 1),
@@ -46,17 +61,6 @@ public class VoxelChunk : IChunk<VoxelUnit>
             new Vector3Int(0, 0, 1)
     };
 
-    public int FaceCount { get; set; }
-    public int SelectedFaceCount { get; set; }
-
-    private readonly static GameObject _voxelChunksParent;
-    private readonly static GameObject _gridChunksParent;
-    private readonly static GameObject _gridSelectedChunksParent;
-    private readonly GameObject _gridVoxelGameObject;
-    private readonly GameObject _gridSelectedVoxelGameObject;
-    private readonly Mesh _gridVoxelMesh;
-    private readonly Mesh _gridSelectedVoxelMesh;
-
     static VoxelChunk()
     {
         _voxelChunksParent = new GameObject("VoxelChunks");
@@ -82,254 +86,14 @@ public class VoxelChunk : IChunk<VoxelUnit>
         _gridSelectedVoxelGameObject.AddMeshRenderer(gridSelectedChunkMaterial, false);
     }
 
-    public void UpdateMesh0()
-    {
-        _mesh.Clear();
-        _gridVoxelMesh.Clear();
-        _gridSelectedVoxelMesh.Clear();
-
-        if (FaceCount == 0) return;
-
-        Vector3[] vertices = new Vector3[FaceCount * 4];
-        Vector2[] uv = new Vector2[FaceCount * 4];
-        int[] triangles = new int[FaceCount * 6];
-
-        Vector2[] gridUV = new Vector2[FaceCount * 4];
-        Vector3[] selectedVertices = new Vector3[FaceCount * 4];
-        Vector2[] selectedUV = new Vector2[FaceCount * 4];
-        int[] selectedTriangles = new int[FaceCount * 6];
-
-        float uvX, uvY;
-        float uvOffset = SceneParameters.TextureMul / 2f;
-
-        int
-            verticesIterator = 0,
-            trianglesIterator = 0,
-            uvIterator = 0,
-            gridUVIterator = 0,
-            gridSelectedVerticesIterator = 0,
-            gridSelectedTrianglesIterator = 0,
-            gridSelectedUVIterator = 0;
-
-        int iTriang = 0;
-        int iSelectedTriang = 0;
-        foreach (VoxelUnit voxel in Units)
-        {
-            if (voxel != null)
-            {
-                for (int i = 0; i < Direction.Masks.Length; i++)
-                {
-                    if (voxel.CheckFace(i))
-                    {
-                        //voxel
-                        for (int j = 0; j < 4; j++, verticesIterator++)
-                            vertices[verticesIterator] = (VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
-
-                        for (int j = 0; j < 6; j++, trianglesIterator++)
-                            triangles[trianglesIterator] = (VoxelMesh.VoxelFaceTriangles[j] + iTriang);
-                        iTriang += 4;
-
-                        uvX = ((voxel.Id - 1) % SceneParameters.TextureSize + 1) / (float)SceneParameters.TextureSize;
-                        uvY = 1 - ((voxel.Id - 1) / (SceneParameters.TextureSize) + 1) / (float)SceneParameters.TextureSize;
-                        uv[uvIterator + 0] = (new Vector2(uvX - uvOffset, uvY + uvOffset));
-                        uv[uvIterator + 1] = (new Vector2(uvX - uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv[uvIterator + 2] = (new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv[uvIterator + 3] = (new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + uvOffset));
-                        uvIterator += 4;
-
-                        //gridVoxel
-                        gridUV[gridUVIterator + 0] = (new Vector2(0, 0));
-                        gridUV[gridUVIterator + 1] = (new Vector2(1, 0));
-                        gridUV[gridUVIterator + 2] = (new Vector2(1, 1));
-                        gridUV[gridUVIterator + 3] = (new Vector2(0, 1));
-                        gridUVIterator += 4;
-
-                        //gridSelectedVoxel
-                        if (voxel.IsSelected)
-                        {
-                            for (int j = 0; j < 4; j++, gridSelectedVerticesIterator++)
-                                selectedVertices[gridSelectedVerticesIterator] = (VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
-
-                            for (int j = 0; j < 6; j++, gridSelectedTrianglesIterator++)
-                                selectedTriangles[gridSelectedTrianglesIterator] = (VoxelMesh.VoxelFaceTriangles[j] + iSelectedTriang);
-                            iSelectedTriang += 4;
-
-                            selectedUV[gridSelectedUVIterator + 0] = (new Vector2(0, 0));
-                            selectedUV[gridSelectedUVIterator + 1] = (new Vector2(1, 0));
-                            selectedUV[gridSelectedUVIterator + 2] = (new Vector2(1, 1));
-                            selectedUV[gridSelectedUVIterator + 3] = (new Vector2(0, 1));
-                            gridSelectedUVIterator += 4;
-                        }
-                    }
-                }
-            }
-        }
-
-        _mesh.vertices = vertices;
-        _mesh.triangles = triangles;
-        _mesh.uv = uv;
-        _mesh.Optimize();
-        _mesh.RecalculateNormals();
-
-        return;
-
-        _gridVoxelMesh.vertices = vertices;
-        _gridVoxelMesh.triangles = triangles;
-        _gridVoxelMesh.uv = gridUV;
-        _gridVoxelMesh.Optimize();
-        _gridVoxelMesh.RecalculateNormals();
-
-        _gridSelectedVoxelMesh.vertices = selectedVertices;
-        _gridSelectedVoxelMesh.triangles = selectedTriangles;
-        _gridSelectedVoxelMesh.uv = selectedUV;
-        _gridSelectedVoxelMesh.Optimize();
-        _gridSelectedVoxelMesh.RecalculateNormals();
-    }
-
-    private void DDArray()
-    {
-        MonoBehaviour.print("Array");
-        _mesh.Clear();
-
-
-        if (FaceCount == 0) return;
-        MonoBehaviour.print(FaceCount);
-
-        Vector3[] vertices = new Vector3[FaceCount * 4];
-        Vector2[] uv = new Vector2[FaceCount * 4];
-        int[] triangles = new int[FaceCount * 6];
-
-        return;
-        _mesh.vertices = vertices;
-        _mesh.triangles = triangles;
-        _mesh.uv = uv;
-        _mesh.Optimize();
-        _mesh.RecalculateNormals();
-        return;
-
-        float uvX, uvY;
-        float uvOffset = SceneParameters.TextureMul / 2f;
-
-        int
-            verticesIterator = 0,
-            trianglesIterator = 0,
-            uvIterator = 0,
-            gridUVIterator = 0,
-            gridSelectedVerticesIterator = 0,
-            gridSelectedTrianglesIterator = 0,
-            gridSelectedUVIterator = 0;
-
-        int iTriang = 0;
-        foreach (VoxelUnit voxel in Units)
-        {
-            if (voxel != null)
-            {
-                for (int i = 0; i < Direction.Masks.Length; i++)
-                {
-                    if (voxel.CheckFace(i))
-                    {
-                        //voxel
-                        for (int j = 0; j < 4; j++, verticesIterator++)
-                            vertices[verticesIterator] = (VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
-
-                        for (int j = 0; j < 6; j++, trianglesIterator++)
-                            triangles[trianglesIterator] = (VoxelMesh.VoxelFaceTriangles[j] + iTriang);
-                        iTriang += 4;
-
-                        uvX = ((voxel.Id - 1) % SceneParameters.TextureSize + 1) / (float)SceneParameters.TextureSize;
-                        uvY = 1 - ((voxel.Id - 1) / (SceneParameters.TextureSize) + 1) / (float)SceneParameters.TextureSize;
-                        uv[uvIterator + 0] = (new Vector2(uvX - uvOffset, uvY + uvOffset));
-                        uv[uvIterator + 1] = (new Vector2(uvX - uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv[uvIterator + 2] = (new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv[uvIterator + 3] = (new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + uvOffset));
-                        uvIterator += 4;
-                    }
-                }
-            }
-        }
-
-        return;
-
-        _mesh.vertices = vertices;
-        _mesh.triangles = triangles;
-        _mesh.uv = uv;
-        _mesh.Optimize();
-        _mesh.RecalculateNormals();
-
-    }
-
-    private void DDList()
-    {
-        MonoBehaviour.print("List");
-
-        _mesh.Clear();
-
-        if (FaceCount == 0) return;
-
-        //работает заебись (менее отдной секунды) с учетом того, что массив пересоздается и копируется несколько раз
-        List<Vector3> vertices = new List<Vector3>(FaceCount * 4);
-        List<Vector2> uv = new List<Vector2>(FaceCount * 4);
-        List<int> triangles = new List<int>(FaceCount * 6);
-
-        float uvX, uvY;
-        float uvOffset = SceneParameters.TextureMul / 2f;
-
-        int c = 0;
-        int iTriang = 0;
-        foreach (VoxelUnit voxel in Units)
-        {
-            if (voxel != null)
-            {
-                for (int i = 0; i < Direction.Masks.Length; i++)
-                {
-                    if (voxel.CheckFace(i))
-                    {
-                        c++;
-                        for (int j = 0; j < 4; j++)
-                            vertices.Add(VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
-
-                        for (int j = 0; j < 6; j++)
-                            triangles.Add(VoxelMesh.VoxelFaceTriangles[j] + iTriang);
-
-                        //vertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + 0] + voxel.Position).OffsetPosition);
-                        //vertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + 1] + voxel.Position).OffsetPosition);
-                        //vertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + 2] + voxel.Position).OffsetPosition);
-                        //vertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + 3] + voxel.Position).OffsetPosition);
-
-
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[0] + iTriang);
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[1] + iTriang);
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[2] + iTriang);
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[3] + iTriang);
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[4] + iTriang);
-                        //triangles.Init(VoxelMesh.VoxelFaceTriangles[5] + iTriang);
-
-                        iTriang += 4;
-
-                        uvX = ((voxel.Id - 1) % SceneParameters.TextureSize + 1) / (float)SceneParameters.TextureSize;
-                        uvY = 1 - ((voxel.Id - 1) / (SceneParameters.TextureSize) + 1) / (float)SceneParameters.TextureSize;
-
-                        uv.Add(new Vector2(uvX - uvOffset, uvY + uvOffset));
-                        uv.Add(new Vector2(uvX - uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv.Add(new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv.Add(new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + uvOffset));
-                    }
-                }
-            }
-        }
-
-        _mesh.vertices = vertices.ToArray();
-        _mesh.triangles = triangles.ToArray();
-        _mesh.uv = uv.ToArray();
-        _mesh.Optimize();
-        _mesh.RecalculateNormals();
-    }
-
     public override void UpdateMesh()
     {
+        if (UpdateGridSelectedVoxelMeshFlag) UpdateGridSelectedVoxelMesh();
+
+        UpdateVoxelMeshFlag = false;
+
         _mesh.Clear();
         _gridVoxelMesh.Clear();
-        _gridSelectedVoxelMesh.Clear();
 
         if (FaceCount == 0) return;
 
@@ -339,15 +103,10 @@ public class VoxelChunk : IChunk<VoxelUnit>
 
         InitializedArray<Vector2> gridUV = new InitializedArray<Vector2>(FaceCount * 4);
 
-        InitializedArray<Vector3> selectedVertices = new InitializedArray<Vector3>(SelectedFaceCount * 4);
-        InitializedArray<Vector2> selectedUV = new InitializedArray<Vector2>(SelectedFaceCount * 4);
-        InitializedArray<int> selectedTriangles = new InitializedArray<int>(SelectedFaceCount * 6);
-
         float uvX, uvY;
         float uvOffset = SceneParameters.TextureMul / 2f;
 
         int iTriang = 0;
-        int iSelectedTriang = 0;
         foreach (VoxelUnit voxel in Units)
         {
             if (voxel != null)
@@ -358,7 +117,7 @@ public class VoxelChunk : IChunk<VoxelUnit>
                     {
                         //voxels
                         for (int j = 0; j < 4; j++)
-                            vertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
+                            vertices.Init(VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition.Value);
 
                         for (int j = 0; j < 6; j++)
                             triangles.Init(VoxelMesh.VoxelFaceTriangles[j] + iTriang);
@@ -378,21 +137,6 @@ public class VoxelChunk : IChunk<VoxelUnit>
                         gridUV.Init(new Vector2(1, 1));
                         gridUV.Init(new Vector2(0, 1));
 
-                        //gridSelectedVoxel
-                        if (voxel.IsSelected)
-                        {
-                            for (int j = 0; j < 4; j++)
-                                selectedVertices.Init(VertexChunkManager.GetUnit(VertexPosition[i * 4 + j] + voxel.Position).OffsetPosition);
-
-                            for (int j = 0; j < 6; j++)
-                                selectedTriangles.Init(VoxelMesh.VoxelFaceTriangles[j] + iSelectedTriang);
-                            iSelectedTriang += 4;
-
-                            selectedUV.Init(new Vector2(0, 0));
-                            selectedUV.Init(new Vector2(1, 0));
-                            selectedUV.Init(new Vector2(1, 1));
-                            selectedUV.Init(new Vector2(0, 1));
-                        }
                     }
                 }
             }
@@ -409,6 +153,49 @@ public class VoxelChunk : IChunk<VoxelUnit>
         _gridVoxelMesh.uv = gridUV.Array;
         //_gridVoxelMesh.Optimize();
         _gridVoxelMesh.RecalculateNormals();
+    }
+
+    public void UpdateGridSelectedVoxelMesh()
+    {
+        UpdateGridSelectedVoxelMeshFlag = false;
+
+        _gridSelectedVoxelMesh.Clear();
+
+        if (SelectedFaceCount == 0) return;
+
+        InitializedArray<Vector3> selectedVertices = new InitializedArray<Vector3>(SelectedFaceCount * 4);
+        InitializedArray<Vector2> selectedUV = new InitializedArray<Vector2>(SelectedFaceCount * 4);
+        InitializedArray<int> selectedTriangles = new InitializedArray<int>(SelectedFaceCount * 6);
+
+        Vector3 vertexPosition;
+        int iSelectedTriang = 0;
+        foreach (VoxelUnit voxel in Units)
+        {
+            if (voxel != null && voxel.IsSelected)
+            {
+                for (int i = 0; i < Direction.Masks.Length; i++)
+                {
+                    if (voxel.CheckFace(i))
+                    {
+                        //gridSelectedVoxel
+                        for (int j = 0; j < 4; j++)
+                        {
+                            vertexPosition = VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition.Value;
+                            selectedVertices.Init(vertexPosition + (vertexPosition - voxel.Position).Sign() * SceneParameters.VertexConvexity);
+                        }
+
+                        for (int j = 0; j < 6; j++)
+                            selectedTriangles.Init(VoxelMesh.VoxelFaceTriangles[j] + iSelectedTriang);
+                        iSelectedTriang += 4;
+
+                        selectedUV.Init(new Vector2(0, 0));
+                        selectedUV.Init(new Vector2(1, 0));
+                        selectedUV.Init(new Vector2(1, 1));
+                        selectedUV.Init(new Vector2(0, 1));
+                    }
+                }
+            }
+        }
 
         if (SelectedFaceCount == 0) return;
         _gridSelectedVoxelMesh.vertices = selectedVertices.Array;
@@ -416,6 +203,8 @@ public class VoxelChunk : IChunk<VoxelUnit>
         _gridSelectedVoxelMesh.uv = selectedUV.Array;
         //_gridSelectedVoxelMesh.Optimize();
         _gridSelectedVoxelMesh.RecalculateNormals();
+
+
     }
 
     protected override void OnBeforeDeleteUnit(Vector3Int position)

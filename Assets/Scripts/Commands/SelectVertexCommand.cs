@@ -1,18 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SelectVertexCommand : Command
+public class SelectVertexCommand : ICommand
 {
-    private Vertex _vertex;
+    private VertexUnit _vertex;
+    private Vector3Int _vertexPosition;
 
-    public SelectVertexCommand(Vertex vertex)
+    public SelectVertexCommand(Vector3Int vertexPosition)
     {
-        _vertex = vertex;
+        _vertexPosition = vertexPosition;
     }
 
-    public override void Execute()
+    public void Execute()
     {
-        ChunkManager.SelectedVertex = _vertex;
-        Presenter.EditVertex();
+        //ChunkManager.SelectedVertex = _vertex;
+        //Presenter.EditVertex();
+        Voxelator.SelectVertex(_vertexPosition);
+    }
+
+    public void Undo()
+    {
+
     }
 }

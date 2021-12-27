@@ -21,22 +21,6 @@ public class ScaleAxis : Axis
         _initialDragPointProjection += dragValue.Scale;
     }
 
-
-    //public override Vector3? TryDrag()
-    //{
-    //    Vector3 dragValue = GetProjectedPoint() - _initialDragPointProjection;
-    //    float sign = Mathf.Sign(InputEvent.MouseSpeed.y);
-
-    //    Vector3? dragResult = Axes.DragScale?.Invoke(dragValue);
-    //    if (dragResult != null)
-    //    {
-    //        _startDragPosition += (Vector3)dragResult;
-    //        _startPointProjection += (Vector3)dragResult;
-    //    }
-
-    //    return dragResult;
-    //}
-
     protected override Vector3 GetProjectedPoint()
     {
         Vector3 mousePosition = Input.mousePosition;

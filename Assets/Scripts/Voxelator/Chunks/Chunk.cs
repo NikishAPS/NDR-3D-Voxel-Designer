@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
-public abstract class IChunk<U> where U : Unit
+public abstract class Chunk<U> where U : Unit
 {
     public bool Active { get => _gameObject.activeSelf; set => _gameObject.SetActive(value); }
     public readonly Vector3Int Position;
@@ -12,7 +12,7 @@ public abstract class IChunk<U> where U : Unit
     protected readonly GameObject _gameObject;
     protected readonly Mesh _mesh;
 
-    public IChunk(Vector3Int position, Vector3Int size, Material material, string name)
+    public Chunk(Vector3Int position, Vector3Int size, Material material, string name)
     {
         Position = position;
         Size = size;

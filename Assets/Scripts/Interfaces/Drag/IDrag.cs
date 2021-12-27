@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-
-public interface IDrag
+﻿public interface IDrag
 {
-    bool OnTryDrag(DragTransform dragValue);
-    DragTransform GetDragCoordinates();
-    void OnEndDrag(DragTransform dragValue);
+    void OnDrag(DragTransform dragValue, out DragTransform dragResult);
+    DragTransform? GetDragCoordinates();
+    void OnEndDrag(DragTransform dragResult);
 }

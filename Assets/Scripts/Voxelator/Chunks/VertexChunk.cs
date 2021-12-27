@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class VertexChunk : IChunk<VertexUnit>
+public class VertexChunk : Chunk<VertexUnit>
 {
-    public static bool VerticesActive { get => _parent.activeSelf; set => _parent.SetActive(value); }
+    public bool VerticesActive { get => _parent.activeSelf; set => _parent.SetActive(value); }
 
     private readonly static GameObject _parent;
 
@@ -32,7 +31,7 @@ public class VertexChunk : IChunk<VertexUnit>
             if (vertex != null)
             {
                 foreach (Vector3 meshVertex in MeshGenerator.SphereMesh.Vertices)
-                    vertices.Init(meshVertex + vertex.OffsetPosition);
+                    vertices.Init(meshVertex + vertex.OffsetPosition.Value);
 
                 foreach (int triangleIndex in MeshGenerator.SphereMesh.Triangles)
                     triangles.Init(triangleIndex + iTriang);

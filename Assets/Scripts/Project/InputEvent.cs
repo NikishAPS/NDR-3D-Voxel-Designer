@@ -15,7 +15,7 @@ public class InputEvent : MonoBehaviour
     public static bool IsMMouseDown => Input.GetMouseButtonDown(2);
     public static bool IsMMouseHold => Input.GetMouseButton(2);
     public static bool IsMMouseUp => Input.GetMouseButtonUp(2);
-    public static float IsMouseScroll => Input.mouseScrollDelta.y;
+    public static float MouseScrollDelta => Input.mouseScrollDelta.y;
 
     public static Void MouseMove;
     public static Void LMouseDown;
@@ -41,12 +41,14 @@ public class InputEvent : MonoBehaviour
     public static bool IsYHold => Input.GetKey(KeyCode.Y);
     public static bool IsZHold => Input.GetKey(KeyCode.Z);
     public static bool IsSpaceDown => Input.GetKeyDown(KeyCode.Space);
+    public static bool IsZDown => Input.GetKeyDown(KeyCode.Z);
 
     public static Void DeleteDown;
+    public static Void SpaceDown;
+    public static Void ZDown;
     public static Void XHold;
     public static Void YHold;
     public static Void ZHold;
-    public static Void SpaceDown;
 
     [SerializeField] private Canvas _canvas;
     private Rect _prevCanvasRect;
@@ -76,7 +78,7 @@ public class InputEvent : MonoBehaviour
         if (IsMMouseDown) MMouseDown?.Invoke();
         if (IsMMouseHold) MMouseHold?.Invoke();
         if (IsMMouseUp) MMouseUp?.Invoke();
-        if (IsMouseScroll != 0) MouseScroll?.Invoke();
+        if (MouseScrollDelta != 0) MouseScroll?.Invoke();
 
         if (IsDeleteDown) DeleteDown?.Invoke();
         if (IsXHold) XHold?.Invoke();
@@ -84,6 +86,7 @@ public class InputEvent : MonoBehaviour
         if (IsZHold) ZHold?.Invoke();
 
         if (IsSpaceDown) SpaceDown?.Invoke();
+        if (IsZDown) ZDown?.Invoke();
     }
 
 }

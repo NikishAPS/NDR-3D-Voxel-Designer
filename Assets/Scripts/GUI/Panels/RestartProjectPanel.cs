@@ -26,7 +26,7 @@ public class RestartProjectPanel : Panel
                 panel.Open();
         }
 
-        ChunkManager.Release();
+        Voxelator.Release();
         //GridManager._grid[Direction.Down].Active = false;
     }
 }

@@ -1,15 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EditMode : Mode, IDrag
 {
-    private Vertex _vertex;
-
     public override void OnEnable()
     {
-        //Axes.DragPosition += ChunksManager.MoveVertex;
+        Voxelator.VertexChunkManager.VerticesActive = true;
+
         Axes.SetDragObject(this);
+        if (Voxelator.VertexChunkManager.SelectedVertex != null)
+        {
+            Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+            Axes.Active = true;
+        }
+
         InputEvent.XHold += OnXHold;
         InputEvent.YHold += OnYHold;
         InputEvent.ZHold += OnZHold;
@@ -17,8 +20,8 @@ public class EditMode : Mode, IDrag
 
     public override void OnDisable()
     {
+        Voxelator.VertexChunkManager.VerticesActive = false;
         Axes.Active = false;
-        //Axes.DragPosition -= ChunksManager.MoveVertex;
 
         InputEvent.XHold -= OnXHold;
         InputEvent.YHold -= OnYHold;
@@ -29,85 +32,66 @@ public class EditMode : Mode, IDrag
     {
         if (!Axes.IsHighlightedAxis())
         {
-            _vertex = null;
             Axes.Active = false;
 
             VertexCastResult castResult = VoxelRaycast.VertexCastByMouse(SceneParameters.RayLength);
 
             if (castResult != null)
             {
-                if (castResult.Vertex != null)
-                {
-                    //ChunkManager.SelectedVertex = castResult.Vertex;
-                    Axes.Position = castResult.Vertex.Position;
-                    Axes.Active = true;
-                    _vertex = castResult.Vertex;
+                Axes.Position = castResult.Vertex.OffsetPosition.Value;
+                Axes.Active = true;
 
-                    Invoker.Execute(new SelectVertexCommand(castResult.Vertex));
-
-                    //Vector3 verPos = castResult.point + Vector3.one * 0.5f;
-                    // Vector3 offsetPos = (Vector3)SceneData.Chunk.GetOffsetVertexByPos(verPos);
-                    //_vertexPos = verPos;
-
-                    // SceneData.DragSystem.SetPosition(verPos + offsetPos);
-                    //SceneData.DragSystem.SetActive(true);
-                }
+                Invoker.Execute(new SelectVertexCommand(castResult.Vertex.Position));
             }
         }
     }
 
     public override void OnLMouseUp()
     {
-        if(_vertex != null)
-        {
+        //if(_vertex != null)
+        //{
             
-        }
-    }
-
-    public bool OnTryDrag(DragTransform dragValue)
-    {
-        return ChunkManager.TryMoveVertex(dragValue);
+        //}
     }
 
     public void OnXHold()
     {
-        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.right * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
-        Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
-        Presenter.EditVertex();
+        if (InputEvent.MouseScrollDelta == 0) return;
+        Invoker.Execute(new ShiftSelectedVertexByStepCommand(Vector3Int.right * (int)InputEvent.MouseScrollDelta));
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
     }
 
     public void OnYHold()
     {
-        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.up * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
-        Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
-        Presenter.EditVertex();
+        if (InputEvent.MouseScrollDelta == 0) return;
+        Invoker.Execute(new ShiftSelectedVertexByStepCommand(Vector3Int.up * (int)InputEvent.MouseScrollDelta));
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
     }
 
     public void OnZHold()
     {
-        if (_vertex == null || InputEvent.IsMouseScroll == 0) return;
-        Vector3 position = _vertex.Position + Vector3.forward * InputEvent.IsMouseScroll / ChunkManager.IncrementOption;
-        Invoker.Execute(new SetVertexPositionCommand(_vertex.PivotPosition, position));
-        Presenter.EditVertex();
+        if (InputEvent.MouseScrollDelta == 0) return;
+        Invoker.Execute(new ShiftSelectedVertexByStepCommand(new Vector3Int().Forward() * (int)InputEvent.MouseScrollDelta));
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
     }
 
-    public DragTransform GetDragCoordinates()
+    public void OnDrag(DragTransform dragValue, out DragTransform dragResult)
     {
-        if(ChunkManager.SelectedVertex != null)
-        {
-            return new DragTransform(ChunkManager.SelectedVertex.Offset * ChunkManager.IncrementOption, Vector3.zero);
-        }
+        dragResult = new DragTransform();
+        Voxelator.DragSelectedVertex(dragValue.Position, out dragResult.Position);
+        Voxelator.UpdateChunks();
+    }
+
+    public DragTransform? GetDragCoordinates()
+    {
+        if (Voxelator.VertexChunkManager.SelectedVertex != null)
+            return new DragTransform(Voxelator.VertexChunkManager.SelectedVertex.GetOffset() * Voxelator.IncrementOption);
 
         return null;
     }
 
-    public void OnEndDrag(DragTransform dragValue)
+    public void OnEndDrag(DragTransform dragResult)
     {
-        if (dragValue.Position != Vector3.zero)
-        {
-            Invoker.Execute(new ApproveVertexOffsetCommand(_vertex, dragValue.Position));
-        }
+        Invoker.Execute(new SaveVertexDragValue(dragResult.Position));
     }
 }

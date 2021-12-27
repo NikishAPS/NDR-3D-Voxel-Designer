@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SwitchModeCommand : Command
+public class SwitchModeCommand : ICommand
 {
     private int _prevMode = 0;
     private int _mode = 0;
@@ -13,8 +13,14 @@ public class SwitchModeCommand : Command
         _mode = mode;
     }
 
-    public override void Execute()
+    public void Execute()
     {
         Presenter.SwitchMode(_mode);
     }
+
+    public void Undo()
+    {
+
+    }
+
 }

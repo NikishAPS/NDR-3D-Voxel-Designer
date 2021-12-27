@@ -8,22 +8,6 @@ public class PositionAxis : Axis
         _initialDragPointProjection = GetProjectedPoint();
     }
 
-    //public override Vector3? TryDrag()
-    //{
-    //    Vector3 dragValue = GetProjectedPoint() - _startPointProjection;
-    //    Axes.Position = _startDragPosition + dragValue;
-
-    //    Vector3? dragResult = Axes.DragPosition?.Invoke(dragValue);
-    //    if (dragResult != null)
-    //    {
-    //        _startDragPosition += (Vector3)dragResult;
-    //        _startPointProjection += (Vector3)dragResult;
-    //    }
-
-    //    return dragResult;
-    //}
-
-
     public override DragTransform GetDragValue()
     {
         return new DragTransform(GetProjectedPoint() - _initialDragPointProjection, Vector3.zero);

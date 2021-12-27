@@ -8,11 +8,11 @@ public static class ChunkManagerPresenter
     {
         get
         {
-            return ChunkManager.VoxelId;
+            return Voxelator.VoxelId;
         }
         set
         {
-            ChunkManager.VoxelId = value;
+            Voxelator.VoxelId = value;
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetMirrorCommand : Command
+public class SetMirrorCommand : ICommand
 {
     private Vector3Bool _previousValue;
     private Vector3Bool _value;
@@ -13,9 +13,15 @@ public class SetMirrorCommand : Command
         _value = value;
     }
 
-    public override void Execute()
+    public void Execute()
     {
-        ChunkManager.Mirror = _value;
+        //ChunkManager.Mirror = _value;
         PanelManager.GetPanel<ProjectPanel>().Mirror = _value;
     }
+
+    public void Undo()
+    {
+
+    }
+
 }

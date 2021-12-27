@@ -1,10 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class VertexChunkManager : IChunkManager<VertexChunk, VertexUnit>
+public class VertexChunkManager : ChunkManager<VertexChunk, VertexUnit>
 {
+    public bool VerticesActive { set { foreach (VertexChunk chunk in Chunks) chunk.VerticesActive = value; } }
+
+    public VertexUnit SelectedVertex { get; private set; }
+    public Action<VertexUnit> EditSelectedVertexEvent;
+
     public VertexChunkManager(Vector3Int fieldSize, Vector3Int chunkSize) : base(fieldSize, chunkSize)
     {
-
+        VerticesActive = false;
     }
 
     public void CreateVertices(Vector3Int voxelPosition)
@@ -20,7 +26,7 @@ public class VertexChunkManager : IChunkManager<VertexChunk, VertexUnit>
         AddChunkToUpdate(chunk);
     }
 
-    public void MoveVertex(Vector3Int vertexPosition, Vector3 vertexOffset)
+    public void SetVertexOffset(Vector3Int vertexPosition, Vector3 vertexOffset)
     {
         VertexChunk chunk = GetChunk(vertexPosition);
         if (chunk == null) return;
@@ -28,9 +34,23 @@ public class VertexChunkManager : IChunkManager<VertexChunk, VertexUnit>
         VertexUnit vertex = chunk.GetUnit(vertexPosition);
         if (vertex == null) return;
 
-        vertex.Offset = vertexOffset;
+        vertex.SetOffset(vertexOffset);
 
         AddChunkToUpdate(chunk);
+    }
+
+    public void SelectVertex(Vector3Int vertexPosition)
+    {
+        if (SelectedVertex != null)
+            SelectedVertex.OffsetPosition.RemoveAction(OnEditSelectedVertex);
+
+        SelectedVertex = GetUnit(vertexPosition);
+
+        if (SelectedVertex != null)
+        {
+            SelectedVertex.OffsetPosition.BindAction(OnEditSelectedVertex);
+            OnEditSelectedVertex(SelectedVertex.OffsetPosition.Value);
+        }
     }
 
     protected override void OnLoadResources()
@@ -55,5 +75,10 @@ public class VertexChunkManager : IChunkManager<VertexChunk, VertexUnit>
         chunk.SetUnit(vertex);
 
         AddChunkToUpdate(chunk);
+    }
+
+    private void OnEditSelectedVertex(Vector3 vertexOffsetPosition)
+    {
+        EditSelectedVertexEvent?.Invoke(SelectedVertex);
     }
 }

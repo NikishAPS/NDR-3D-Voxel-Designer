@@ -1,17 +1,10 @@
 ﻿using UnityEngine;
 
-public class DragTransform
+public struct DragTransform
 {
-    public Vector3 Position { get; set; }
-    public Vector3 Scale { get; set; }
+    public Vector3 Position;
+    public Vector3 Scale;
     public static DragTransform Zero => new DragTransform(Vector3.zero, Vector3.zero);
-
-
-    public DragTransform()
-    {
-        Position = Vector3.zero;
-        Scale = Vector3.zero;
-    }
 
     public DragTransform(Vector3 position)
     {

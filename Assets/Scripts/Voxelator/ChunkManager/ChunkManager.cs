@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class IChunkManager<C, U> where C : IChunk<U> where U : Unit
+public abstract class ChunkManager<C, U> where C : Chunk<U> where U : Unit
 {
     public readonly Vector3Int FieldSize;
     public readonly Vector3Int ChunkSize;
@@ -9,9 +9,10 @@ public abstract class IChunkManager<C, U> where C : IChunk<U> where U : Unit
 
     protected Vector3Int _chunksCount;
     protected Material _chunkMaterial;
+
     private LinkedList<C> _notUpdatedChunks;
 
-    public IChunkManager(Vector3Int fieldSize, Vector3Int chunkSize)
+    public ChunkManager(Vector3Int fieldSize, Vector3Int chunkSize)
     {
         FieldSize = fieldSize;
         ChunkSize = chunkSize;

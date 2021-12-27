@@ -19,7 +19,7 @@ public class OBJControl : MonoBehaviour
         for (int i = 0; i < paths.Length; i++)
         {
             Transform imported = new OBJImporter(paths[i]).Import().transform;
-            imported.position = ChunkManager.Center;
+            imported.position = Voxelator.Center;
 
             _this.Models.Add(new ImportedModel(imported, _this._material));
         }

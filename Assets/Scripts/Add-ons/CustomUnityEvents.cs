@@ -21,7 +21,7 @@ namespace CustomUnityEvents
     public class EventVector3 : UnityEvent<Vector3> { }
 
     [Serializable]
-    public class EventCommand : UnityEvent<Command> { }
+    public class EventCommand : UnityEvent<ICommand> { }
 
     [Serializable]
     public class EventColor : UnityEvent<Color> { }

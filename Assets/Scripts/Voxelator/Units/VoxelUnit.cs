@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class VoxelUnit : Unit
 {
@@ -20,19 +19,25 @@ public class VoxelUnit : Unit
     public static VoxelUnit Head { get; private set; }
     public VoxelUnit Prev { get; private set; }
     public VoxelUnit Next { get; private set; }
+    public static Vector3 MiddlePosition => (Count > 0) ? _commonPosition.ToVector3() / Count : -Vector3.zero;
 
     public static int SelectedCount { get; private set; }
     public static VoxelUnit SelectedHead { get; private set; }
     public VoxelUnit SelectedPrev { get; private set; }
     public VoxelUnit SelectedNext { get; private set; }
+    public static Vector3 MiddleSelectedPosition => (SelectedCount > 0) ? _commonSelectedPosition.ToVector3() / SelectedCount : -Vector3.one;
 
     private byte _faceFlags;//first bit is a flag of the left face, second - right, etc  
+
+    private static Vector3Int _commonPosition;
+    private static Vector3Int _commonSelectedPosition;
 
     public VoxelUnit(Vector3Int position, int id) : base(position)
     {
         Id = id;
         FacesFlags = 0;
         ConstructConnection();
+        _commonPosition += position;
     }
 
     public void Select(bool select)
@@ -40,13 +45,34 @@ public class VoxelUnit : Unit
         if (IsSelected == select) return;
 
         IsSelected = select;
-        if (select) ConstructSelectedConnection();
-        else DestructSelectedConnection();
+        if (select)
+        {
+            ConstructSelectedConnection();
+            _commonSelectedPosition += Position;
+        }
+        else
+        {
+            DestructSelectedConnection();
+            _commonSelectedPosition -= Position;
+        }
     }
 
-    public bool CheckFace2(int index)
+    public static void ResetSelection()
     {
-        return (byte)(_faceFlags & Direction.Masks[index]) != 0;
+        VoxelUnit voxelIterator = SelectedHead;
+        VoxelUnit currentVoxel;
+        while (voxelIterator != null)
+        {
+            currentVoxel = voxelIterator;
+            voxelIterator = voxelIterator.SelectedPrev;
+
+            currentVoxel.IsSelected = false;
+            currentVoxel.SelectedPrev = null;
+            currentVoxel.SelectedNext = null;
+        }
+
+        SelectedCount = 0;
+        _commonSelectedPosition = Vector3Int.zero;
     }
 
     public bool CheckFace(int index)
@@ -86,7 +112,12 @@ public class VoxelUnit : Unit
         DestructConnection();
 
         if (IsSelected)
+        {
             DestructSelectedConnection();
+            _commonSelectedPosition -= Position;
+        }
+
+        _commonPosition -= Position;
     }
 
     private void ConstructConnection()

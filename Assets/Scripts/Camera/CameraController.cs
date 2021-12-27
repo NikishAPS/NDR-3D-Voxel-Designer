@@ -79,16 +79,16 @@ public class CameraController : MonoBehaviour
     {
         if (InputEvent.IsXHold || InputEvent.IsYHold || InputEvent.IsZHold) return;
 
-        float target = MainCamera.orthographicSize - InputEvent.IsMouseScroll * MainCamera.orthographicSize * _zoomingStep;
+        float target = MainCamera.orthographicSize - InputEvent.MouseScrollDelta * MainCamera.orthographicSize * _zoomingStep;
         float speed = Mathf.Sqrt(Mathf.Pow(target - MainCamera.orthographicSize, 2)) * _zoomingSpeed;
         StartCoroutine(Zooming(target, speed));
     }
 
     private void OnSpaceDown()  
     {
-        Vector3 target = ChunkManager.SelectedVoxelCount == 0 ? 
-            new Vector3(ChunkManager.Center.x, 0, ChunkManager.Center.z) : 
-            ChunkManager.MiddleSelectedPos;
+        Vector3 target = VoxelUnit.SelectedCount == 0 ? 
+            new Vector3(Voxelator.Center.x, 0, Voxelator.Center.z) :
+            VoxelUnit.MiddleSelectedPosition;
 
         OffsetPosition(target);
     }

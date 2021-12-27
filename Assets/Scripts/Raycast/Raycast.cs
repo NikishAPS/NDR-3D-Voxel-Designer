@@ -17,7 +17,7 @@ public static class VoxelRaycast
 
         Vector3Int stepsByVoxels = direction.Sign().ToVector3Int();
 
-        /*Since the beam can have its origin at any point inside the voxel,
+        /*Since the ray can have its origin at any point inside the voxel,
         the first step is likely to be smaller than the rest of the steps.
         delta is a multiplier for the first step (0 < delta <= 1)*/
         Vector3 delta = (currentVoxelPosition + Vector3.one.Mul(stepsByVoxels) * 0.5f - origin).Abs();
@@ -47,9 +47,9 @@ public static class VoxelRaycast
             }
 
             //if a collision with a voxel or a voxel collider (ex. grid)
-            if (ChunkManager.GetVoxel(currentVoxelPosition) != null || VoxelBoxCollider.IsCollision(currentVoxelPosition))
+            if (Voxelator.GetVoxel(currentVoxelPosition) != null || VoxelBoxCollider.IsCollision(currentVoxelPosition))
             {
-                if (ChunkManager.InField(previousVoxelPosition) && ChunkManager.GetVoxel(previousVoxelPosition) == null)
+                if (Voxelator.InsideField(previousVoxelPosition) && Voxelator.GetVoxel(previousVoxelPosition) == null)
                 {
                     return new CastResult(origin + direction * currentRayLength, previousVoxelPosition, currentVoxelPosition);
                 }
@@ -82,7 +82,7 @@ public static class VoxelRaycast
         Vector3 delta = (currentVoxelPosition + Vector3.one.Mul(stepsByVoxels) * 0.5f - origin).Abs();
         Vector3 lengths = stepsByDirection.Mul(delta);
 
-        Vertex vertex = null;
+        VertexUnit vertex = null;
 
         while (currentRayLength < distance)
         {
@@ -128,28 +128,28 @@ public static class VoxelRaycast
         return cos == 0 ? Mathf.Infinity : axisDirection.magnitude / cos;
     }
 
-    private static Vertex FindNearestVertex(Vector3 position)
+    private static VertexUnit FindNearestVertex(Vector3 position)
     {
         Vector3Int voxelPosition = position.RoundToInt();
-        Vector3 startPoint = voxelPosition - Vector3.one * 0.5f;
-        Vector3 endPoint = startPoint + Vector3.one;
+        Vector3Int startPoint = voxelPosition - Vector3Int.one * 2;
+        Vector3Int endPoint = voxelPosition + Vector3Int.one * 2;
 
-        float minDistance = 0.2f;
+        float minDistance = SceneParameters.MinVertexDetectionDistance;
         float currentDistance = 0;
-        Vertex vertex = null;
-        Vertex currentVertex = null;
+        VertexUnit vertex = null;
+        VertexUnit currentVertex = null;
 
-        for (float x = startPoint.x; x <= endPoint.x; x++)
+        for (int x = startPoint.x; x <= endPoint.x; x++)
         {
-            for (float y = startPoint.y; y <= endPoint.y; y++)
+            for (int y = startPoint.y; y <= endPoint.y; y++)
             {
-                for (float z = startPoint.z; z <= endPoint.z; z++)
+                for (int z = startPoint.z; z <= endPoint.z; z++)
                 {
-                    Vector3 currentVertexPosition = new Vector3(x, y, z);
-                    currentVertex = ChunkManager.GetVertex(currentVertexPosition);
+                    Vector3Int currentVertexPosition = new Vector3Int(x, y, z);
+                    currentVertex = Voxelator.GetVertex(currentVertexPosition);
                     if (currentVertex != null)
                     {
-                        currentDistance = Vector3.Distance(currentVertex.Position, position);
+                        currentDistance = Vector3.Distance(currentVertex.OffsetPosition.Value, position);
                         if (currentDistance < minDistance)
                         {
                             vertex = currentVertex;
@@ -160,7 +160,6 @@ public static class VoxelRaycast
             }
         }
         return vertex;
-
     }
 
 }

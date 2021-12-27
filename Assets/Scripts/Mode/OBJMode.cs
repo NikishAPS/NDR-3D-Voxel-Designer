@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 
-public class OBJMode : Mode, IDrag
+public class OBJMode : Mode//, IDrag
 {
     public override void OnEnable()
     {
         InputEvent.LMouseDown += OnLMouseDown;
-        Axes.SetDragObject(this);
+        //Axes.SetDragObject(this);
     }
 
     public override void OnDisable()
@@ -35,7 +35,7 @@ public class OBJMode : Mode, IDrag
         }
     }
 
-    public bool OnTryDrag(DragTransform dragValue)
+    public bool OnDrag(DragTransform dragValue)
     {
         return OBJControl.TryDrag(dragValue);
     }
@@ -48,7 +48,7 @@ public class OBJMode : Mode, IDrag
                 OBJControl.SelectedModel.localScale);
         }
 
-        return null;
+        return new DragTransform();
     }
 
     public void OnEndDrag(DragTransform dragValue)

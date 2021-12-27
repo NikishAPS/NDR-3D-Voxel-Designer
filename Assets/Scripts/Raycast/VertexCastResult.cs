@@ -1,8 +1,8 @@
 ﻿public class VertexCastResult
 {
-    public readonly Vertex Vertex;
+    public readonly VertexUnit Vertex;
 
-    public VertexCastResult(Vertex vertex)
+    public VertexCastResult(VertexUnit vertex)
     {
         Vertex = vertex;
     }

@@ -19,10 +19,24 @@ public class InspectorPanel : Panel, IColor
         _colorPickerPanel = PanelManager.GetPanel<ColorPickerPanel>();
         SetColor(_buildColor);
         Presenter.ChangeModeEvent += OnSwitchTab;
-        Presenter.EditVertexEvent += OnEditVertex;
+        //Presenter.EditVertexEvent += OnEditVertex;
 
         for(int i = 1; i < _tabs.Length; i++)
             _tabs[i].SetActive(false);
+    }
+
+    public override void OnOpen()
+    {
+        Voxelator.VertexChunkManager.EditSelectedVertexEvent += OnEditVertex;
+
+        _vertexOffsetX.Min = -Voxelator.IncrementOption * 1.5f;
+        _vertexOffsetX.Max = +Voxelator.IncrementOption * 1.5f;
+
+        _vertexOffsetY.Min = -Voxelator.IncrementOption * 1.5f;
+        _vertexOffsetY.Max = +Voxelator.IncrementOption * 1.5f;
+
+        _vertexOffsetZ.Min = -Voxelator.IncrementOption * 1.5f;
+        _vertexOffsetZ.Max = +Voxelator.IncrementOption * 1.5f;
     }
 
     public void OnOpenColorPickerPanel()
@@ -33,7 +47,7 @@ public class InspectorPanel : Panel, IColor
 
     public void OnSetActiveGrid(bool active)
     {
-        ChunkManager.VoxelGridActivity = active;
+        Voxelator.VoxelChunkManager.GridVoxelActivity = active;
     }
 
     public void SetColor(Color color)
@@ -46,17 +60,32 @@ public class InspectorPanel : Panel, IColor
 
         _buildColorButton.SetColor(_buildColor);
 
-        ChunkManager.SetVoxelIdByColor(color);
+        Voxelator.SetVoxelIdByColor(color);
     }
 
     public void OnMoveVertex(int value)
     {
+        Vector3 vertexOffsetPosition = new Vector3(_vertexOffsetX.Value, _vertexOffsetY.Value, _vertexOffsetZ.Value) /
+            Voxelator.IncrementOption;// +
+            //Presenter.Vertex.Position;
+
+        Invoker.Execute(new SetVertexOffsetCommand(vertexOffsetPosition));
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+
+        return;
+
         if (Presenter.Vertex == null) return;
 
-        Vector3 position = new Vector3(_vertexOffsetX.Value, _vertexOffsetY.Value, _vertexOffsetZ.Value) / ChunkManager.IncrementOption + 
-            Presenter.Vertex.PivotPosition;
+        
 
-        Invoker.Execute(new SetVertexPositionCommand(Presenter.Vertex.PivotPosition, position));
+        Invoker.Execute(new SetVertexOffsetCommand(Presenter.Vertex.Position, vertexOffsetPosition));
+
+    }
+
+    public void OnResetVertexOffset()
+    {
+        Invoker.Execute(new SetVertexOffsetCommand(Vector3.zero));
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
     }
 
     private void OnSwitchTab()
@@ -64,11 +93,11 @@ public class InspectorPanel : Panel, IColor
         SwitchTab(Presenter.Mode);
     }
 
-    private void OnEditVertex()
+    private void OnEditVertex(VertexUnit selectedVertex)
     {
-        _vertexOffsetX.Value = Presenter.Vertex.Offset.x * ChunkManager.IncrementOption;
-        _vertexOffsetY.Value = Presenter.Vertex.Offset.y * ChunkManager.IncrementOption;
-        _vertexOffsetZ.Value = Presenter.Vertex.Offset.z * ChunkManager.IncrementOption;
+        _vertexOffsetX.Value = selectedVertex.GetOffset().x * Voxelator.IncrementOption;
+        _vertexOffsetY.Value = selectedVertex.GetOffset().y * Voxelator.IncrementOption;
+        _vertexOffsetZ.Value = selectedVertex.GetOffset().z * Voxelator.IncrementOption;
     }
 
     private void SwitchTab(int tabIndex)
