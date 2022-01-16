@@ -2,7 +2,7 @@
 
 public class VoxelUnit : Unit
 {
-    public readonly int Id;
+    public readonly Vector3Byte Color;
     public int FaceCount { get; private set; }
     public byte FacesFlags
     {
@@ -32,9 +32,9 @@ public class VoxelUnit : Unit
     private static Vector3Int _commonPosition;
     private static Vector3Int _commonSelectedPosition;
 
-    public VoxelUnit(Vector3Int position, int id) : base(position)
+    public VoxelUnit(Vector3Int position, Vector3Byte color) : base(position)
     {
-        Id = id;
+        Color = color;
         FacesFlags = 0;
         ConstructConnection();
         _commonPosition += position;

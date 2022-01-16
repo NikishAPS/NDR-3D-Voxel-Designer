@@ -6,14 +6,11 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold,
     public static Panel[] Panels { get; private set; }
 
     private static Panel _pinPanel;
-    private static LinkedList<Panel> _openedPanel = new LinkedList<Panel>();
-    private static Bool _process;
+    private static Curtain _curtain;
     [SerializeField] private Panel _cursorPanel;
     [SerializeField] private Widget _cursorWidget;
 
     private bool _isLMouseDowned = false;
-    
-
     
     public static T GetPanel<T>() where T : Panel
     {
@@ -28,17 +25,25 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold,
 
     public static void PinThePanel(Panel panel)
     {
+        if (panel != null)
+        {
+            _curtain.transform.SetSiblingIndex(panel.transform.GetSiblingIndex() - 1);
+            _curtain.Active = true;
+        }
+        else
+        {
+            _curtain.transform.SetSiblingIndex(0);
+            _curtain.Active = false;
+        }
+
         _pinPanel = panel;
     }
 
-    public static void AddPanel(Panel panel)
+    public static void CloseAll()
     {
-        _openedPanel.AddLast(panel);
-    }
-
-    public static void RemovePanel(Panel panel)
-    {
-        _openedPanel.Remove(panel);
+        foreach (Panel currentPanel in Panels)
+            if (currentPanel.Active)
+                currentPanel.Close();
     }
 
     public void OnMouseMove()
@@ -105,11 +110,10 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold,
         _cursorPanel?.OnRMouseUp();
     }
 
-
-
     private void Awake()
     {
         Panels = FindObjectsOfType<Panel>();
+        _curtain = FindObjectOfType<Curtain>();
 
         InputEvent.MouseMove += OnMouseMove;
         InputEvent.LMouseDown += OnLMouseDown;
@@ -121,8 +125,10 @@ public class PanelManager : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold,
 
     private Panel GetCursorPanel()
     {
-        foreach (Panel panel in _openedPanel)
+        foreach (Panel panel in Panels)
         {
+            if (!panel.Active) continue;
+
             if (_pinPanel != null && panel != _pinPanel)
                 continue;
 

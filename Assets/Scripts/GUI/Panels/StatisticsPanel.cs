@@ -22,11 +22,25 @@ public class StatisticsPanel : Panel
         }
     }
 
+    public static bool Saved2
+    {
+        set
+        {
+            MonoBehaviour.print(value);
+        }
+    }
+
     [SerializeField] private Text statusText;
 
     public override void OnInit()
     {
         _this = PanelManager.GetPanel<StatisticsPanel>();
+        Project.Saved.BindAction(OnSavedChange);
+    }
+
+    private void OnSavedChange(bool value)
+    {
+        Saved = value;
     }
 
 }

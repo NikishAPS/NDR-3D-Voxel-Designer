@@ -10,9 +10,20 @@ public class ReportField<T>
         {
             _value = value;
             foreach (Action<T> action in _actions)
-                action(_value);
+                if (value != null)
+                    action(_value);
         }
 
+    }
+
+    public ReportField()
+    {
+        _value = default;
+    }
+
+    public ReportField(T value)
+    {
+        _value = value;
     }
 
     public void BindAction(Action<T> action) => _actions.Add(action);

@@ -1,21 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class QuestionPanel : Panel
 {
+    public enum AnswerType { Indefinite, Confirm, Reject, Cancel }
+    private AnswerType _answer = AnswerType.Indefinite;
+
     [SerializeField] private Text _panelTitle, _confirmTitle, _rejectTitle, _cancelTitle;
+    private Action _confirmMethod, _rejectMethod, _cancelMethod;
 
-    private Void _confirm;
-    private Void _reject;
-    private Void _cancel;
-
-    public override void OnOpen()
-    {
-        PanelManager.PinThePanel(this);
-    }
-
+    public override void OnOpen() => PanelManager.PinThePanel(this);
     public override void OnClose()
     {
+        _answer = AnswerType.Indefinite;
+        _confirmMethod = _rejectMethod = _cancelMethod = null;
         PanelManager.PinThePanel(null);
     }
 
@@ -27,33 +27,42 @@ public class QuestionPanel : Panel
         _cancelTitle.text = cancelTitle;
     }
 
-    public void SetConfirmMethod(Void confirmMethod)
-    {
-        _confirm = confirmMethod;
-    }
+    public string ConfirmTitle { set => _confirmTitle.text = value; }
+    public string RejectTitle { set => _rejectTitle.text = value; }
+    public string CancelTitle { set => _cancelTitle.text = value; }
 
-    public void SetRejectMethod(Void rejectMethod)
-    {
-        _reject = rejectMethod;
-    }
-
-    public void SetCancelMethod(Void cancelMethod)
-    {
-        _cancel = cancelMethod;
-    }
+    public void SetConfirmMethod(Action confirmMethod) => _confirmMethod = confirmMethod;
+    public void SetRejectMethod(Action rejectMethod) =>_rejectMethod = rejectMethod;
+    public void SetCancelMethod(Action cancelMethod) => _cancelMethod = cancelMethod;
 
     public void OnConfirm()
     {
-        _confirm?.Invoke();
+        _answer = AnswerType.Confirm;
+        _confirmMethod?.Invoke();
+        Close();
     }
 
     public void OnReject()
     {
-        _reject?.Invoke();
+        _answer = AnswerType.Reject;
+        _rejectMethod?.Invoke();
+        Close();
     }
 
     public void OnCancel()
     {
-        _cancel?.Invoke();
+        _answer = AnswerType.Cancel;
+        _cancelMethod?.Invoke();
+        Close();
     }
+
+    public async Task<AnswerType> GetAnswer()
+    {
+        return await Task.Run(()=>
+        {
+            while (_answer == AnswerType.Indefinite) { }
+            return _answer;
+        });
+    }
+
 }

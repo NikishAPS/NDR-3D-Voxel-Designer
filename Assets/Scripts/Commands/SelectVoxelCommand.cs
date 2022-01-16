@@ -12,7 +12,6 @@ public class SelectVoxelCommand : ICommand
     public void Execute()
     {
         Voxelator.SelectVoxel(_globalVoxelPosition, true);
-        Project.Saved = false;
     }
 
     public void Undo()

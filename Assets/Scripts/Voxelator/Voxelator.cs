@@ -6,58 +6,62 @@ public static class Voxelator
     public static VertexChunkManager VertexChunkManager => VoxelChunk.VertexChunkManager;
     public static Vector3Int FieldSize { get; private set; }
     public static int IncrementOption { get; private set; }
-    public static int VoxelId
+    public static Vector3Byte VoxelColor
     {
-        get => _voxelId;
-        set
-        {
-            if (value < 0 || value > Mathf.Pow(SceneParameters.TextureSize, 2))
-                _voxelId = 0;
-            else _voxelId = value;
-        }
+        get => _voxelColor;
+        set => _voxelColor = value;
     }
 
     public static Vector3Int Center => FieldSize / 2;
 
-    private static int _voxelId;
+    public static readonly int[] IncrementOptionTypes = new int[4] { 8, 16, 32, 86 };
+    public enum IncrementOptionType { T8 = 8, T16 = 16, T32 = 32, T86 = 64 }
+
+    private static Vector3Byte _voxelColor;
     private static Vector3 _vertexOffsetLimit = new Vector3(1.5f, 1.5f, 1.5f);
 
-    public static void Init(Vector3Int fieldSize, int incrementOption)
+    public static void Init(Vector3Int fieldSize, IncrementOptionType incrementOptionType)
     {
+        int incrementOption = (int)IncrementOptionType.T8;
+
+        switch (incrementOptionType)
+        {
+            case IncrementOptionType.T8: incrementOption = 8; break;
+            case IncrementOptionType.T16: incrementOption = 16; break;
+            case IncrementOptionType.T32: incrementOption = 32; break;
+            case IncrementOptionType.T86: incrementOption = 86; break;
+        }
+
         FieldSize = fieldSize;
         IncrementOption = incrementOption;
 
-        VoxelChunkManager = new VoxelChunkManager(fieldSize, SceneParameters.ChunkSize);
+        VoxelChunkManager = new VoxelChunkManager(fieldSize, SceneParameters.VoxelChunkSize);
     }
+
     public static void Release()
     {
-
+        VoxelChunkManager?.Release();
+        VertexChunkManager?.Release();
     }
     public static VoxelUnit GetVoxel(Vector3Int voxelPosition) => VoxelChunkManager.GetUnit(voxelPosition);
     public static VertexUnit GetVertex(Vector3Int vertexPosition) => VertexChunkManager.GetUnit(vertexPosition);
 
     public static bool InsideField(Vector3Int position) => VoxelatorArray.WithinTheArray(FieldSize, position);
 
-    public static void SetVoxelIdByColor(Color color)
+    public static void CreateVoxel(Vector3Int voxelPosition, Vector3Byte color)
     {
-        int r = (int)(color.r * 255);
-        int g = (int)(color.g * 255);
-        int b = (int)(color.b * 255);
-
-        int index = VoxelatorArray.GetIndex(Vector3Int.one * 256, new Vector3Int(r, g, b)) + 1;
-
-        _voxelId = index;
+        VoxelChunkManager.CreateVoxel(voxelPosition, color);
+        VoxelChunk.VertexChunkManager.CreateVertices(voxelPosition);
     }
 
     public static void CreateVoxel(Vector3Int voxelPosition)
     {
-        CreateVoxel(voxelPosition, _voxelId);
+        CreateVoxel(voxelPosition, _voxelColor);
     }
 
-    public static void CreateVoxel(Vector3Int voxelPosition, int id)
+    public static void CreateVoxel(int zIndex, Vector3Byte color)
     {
-        VoxelChunkManager.CreateVoxel(voxelPosition, id);
-        VoxelChunk.VertexChunkManager.CreateVertices(voxelPosition);
+        CreateVoxel(VoxelatorArray.GetPosition(FieldSize, zIndex), color);
     }
 
     public static void DeleteVoxel(Vector3Int voxelPosition)
@@ -78,6 +82,17 @@ public static class Voxelator
     public static void DeleteSelectedVoxels()
     {
         VoxelChunkManager.DeleteSelectedVoxels();
+    }
+
+    public static void DeleteAllVoxels()
+    {
+        VoxelUnit iteratorVoxel = VoxelUnit.Head;
+        while(iteratorVoxel != null)
+        {
+            Vector3Int voxelPosition = iteratorVoxel.Position;
+            iteratorVoxel = iteratorVoxel.Prev;
+            DeleteVoxel(voxelPosition);
+        }
     }
 
     public static void ResetVoxelSelection()

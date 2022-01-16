@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
 {
@@ -11,10 +10,10 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
 
     public VoxelChunkManager(Vector3Int fieldSize, Vector3Int chunkSize) : base(fieldSize, chunkSize)
     {
-        VoxelChunk.VertexChunkManager = new VertexChunkManager(fieldSize + Vector3Int.one, chunkSize);
+        VoxelChunk.VertexChunkManager = new VertexChunkManager(fieldSize + Vector3Int.one, SceneParameters.VertexChunkSize);
     }
 
-    public void CreateVoxel(Vector3Int position, int id)
+    public void CreateVoxel(Vector3Int position, Vector3Byte color)
     {
         VoxelChunk chunk = GetChunk(position);
         if (chunk == null) return;
@@ -22,7 +21,7 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
         VoxelUnit voxel = chunk.GetUnit(position);
         if (voxel != null) return;
 
-        voxel = new VoxelUnit(position, id);
+        voxel = new VoxelUnit(position, color);
         chunk.SetUnit(voxel);
 
         UpdateVoxel(voxel);
@@ -113,7 +112,7 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
         //creating voxels
         for (int i = 0; i < voxels.Length; i++)
         {
-            CreateVoxel(voxels[i].Position + roundedOffset, voxels[i].Id);
+            CreateVoxel(voxels[i].Position + roundedOffset, voxels[i].Color);
             VoxelChunk.VertexChunkManager.CreateVertices(voxels[i].Position + roundedOffset);
             SelectVoxel(voxels[i].Position + roundedOffset, true);
         }
@@ -123,52 +122,6 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
 
         dragResult = roundedOffset;
     }
-
-    //public void MoveSelectedVoxels(Vector3 dragValue)
-    //{
-    //    if (VoxelUnit.SelectedCount == 0) return;
-
-    //    Vector3Int roundedOffset = dragValue.Position.RoundToInt();
-    //    if (roundedOffset == Vector3Int.zero) return;
-
-    //    //checking limits
-    //    VoxelUnit curVoxel = VoxelUnit.SelectedHead;
-    //    while (curVoxel != null)
-    //    {
-    //        if (!InsideField(curVoxel.Position + roundedOffset) ||
-    //            GetUnit(curVoxel.Position + roundedOffset) != null &&
-    //            !GetUnit(curVoxel.Position + roundedOffset).IsSelected) return;
-
-    //        curVoxel = curVoxel.Prev;
-    //    }
-
-    //    //copying voxels
-    //    VoxelUnit[] voxels = new VoxelUnit[VoxelUnit.SelectedCount];
-    //    VertexUnit[] vertices = new VertexUnit[voxels.Length * 8];
-    //    {
-    //        int i = 0;
-    //        curVoxel = VoxelUnit.SelectedHead;
-    //        while(curVoxel != null)
-    //        {
-    //            voxels[i] = curVoxel;
-    //            curVoxel = curVoxel.SelectedPrev;
-    //            i++;
-    //        }
-    //    }
-
-    //    //deleting voxels
-    //    DeleteSelectedVoxels();
-
-    //    //creating voxels
-    //    for (int i = 0; i < voxels.Length; i++)
-    //    {
-    //        CreateVoxel(voxels[i].Position + roundedOffset, voxels[i].Id);
-    //        VoxelChunk.VertexChunkManager.CreateVertices(voxels[i].Position + roundedOffset);
-    //    }
-
-    //    //MiddleSelectedPosition += roundedOffset;
-    //    dragValue.Position = roundedOffset;
-    //}
 
     public void ResetSelection()
     {

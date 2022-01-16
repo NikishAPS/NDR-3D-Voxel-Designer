@@ -17,6 +17,8 @@ public class InputFieldCorrector : MonoBehaviour
         {
             if (value > 512)
                 inputField.text = "512";
+            else if (value == 0)
+                inputField.text = "1";
         }
     }
 

@@ -13,6 +13,11 @@ public static class Vector3IntExtension
         return new Vector3(vector3Int.x, vector3Int.y, vector3Int.z);
     }
 
+    public static Vector3Byte ToVector3Byte(this Vector3Int vector3)
+    {
+        return new Vector3Byte((byte)vector3.x, (byte)vector3.y, (byte)vector3.z);
+    }
+
     public static Vector3Int Forward(this Vector3Int vector3Int)
     {
         return new Vector3Int(0, 0, 1);

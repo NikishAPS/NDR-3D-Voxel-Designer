@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class Invoker
 {
@@ -12,6 +13,7 @@ public static class Invoker
 
     public static void Execute(ICommand command)
     {
+        //Project.Saved.Value = false;
         command.Execute();
         _commands.Push(command);
     }

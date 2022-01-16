@@ -17,6 +17,20 @@ public class VoxelatorArray
 
     }
 
+    public static Vector3Int GetPosition(Vector3Int volumeArraySize, int zIndex)
+    {
+        //        nz = i % vz
+        //ny = ((i - nz) / vz) % vy
+        //nx = ((i - nz) / vz - ny) / vy
+
+
+        int z = zIndex % volumeArraySize.z;
+        int y = (zIndex - z) / volumeArraySize.z % volumeArraySize.y;
+        int x = ((zIndex - z) / volumeArraySize.z - y) / volumeArraySize.y;
+
+        return new Vector3Int(x, y, z);
+    }
+
     public static bool WithinTheArray(Vector3Int volumeArraySize, Vector3 position)
     {
         return

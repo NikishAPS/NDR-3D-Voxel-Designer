@@ -57,10 +57,17 @@ public abstract class Chunk<U> where U : Unit
         return index != -1 ? Units[index] : null;
     }
 
+    public void Release()
+    {
+        Object.Destroy(_gameObject);
+        OnRelease();
+    }
+
     public abstract void UpdateMesh();
 
     protected int GetUnitIndex(Vector3Int globalPosition) => VoxelatorArray.GetIndex(Size, GetLocalPosition(globalPosition));
     protected Vector3Int GetLocalPosition(Vector3Int globalPosition) => globalPosition - Position;
     //protected abstract void OnCreateUnit(int index, Vector3Int position);
     protected virtual void OnBeforeDeleteUnit(Vector3Int position) { }
+    protected virtual void OnRelease() { }
 }

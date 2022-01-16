@@ -60,7 +60,7 @@ public class InspectorPanel : Panel, IColor
 
         _buildColorButton.SetColor(_buildColor);
 
-        Voxelator.SetVoxelIdByColor(color);
+        Voxelator.VoxelColor = new Vector3Byte((byte)(color.r*255), (byte)(color.g * 255), (byte)(color.b * 255));
     }
 
     public void OnMoveVertex(int value)

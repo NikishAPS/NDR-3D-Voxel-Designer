@@ -1,9 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMouseUp, IRMouseDown, IRMouseUp
 {
+    public bool Active => gameObject.activeSelf;
+
     public Vector2 Position
     {
         get => _rectTransform.position;
@@ -14,26 +16,22 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
         get => new Vector2(_rectTransform.rect.width, _rectTransform.rect.height);
         //set => _rectTransform.sizeDelta = value;
     }
+    public PanelTitle Title { get; private set; }
     public bool Inside => _rectTransform.Inside(Input.mousePosition);
     public Widget[] Widgets { get; private set; }
     private RectTransform _rectTransform;
 
-
-
     public void Open()
     {
-        OnOpen();
-
         gameObject.SetActive(true);
         StartCoroutine(Opening());
+        OnOpen();
     }
 
     public void Close()
     {
-        OnClose();
-
         StartCoroutine(Closing());
-        PanelManager.RemovePanel(this);
+        OnClose();
     }
 
     public virtual void OnInit() { }
@@ -46,17 +44,15 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
     public virtual void OnRMouseDown() { }
     public virtual void OnRMouseUp() { }
 
-
-
-
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
         Widgets = GetComponentsInChildren<Widget>();
-    }
+    }   
 
     private void Start()
     {
+        Title = GetComponentInChildren<PanelTitle>();
         transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
         OnInit();
@@ -71,8 +67,6 @@ public class Panel : MonoBehaviour, IMouseMove, ILMouseDown, ILMouseHold, ILMous
             transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.one, Time.deltaTime * 10f);
             yield return null;
         }
-
-        PanelManager.AddPanel(this);
     }
 
     private IEnumerator Closing()

@@ -46,8 +46,6 @@ public class Switcher : Widget
         _curSwitcherButton?.SetColor(color);
     }
 
-
-
     public override void OnClick()
     {
         if(_curSwitcherButton != null)

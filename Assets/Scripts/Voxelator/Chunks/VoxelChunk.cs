@@ -98,13 +98,10 @@ public class VoxelChunk : Chunk<VoxelUnit>
         if (FaceCount == 0) return;
 
         InitializedArray<Vector3> vertices = new InitializedArray<Vector3>(FaceCount * 4);
-        InitializedArray<Vector2> uv = new InitializedArray<Vector2>(FaceCount * 4);
         InitializedArray<int> triangles = new InitializedArray<int>(FaceCount * 6);
+        InitializedArray<Color32> colors = new InitializedArray<Color32>(vertices.Length);
 
         InitializedArray<Vector2> gridUV = new InitializedArray<Vector2>(FaceCount * 4);
-
-        float uvX, uvY;
-        float uvOffset = SceneParameters.TextureMul / 2f;
 
         int iTriang = 0;
         foreach (VoxelUnit voxel in Units)
@@ -117,19 +114,14 @@ public class VoxelChunk : Chunk<VoxelUnit>
                     {
                         //voxels
                         for (int j = 0; j < 4; j++)
+                        {
                             vertices.Init(VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition.Value);
+                            colors.Init(new Color32(voxel.Color.x, voxel.Color.y, voxel.Color.z, 1));
+                        }
 
                         for (int j = 0; j < 6; j++)
                             triangles.Init(VoxelMesh.VoxelFaceTriangles[j] + iTriang);
                         iTriang += 4;
-
-                        uvX = ((voxel.Id - 1) % SceneParameters.TextureSize + 1) / (float)SceneParameters.TextureSize;
-                        uvY = 1 - ((voxel.Id - 1) / (SceneParameters.TextureSize) + 1) / (float)SceneParameters.TextureSize;
-
-                        uv.Init(new Vector2(uvX - uvOffset, uvY + uvOffset));
-                        uv.Init(new Vector2(uvX - uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv.Init(new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + SceneParameters.TextureMul - uvOffset));
-                        uv.Init(new Vector2(uvX - SceneParameters.TextureMul + uvOffset, uvY + uvOffset));
 
                         //gridVoxel
                         gridUV.Init(new Vector2(0, 0));
@@ -144,7 +136,7 @@ public class VoxelChunk : Chunk<VoxelUnit>
 
         _mesh.vertices = vertices.Array;
         _mesh.triangles = triangles.Array;
-        _mesh.uv = uv.Array;
+        _mesh.colors32 = colors.Array;
         //_mesh.Optimize();
         _mesh.RecalculateNormals();
 
@@ -210,6 +202,12 @@ public class VoxelChunk : Chunk<VoxelUnit>
     protected override void OnBeforeDeleteUnit(Vector3Int position)
     {
         FaceCount -= GetUnit(position).FaceCount;
+    }
+
+    protected override void OnRelease()
+    {
+        Object.Destroy(_gridSelectedVoxelGameObject);
+        Object.Destroy(_gridVoxelGameObject);
     }
 
 }

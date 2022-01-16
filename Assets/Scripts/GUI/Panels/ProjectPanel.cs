@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using FileBrowser;
 using UnityEngine;
 
 public class ProjectPanel : Panel
@@ -29,39 +28,6 @@ public class ProjectPanel : Panel
         Presenter.ChangeModeEvent += OnPresenterChangeMode;
     }
 
-    public void TryCreateNewProject()
-    {
-        if (Project.Saved)
-        {
-            _questionPanel.Open();
-            _questionPanel.SetTitles("Save before creating a new project?", "Save", "Don't Save", "Cacel");
-            _questionPanel.SetConfirmMethod(SaveProject);
-            _questionPanel.SetRejectMethod(CreateNewProject);
-        }
-        else
-        {
-            CreateNewProject();
-        }
-    }
-
-    public void SaveProject()
-    {
-        if (Project.TryToSave())
-        {
-            _questionPanel.Close();
-        }
-    }
-
-    public void LoadOBJ()
-    {
-        OBJControl.Import();
-    }
-
-    public void OnSwitchMode(int mode)
-    {
-        Invoker.Execute(new SwitchModeCommand(mode));
-    }
-
     public void OnPresenterChangeMode()
     {
         _modeSwitcher.Switch(Presenter.Mode);
@@ -77,13 +43,57 @@ public class ProjectPanel : Panel
         Mirror = Presenter.Mirror;
     }
 
+    public void OnCreateNewProject()
+    {
+        Project.Release();
+        Voxelator.Release();
+
+        PanelManager.CloseAll();
+        PanelManager.GetPanel<NewProjectPanel>().Open();
+    }
+
+    public void OnOpenProject()
+    {
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Select .ndr-file", Project.RootPath, Project.FileExtension, false);
+
+        if (paths.Length > 0)
+        {
+            if(Project.TryLoad(paths[0]))
+            {
+
+            }
+        }
+    }
+
+    public void OnSaveAs()
+    {
+        PanelManager.GetPanel<SaveAsPanel>().Open();
+    }
+
+    public void OnOpenDirectory()
+    {
+        Project.OpenDirectory();
+    }
+
+    public void LoadOBJ()
+    {
+        OBJControl.Import();
+    }
+
+    public void OnClearOBJ()
+    {
+
+    }
+
+    public void OnSwitchMode(int mode)
+    {
+        Invoker.Execute(new SwitchModeCommand(mode));
+    }
+
+
     private void OnSetMode(int mode)
     {
         _modeSwitcher.Switch(mode);
     }
 
-    private void CreateNewProject()
-    {
-
-    }
 }

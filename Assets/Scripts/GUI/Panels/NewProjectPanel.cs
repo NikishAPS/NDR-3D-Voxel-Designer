@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+﻿using FileBrowser;
 using NDR.UI;
+using UnityEngine;
 
 public class NewProjectPanel : Panel
 {
@@ -10,46 +11,76 @@ public class NewProjectPanel : Panel
     [SerializeField] private InputField _depthField;
     [SerializeField] private Switcher _switcherIncrement;
 
-
-
     public override void OnInit()
     {
         Open();
     }
 
-    public void OnOpenDirectory()
+    public void OnSetSaveDirectoryPath()
     {
-        string path = Project.GetFolderPath("Save Location");
-        
-        if(path != null)
-        _projectSaveLocationField.SetValue(path);
+        string[] paths = StandaloneFileBrowser.OpenFolderPanel("Set save location (the project folder will be created here)", Application.dataPath, false);
+
+        if (paths.Length > 0)
+        {
+            _projectSaveLocationField.SetValue(paths[0]);
+        }
     }
 
-    public void OnCreateNewProject()
+    public async void OnCreateNewProject()
+    {
+        if (Project.Exists(_projectNameField.String, _projectSaveLocationField.String))
+        {
+            QuestionPanel panel = PanelManager.GetPanel<QuestionPanel>();
+            panel.Title.TextValue = "A project with that name already exists. Overwrite it?";
+            panel.ConfirmTitle = "Yes";
+            panel.RejectTitle = "No";
+            panel.CancelTitle = "Cancel";
+            panel.Open();
+
+            if (await panel.GetAnswer() != QuestionPanel.AnswerType.Confirm) return;
+        }
+
+        Voxelator.Init(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), (Voxelator.IncrementOptionType)_switcherIncrement.Value);
+
+        Project.Init();
+        if (!Project.TryCreate(_projectNameField.String, _projectSaveLocationField.String))
+            return;
+
+        OnStart();
+
+        Close();
+    }
+
+    public void OnOpenExistingProject()
+    {
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Select existing .ndr-file", Project.RootPath, Project.FileExtension, false);
+        if (paths.Length > 0)
+        {
+            if(Project.TryLoad(paths[0]))
+            {
+                Project.Init();
+
+                OnStart();
+                Close();
+            }
+        }
+
+    }
+
+    private void OnStart()
     {
         ScreenAxes.Active = true;
-
-        Project.Init(_projectNameField.String, _projectSaveLocationField.String);
-        Voxelator.Init(new Vector3Int(_widthField.Int, _heightField.Int, _depthField.Int), _switcherIncrement.Value);
-        GridManager.Size = Voxelator.VoxelChunkManager.FieldSize;
-
-        CameraController.Position = Vector3.zero;
-        CameraController.MainCamera.nearClipPlane = -Voxelator.FieldSize.Max();
-        CameraController.MainCamera.farClipPlane = Voxelator.FieldSize.Max();
 
         PanelManager.GetPanel<ViewPanel>().Open();
         PanelManager.GetPanel<ProjectPanel>().Open();
         PanelManager.GetPanel<StatisticsPanel>().Open();
         PanelManager.GetPanel<InspectorPanel>().Open();
-        Close();
-    }
 
-    public void OnOpenExisting()
-    {
-        if (Project.TryToLoad())
-        {
-            Close();
-        }
+        GridManager.Size = Voxelator.VoxelChunkManager.FieldSize;
+
+        CameraController.Position = Vector3.zero;
+        CameraController.MainCamera.nearClipPlane = -Voxelator.FieldSize.Max();
+        CameraController.MainCamera.farClipPlane = Voxelator.FieldSize.Max();
     }
 
 }

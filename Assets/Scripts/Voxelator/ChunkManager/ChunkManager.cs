@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ChunkManager<C, U> where C : Chunk<U> where U : Unit
@@ -6,20 +7,24 @@ public abstract class ChunkManager<C, U> where C : Chunk<U> where U : Unit
     public readonly Vector3Int FieldSize;
     public readonly Vector3Int ChunkSize;
     public C[] Chunks { get; private set; }
+    public LinkedList<C> NotUpdatedChunks { get; private set; }
+
+    public Action<Chunk<U>> UpdateChunkEvent;
 
     protected Vector3Int _chunksCount;
     protected Material _chunkMaterial;
-
-    private LinkedList<C> _notUpdatedChunks;
 
     public ChunkManager(Vector3Int fieldSize, Vector3Int chunkSize)
     {
         FieldSize = fieldSize;
         ChunkSize = chunkSize;
-        _notUpdatedChunks = new LinkedList<C>();
+        NotUpdatedChunks = new LinkedList<C>();
         OnLoadResources();
         InitChunks();
     }
+
+    public int GetChunkIndex(Vector3 position) =>
+        InsideField(position.ToVector3Int()) ? VoxelatorArray.GetIndex(_chunksCount, GetChunkPosition(position)) : -1;
 
     public C GetChunk(Vector3 position) =>
         InsideField(position.ToVector3Int()) ? Chunks[VoxelatorArray.GetIndex(_chunksCount, GetChunkPosition(position))] : default;
@@ -34,16 +39,26 @@ public abstract class ChunkManager<C, U> where C : Chunk<U> where U : Unit
 
     public void UpdateChunks()
     {
-        foreach (C currentChunk in _notUpdatedChunks)
+        //for(int i = 0; i < NotUpdatedChunks.Count; i++)
+        foreach (C currentChunk in NotUpdatedChunks)
+        {
+            UpdateChunkEvent?.Invoke(currentChunk);
             currentChunk.UpdateMesh();
+        }
 
-        _notUpdatedChunks.Clear();
+        NotUpdatedChunks.Clear();
     }
 
     public void AddSurroundingChunksToUpdate(Vector3Int voxelPosition)
     {
         foreach (Vector3Int position in GetSurroundingPositions(voxelPosition))
             AddChunkToUpdate(GetChunk(position));
+    }
+
+    public void Release()
+    {
+        foreach (Chunk<U> chunk in Chunks)
+            chunk?.Release();
     }
 
     protected void InitChunks()
@@ -83,10 +98,10 @@ public abstract class ChunkManager<C, U> where C : Chunk<U> where U : Unit
     {
         if (chunk == null) return;
 
-        foreach (C currentChunk in _notUpdatedChunks)
+        foreach (C currentChunk in NotUpdatedChunks)
             if (currentChunk == chunk) return;
 
-        _notUpdatedChunks.AddLast(chunk);
+        NotUpdatedChunks.AddLast(chunk);
     }
     protected Vector3Int[] GetSurroundingPositions(Vector3Int position)
     {

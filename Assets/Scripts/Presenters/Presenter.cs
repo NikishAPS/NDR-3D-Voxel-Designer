@@ -14,10 +14,9 @@ public static class Presenter
 
     public static bool Saved
     {
-        get => Project.Saved;
+        get => true;
         set
         {
-            Project.Saved = value;
             StatisticsPanel.Saved = value;
         }
     }
