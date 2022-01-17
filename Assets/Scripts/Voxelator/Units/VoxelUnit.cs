@@ -13,7 +13,7 @@ public class VoxelUnit : Unit
             FaceCount = _faceFlags.PopCount();
         }
     }
-    public bool IsSelected { get; private set; }
+    public bool Selected { get; private set; }
 
     public static int Count { get; private set; }
     public static VoxelUnit Head { get; private set; }
@@ -42,9 +42,9 @@ public class VoxelUnit : Unit
 
     public void Select(bool select)
     {
-        if (IsSelected == select) return;
+        if (Selected == select) return;
 
-        IsSelected = select;
+        Selected = select;
         if (select)
         {
             ConstructSelectedConnection();
@@ -66,7 +66,7 @@ public class VoxelUnit : Unit
             currentVoxel = voxelIterator;
             voxelIterator = voxelIterator.SelectedPrev;
 
-            currentVoxel.IsSelected = false;
+            currentVoxel.Selected = false;
             currentVoxel.SelectedPrev = null;
             currentVoxel.SelectedNext = null;
         }
@@ -111,7 +111,7 @@ public class VoxelUnit : Unit
     {
         DestructConnection();
 
-        if (IsSelected)
+        if (Selected)
         {
             DestructSelectedConnection();
             _commonSelectedPosition -= Position;
@@ -158,7 +158,7 @@ public class VoxelUnit : Unit
     private void DestructSelectedConnection()
     {
         if (SelectedNext != null) SelectedNext.SelectedPrev = SelectedPrev;
-        if (SelectedPrev != null) SelectedPrev.SelectedNext = Next;
+        if (SelectedPrev != null) SelectedPrev.SelectedNext = SelectedNext;
         if (this == SelectedHead) SelectedHead = SelectedPrev;
         SelectedCount--;
     }

@@ -47,27 +47,22 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
         if (chunk == null) return;
 
         VoxelUnit voxel = chunk.GetUnit(voxelPosition);
-        if (voxel == null || voxel.IsSelected == select) return;
+        if (voxel == null || voxel.Selected == select) return;
 
         chunk.SelectedFaceCount += select ? voxel.FaceCount : -voxel.FaceCount;
 
         voxel.Select(select);
 
         AddChunkToUpdate(chunk, false, true);
-
-        //calculation MiddleSelectedPosition
-        //int prevSelectedVoxelCount = VoxelUnit.SelectedCount + (select ? -1 : 1); 
-        //MiddleSelectedPosition = MiddleSelectedPosition * prevSelectedVoxelCount + voxelPosition;
-        //MiddleSelectedPosition /= VoxelUnit.SelectedCount;
     }
 
     public void DeleteSelectedVoxels()
     {
-        VoxelUnit cur = VoxelUnit.SelectedHead;
-        while(cur != null)
+        VoxelUnit iteratorVoxel = VoxelUnit.SelectedHead;
+        while(iteratorVoxel != null)
         {
-            Vector3Int position = cur.Position;
-            cur = cur.SelectedPrev;
+            Vector3Int position = iteratorVoxel.Position;
+            iteratorVoxel = iteratorVoxel.SelectedPrev;
             DeleteVoxel(position);
         }
     }
@@ -87,7 +82,7 @@ public class VoxelChunkManager : ChunkManager<VoxelChunk, VoxelUnit>
         {
             if (!InsideField(selectedVoxelIterator.Position + roundedOffset) ||
                 GetUnit(selectedVoxelIterator.Position + roundedOffset) != null &&
-                !GetUnit(selectedVoxelIterator.Position + roundedOffset).IsSelected) return;
+                !GetUnit(selectedVoxelIterator.Position + roundedOffset).Selected) return;
 
             selectedVoxelIterator = selectedVoxelIterator.SelectedPrev;
         }

@@ -163,7 +163,7 @@ public class VoxelChunk : Chunk<VoxelUnit>
         int iSelectedTriang = 0;
         foreach (VoxelUnit voxel in Units)
         {
-            if (voxel != null && voxel.IsSelected)
+            if (voxel != null && voxel.Selected)
             {
                 for (int i = 0; i < Direction.Masks.Length; i++)
                 {
