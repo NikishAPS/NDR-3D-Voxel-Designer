@@ -36,14 +36,10 @@ public class Switcher : Widget
     public override void SetColor(Color color)
     {
         foreach (SwitcherButton button in _switcherButtons)
-        {
-            if(button != _selectedSwitcherButton)
-                button.SetColor(_defaultColor);
-            else
-                button.SetColor(_selectedColor);
-        }
+            button.SetColor(_defaultColor);
 
         _curSwitcherButton?.SetColor(color);
+        _selectedSwitcherButton.SetColor(_selectedColor);
     }
 
     public override void OnClick()
