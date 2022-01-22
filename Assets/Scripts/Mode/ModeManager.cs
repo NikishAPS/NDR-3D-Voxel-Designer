@@ -13,7 +13,7 @@
             new BuildMode(),
             new SelectMode(),
             new EditMode(),
-            new OBJMode()
+            new ObjMode()
         };
 
         _curMode.OnEnable();

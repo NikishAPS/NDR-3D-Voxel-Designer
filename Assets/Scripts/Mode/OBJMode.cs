@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class OBJMode : Mode//, IDrag
+public class ObjMode : Mode, IDrag
 {
     public override void OnEnable()
     {
@@ -35,12 +35,12 @@ public class OBJMode : Mode//, IDrag
         }
     }
 
-    public bool OnDrag(DragTransform dragValue)
+    public bool OnDrag1(DragTransform dragValue)
     {
         return OBJControl.TryDrag(dragValue);
     }
 
-    public DragTransform GetDragCoordinates()
+    public DragTransform GetDragCoordinates1()
     {
         if (OBJControl.SelectedModel != null)
         {
@@ -51,7 +51,17 @@ public class OBJMode : Mode//, IDrag
         return new DragTransform();
     }
 
-    public void OnEndDrag(DragTransform dragValue)
+    public void OnDrag(DragTransform dragValue, out DragTransform dragResult)
+    {
+        dragResult = new DragTransform();
+    }
+
+    public DragTransform? GetDragCoordinates()
+    {
+        return null;
+    }
+
+    public void OnEndDrag(DragTransform dragResult)
     {
 
     }

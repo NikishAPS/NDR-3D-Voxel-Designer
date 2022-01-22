@@ -25,6 +25,11 @@ public class OBJControl : MonoBehaviour
         }
     }
 
+    public static void Delete()
+    {
+        
+    }
+
     public static void SelectModel(Transform model)
     {
         if (SelectedModel != null) SelectedModel.GetComponent<Collider>().enabled = true;
@@ -49,7 +54,6 @@ public class OBJControl : MonoBehaviour
     {
 
     }
-
 
     private void Awake()
     {
