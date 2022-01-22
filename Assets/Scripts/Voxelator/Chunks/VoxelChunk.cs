@@ -115,7 +115,7 @@ public class VoxelChunk : Chunk<VoxelUnit>
                         //voxels
                         for (int j = 0; j < 4; j++)
                         {
-                            vertices.Init(VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition.Value);
+                            vertices.Init(VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition);
                             colors.Init(new Color32(voxel.Color.x, voxel.Color.y, voxel.Color.z, 1));
                         }
 
@@ -172,7 +172,7 @@ public class VoxelChunk : Chunk<VoxelUnit>
                         //gridSelectedVoxel
                         for (int j = 0; j < 4; j++)
                         {
-                            vertexPosition = VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition.Value;
+                            vertexPosition = VertexChunkManager.GetUnit(VertexPositions[i * 4 + j] + voxel.Position).OffsetPosition;
                             selectedVertices.Init(vertexPosition + (vertexPosition - voxel.Position).Sign() * SceneParameters.VertexConvexity);
                         }
 

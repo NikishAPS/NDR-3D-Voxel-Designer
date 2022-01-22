@@ -8,6 +8,7 @@ public class VertexChunkManager : ChunkManager<VertexChunk, VertexUnit>
     public VertexUnit SelectedVertex { get; private set; }
     public Action<VertexUnit> EditSelectedVertexEvent;
 
+
     public VertexChunkManager(Vector3Int fieldSize, Vector3Int chunkSize) : base(fieldSize, chunkSize)
     {
         VerticesActive = false;
@@ -41,16 +42,23 @@ public class VertexChunkManager : ChunkManager<VertexChunk, VertexUnit>
 
     public void SelectVertex(Vector3Int vertexPosition)
     {
-        if (SelectedVertex != null)
-            SelectedVertex.OffsetPosition.RemoveAction(OnEditSelectedVertex);
-
         SelectedVertex = GetUnit(vertexPosition);
+    }
 
-        if (SelectedVertex != null)
-        {
-            SelectedVertex.OffsetPosition.BindAction(OnEditSelectedVertex);
-            OnEditSelectedVertex(SelectedVertex.OffsetPosition.Value);
-        }
+    public void ShiftSelectedVertex(Vector3 offset)
+    {
+        if (SelectedVertex == null) return;
+
+        SelectedVertex.Offset(offset);
+        AddChunkToUpdate(GetChunk(SelectedVertex.Position));
+        //OnSelectedVertexOffset(offset);
+    }
+
+    public void SetSelectedVertexOffet(Vector3 offset)
+    {
+        if (SelectedVertex == null) return;
+
+        SetVertexOffset(SelectedVertex.Position, offset);
     }
 
     protected override void OnLoadResources()

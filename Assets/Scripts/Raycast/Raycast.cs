@@ -149,7 +149,7 @@ public static class VoxelRaycast
                     currentVertex = Voxelator.GetVertex(currentVertexPosition);
                     if (currentVertex != null)
                     {
-                        currentDistance = Vector3.Distance(currentVertex.OffsetPosition.Value, position);
+                        currentDistance = Vector3.Distance(currentVertex.OffsetPosition, position);
                         if (currentDistance < minDistance)
                         {
                             vertex = currentVertex;

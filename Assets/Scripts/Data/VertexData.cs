@@ -4,12 +4,14 @@ using UnityEngine;
 [Serializable]
 public class VertexData
 {
-    public Vector3 PivotPosition;
-    public Vector3 Position;
+    public readonly Vector3Int Position;
+    public readonly Vector3 OffsetPosition;
+    public readonly Vector3 Offset;
 
-    public VertexData(Vector3 pivotPosition, Vector3 position)
+    public VertexData(VertexUnit vertex)
     {
-        PivotPosition = pivotPosition;
-        Position = position;
+        Position = vertex.Position;
+        OffsetPosition = vertex.OffsetPosition;
+        Offset = vertex.GetOffset();
     }
 }

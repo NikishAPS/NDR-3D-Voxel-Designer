@@ -70,7 +70,7 @@ public class InspectorPanel : Panel, IColor
             //Presenter.Vertex.Position;
 
         Invoker.Execute(new SetVertexOffsetCommand(vertexOffsetPosition));
-        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
 
         return;
 
@@ -85,7 +85,7 @@ public class InspectorPanel : Panel, IColor
     public void OnResetVertexOffset()
     {
         Invoker.Execute(new SetVertexOffsetCommand(Vector3.zero));
-        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
     }
 
     private void OnSwitchTab()

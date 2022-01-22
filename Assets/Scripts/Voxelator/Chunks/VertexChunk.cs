@@ -31,7 +31,7 @@ public class VertexChunk : Chunk<VertexUnit>
             if (vertex != null)
             {
                 foreach (Vector3 meshVertex in MeshGenerator.SphereMesh.Vertices)
-                    vertices.Init(meshVertex + vertex.OffsetPosition.Value);
+                    vertices.Init(meshVertex + vertex.OffsetPosition);
 
                 foreach (int triangleIndex in MeshGenerator.SphereMesh.Triangles)
                     triangles.Init(triangleIndex + iTriang);

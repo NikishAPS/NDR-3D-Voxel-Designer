@@ -82,7 +82,7 @@ public class ProjectPanel : Panel
 
     public void OnClearOBJ()
     {
-
+        OBJControl.Delete();
     }
 
     public void OnSwitchMode(int mode)

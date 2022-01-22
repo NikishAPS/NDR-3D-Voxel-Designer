@@ -7,9 +7,9 @@ public class EditMode : Mode, IDrag
         Voxelator.VertexChunkManager.VerticesActive = true;
 
         Axes.SetDragObject(this);
-        if (Voxelator.VertexChunkManager.SelectedVertex != null)
+        if(Voxelator.VertexChunkManager.SelectedVertex != null)
         {
-            Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+            Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
             Axes.Active = true;
         }
 
@@ -38,7 +38,7 @@ public class EditMode : Mode, IDrag
 
             if (castResult != null)
             {
-                Axes.Position = castResult.Vertex.OffsetPosition.Value;
+                Axes.Position = castResult.Vertex.OffsetPosition;
                 Axes.Active = true;
 
                 Invoker.Execute(new SelectVertexCommand(castResult.Vertex.Position));
@@ -58,21 +58,21 @@ public class EditMode : Mode, IDrag
     {
         if (InputEvent.MouseScrollDelta == 0) return;
         Invoker.Execute(new ShiftSelectedVertexByStepCommand(Vector3Int.right * (int)InputEvent.MouseScrollDelta));
-        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
     }
 
     public void OnYHold()
     {
         if (InputEvent.MouseScrollDelta == 0) return;
         Invoker.Execute(new ShiftSelectedVertexByStepCommand(Vector3Int.up * (int)InputEvent.MouseScrollDelta));
-        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
     }
 
     public void OnZHold()
     {
         if (InputEvent.MouseScrollDelta == 0) return;
         Invoker.Execute(new ShiftSelectedVertexByStepCommand(new Vector3Int().Forward() * (int)InputEvent.MouseScrollDelta));
-        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition.Value;
+        Axes.Position = Voxelator.VertexChunkManager.SelectedVertex.OffsetPosition;
     }
 
     public void OnDrag(DragTransform dragValue, out DragTransform dragResult)

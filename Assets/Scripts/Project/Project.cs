@@ -11,7 +11,7 @@ using UnityEngine;
 
 public class Project : MonoBehaviour
 {
-    public static ReportField<bool> Saved { get; private set; }
+    public static ref ReportField<bool> Saved { get => ref _saved; }
 
     //C:\Example
     public static string Name { get; set; } //Example (Project name)
@@ -27,7 +27,8 @@ public class Project : MonoBehaviour
     public static string VoxelChunkName => "VoxelChunk";
     public static string VertexChunkName => "VertexChunk";
 
-    private static bool _saved;
+    private static ReportField<bool> _saved;
+    private static bool _savedAsync;
 
     private static Thread _savingThread;
     private static readonly ConcurrentQueue<Chunk<VoxelUnit>> _voxelChunksQueue = new ConcurrentQueue<Chunk<VoxelUnit>>();
@@ -44,7 +45,7 @@ public class Project : MonoBehaviour
 
     public static void Init()
     {
-        Saved.Value = _saved = true;
+        Saved.Value = _savedAsync = true;
 
         _savingThread = new Thread(Saving)
         {
@@ -206,7 +207,7 @@ public class Project : MonoBehaviour
 
     private static bool OnQuit()
     {
-        if(_savingThread.IsAlive) while (!_saved) { }
+        if(_savingThread.IsAlive) while (!_savedAsync) { }
         return true;
     }
 
@@ -242,15 +243,15 @@ public class Project : MonoBehaviour
 
     private static async void OnUpdateChunk()
     {
-        if (!_saved) return;
+        if (!_savedAsync) return;
 
         Saved.Value = false;
         Saved.Value = false;
 
-        _saved = false;
+        _savedAsync = false;
         await Task.Run(() =>
         {
-            while (!_saved && _voxelChunksList.Count != 0 && _vertexChunksList.Count != 0) { }
+            while (!_savedAsync && _voxelChunksList.Count != 0 && _vertexChunksList.Count != 0) { }
         });
 
         Saved.Value = true;
@@ -300,7 +301,7 @@ public class Project : MonoBehaviour
         //writing
         while(true)
         {
-            if (!_saved)
+            if (!_savedAsync)
             {
                 write(VoxelsPath, VoxelChunkName, Voxelator.VoxelChunkManager, _voxelChunksQueue, (index, voxel, stream) =>
                 {
@@ -314,7 +315,7 @@ public class Project : MonoBehaviour
                 });
 
                 if (_voxelChunksQueue.IsEmpty && _vertexChunksQueue.IsEmpty)
-                    _saved = true;
+                    _savedAsync = true;
             }
 
             Thread.Sleep(100);
