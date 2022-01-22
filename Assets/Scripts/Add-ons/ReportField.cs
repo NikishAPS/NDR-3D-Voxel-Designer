@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class ReportField<T>
+public struct ReportField<T>
 {
     public T Value
     {
@@ -13,23 +13,18 @@ public class ReportField<T>
                 if (value != null)
                     action(_value);
         }
-
     }
 
-    public ReportField()
-    {
-        _value = default;
-    }
+    private T _value;
+    private List<Action<T>> _actions;
 
     public ReportField(T value)
     {
         _value = value;
+        _actions = new List<Action<T>>();
     }
 
     public void BindAction(Action<T> action) => _actions.Add(action);
     public void RemoveAction(Action<T> action) => _actions.Remove(action);
-
-    private T _value;
-    private List<Action<T>> _actions = new List<Action<T>>();
 
 }
