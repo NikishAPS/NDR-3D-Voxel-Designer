@@ -158,7 +158,7 @@ public class Axes : MonoBehaviour
         if (!_isDrag && !InputEvent.IsLMouseHold)
         {
             RaycastHit hit;
-            Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, LayerMask.GetMask("Axis"));
+            Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, LayerMask.GetMask("Axis"));
             SetSelectedAxis(hit.transform?.GetComponent<Axis>());
         }
     }
@@ -170,26 +170,6 @@ public class Axes : MonoBehaviour
         _offset = DragTransform.Zero;
     }
 
-    //private void OnLMouseHold()
-    //{
-    //    if (_highlightedAxis != null)
-    //    {
-    //        _isDrag = true;
-
-    //        DragTransform dragValue =_highlightedAxis.GetDragValue();
-    //        MonoBehaviour.print(_highlightedAxis.GetDragValue());
-    //        Position = _initialDragValue.Position + dragValue.Position;
-    //        if(_dragObject.OnDrag(dragValue))
-    //        {
-    //            _initialDragValue.Position += dragValue.Position;
-    //            _highlightedAxis.OffsetDragPoint(dragValue);
-    //            _offset += dragValue;
-    //        }
-    //    }
-    //}
-
-    public Vector3 val;
-
     private void OnLMouseHold()
     {
         if (_highlightedAxis != null)
@@ -198,8 +178,6 @@ public class Axes : MonoBehaviour
 
             DragTransform dragValue = _highlightedAxis.GetDragValue();
             DragTransform dragResult;
-
-            val = dragValue.Position;
 
             Position = _initialDragValue.Position + dragValue.Position;
 
