@@ -292,7 +292,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 2071
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
@@ -7560,7 +7560,7 @@ PrefabInstance:
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
       propertyPath: Click.m_PersistentCalls.m_Calls.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
@@ -7580,7 +7580,7 @@ PrefabInstance:
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
       propertyPath: Click.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LoadOBJ
+      value: OnClearObj
       objectReference: {fileID: 0}
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
@@ -9549,7 +9549,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 823
+    m_Bits: 2871
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -11414,7 +11414,7 @@ PrefabInstance:
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
       propertyPath: Click.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LoadOBJ
+      value: OnImportObj
       objectReference: {fileID: 0}
     - target: {fileID: 6011992447815451708, guid: 3ef2b230a5839084bbda2b9071b9b338,
         type: 3}
@@ -18026,7 +18026,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50593f3f6d01d654499abfe4f17e1273, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _material: {fileID: 2100000, guid: d5f96f9a0f61760478f0a0df240063b0, type: 2}
 --- !u!1001 &2092431245
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18354,6 +18353,11 @@ PrefabInstance:
         type: 3}
       propertyPath: _pivotSize
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2420234584364935395, guid: cf344ae82db82a84faf554c9775f435f,
+        type: 3}
+      propertyPath: t
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4688265006340649207, guid: cf344ae82db82a84faf554c9775f435f,
         type: 3}
