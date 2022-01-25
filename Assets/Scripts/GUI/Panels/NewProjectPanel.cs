@@ -53,7 +53,7 @@ public class NewProjectPanel : Panel
 
     public void OnOpenExistingProject()
     {
-        string[] paths = StandaloneFileBrowser.OpenFilePanel("Select existing .ndr-file", Project.RootPath, Project.FileExtension, false);
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Select existing .ndr-file", Application.dataPath, Project.FileExtension, false);
         if (paths.Length > 0)
         {
             if(Project.TryLoad(paths[0]))
