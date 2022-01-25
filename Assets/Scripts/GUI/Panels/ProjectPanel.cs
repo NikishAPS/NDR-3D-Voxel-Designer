@@ -75,21 +75,23 @@ public class ProjectPanel : Panel
         Project.OpenDirectory();
     }
 
-    public void LoadOBJ()
+    public void OnImportObj()
     {
-        OBJControl.Import();
+        string[] paths = StandaloneFileBrowser.OpenFilePanel("Import OBJ", Application.dataPath, "obj", true);
+
+        for (int i = 0; i < paths.Length; i++)
+            ObjModelManager.Import(paths[i], Voxelator.Center, 1);
     }
 
-    public void OnClearOBJ()
+    public void OnClearObj()
     {
-        OBJControl.Delete();
+        ObjModelManager.DeleteSelectedModel();
     }
 
     public void OnSwitchMode(int mode)
     {
         Invoker.Execute(new SwitchModeCommand(mode));
     }
-
 
     private void OnSetMode(int mode)
     {
