@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -21,6 +20,7 @@ public class Project : MonoBehaviour
     public static string DataPath => ProjectPath + @"\Data"; //C:\Example\Data
     public static string VoxelsPath => $@"{DataPath}\Voxels"; //C:\Example\Data\Voxels
     public static string VerticesPath => $@"{DataPath}\Vertices"; //C:\Example\Data\Vertices
+    public static string ModelsPath => $@"{DataPath}\Models"; //C:\Example\Data.Models
     public static string VoxelChunkPath => $@"{VoxelsPath}\{VoxelChunkName}"; //C:\Example\Data\Voxels\VoxelChunk
     public static string VertexChunkPath => $@"{VerticesPath}\{VertexChunkName}"; //C:\Example\Data\Vertices\VertexChunk
     public static string FileExtension => "ndr";
@@ -33,8 +33,10 @@ public class Project : MonoBehaviour
     private static Thread _savingThread;
     private static readonly ConcurrentQueue<Chunk<VoxelUnit>> _voxelChunksQueue = new ConcurrentQueue<Chunk<VoxelUnit>>();
     private static readonly ConcurrentQueue<Chunk<VertexUnit>> _vertexChunksQueue = new ConcurrentQueue<Chunk<VertexUnit>>();
+    private static readonly ConcurrentQueue<ObjModel> _objModelsQueue = new ConcurrentQueue<ObjModel>();
     private static LinkedList<Chunk<VoxelUnit>> _voxelChunksList = new LinkedList<Chunk<VoxelUnit>>();
     private static LinkedList<Chunk<VertexUnit>> _vertexChunksList = new LinkedList<Chunk<VertexUnit>>();
+    private static LinkedList<ObjModel> _objModelsList = new LinkedList<ObjModel>();
 
     static Project()
     {
@@ -57,6 +59,7 @@ public class Project : MonoBehaviour
 
         Voxelator.VoxelChunkManager.UpdateChunkEvent += OnUpdateVoxelChunk;
         Voxelator.VertexChunkManager.UpdateChunkEvent += OnUpdateVertexChunk;
+        ObjModelManager.UpdateModelEvent += OnUpdateObjModel;
     }
 
     public static bool Exists(string name, string rootPath)
@@ -89,14 +92,13 @@ public class Project : MonoBehaviour
         Directory.CreateDirectory(VerticesPath);
 
         //voxelator data reading
-        using (StreamManager stream = new StreamManager(path))
+        using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
         {
             Vector3Int fieldSize;
             int incrementOption;
 
-            if (!stream.TryRead() ||
-            !stream.TryGetVector3Int(out fieldSize) ||
-            !stream.TryGetInt(out incrementOption)) return false;
+            if (!reader.TryRead(out fieldSize) ||
+            !reader.TryRead(out incrementOption)) return false;
 
             Release();
             Voxelator.Release();
@@ -104,17 +106,18 @@ public class Project : MonoBehaviour
         }
 
         //abstract reading function 
-        void readChunk<C, U>(string chunkPath, ChunkManager<C, U> chunkManager, Func<StreamManager, bool> readFunc) where C : Chunk<U> where U : Unit
+        void readChunk<C, U>(string unitsPath, ChunkManager<C, U> chunkManager, Func<BinaryReader, bool> readFunc) where C : Chunk<U> where U : Unit
         {
-            for(int i = 0; i < chunkManager.Chunks.Length; i++)
+            for (int i = 0; i < chunkManager.Chunks.Length; i++)
             {
-                using (StreamManager stream = new StreamManager($@"{chunkPath}{i}"))
+                foreach (string currentChunkPath in Directory.GetFiles(unitsPath))
                 {
-                    if(stream.TryRead())
+                    //using (BinaryReader reader = new BinaryReader(File.OpenRead($@"{chunkPath}{i}")))
+                    using (BinaryReader reader = new BinaryReader(File.OpenRead(currentChunkPath)))
                     {
-                        while(true)
+                        while (true)
                         {
-                            if (!readFunc(stream)) break;
+                            if (!readFunc(reader)) break;
                         }
                     }
                 }
@@ -122,23 +125,23 @@ public class Project : MonoBehaviour
         }
 
         //voxel data reading
-        readChunk(VoxelChunkPath, Voxelator.VoxelChunkManager, (stream) =>
+        readChunk(VoxelsPath, Voxelator.VoxelChunkManager, (reader) =>
         {
             int voxelIndex;
             Vector3Byte color;
-            if (!stream.TryGetInt(out voxelIndex) || !stream.TryGetVector3Byte(out color)) return false;
+            if (!reader.TryRead(out voxelIndex) || !reader.TryRead(out color)) return false;
 
             Voxelator.CreateVoxel(voxelIndex, color);
             return true;
         });
 
         //vertex data reading
-        readChunk(VertexChunkPath, Voxelator.VertexChunkManager, (stream) =>
+        readChunk(VerticesPath, Voxelator.VertexChunkManager, (reader) =>
         {
             int vertexIndex;
             Vector3Byte vertexOffset;
 
-            if (!stream.TryGetInt(out vertexIndex) || !stream.TryGetVector3Byte(out vertexOffset)) return false;
+            if (!reader.TryRead(out vertexIndex) || !reader.TryRead(out vertexOffset)) return false;
 
             Vector3Int vertexPosition = VoxelatorArray.GetPosition(Voxelator.FieldSize + Vector3Int.one, vertexIndex);
             Voxelator.VertexChunkManager.SetVertexOffset(vertexPosition, vertexOffset.ToVector3() / Voxelator.IncrementOption);
@@ -147,6 +150,24 @@ public class Project : MonoBehaviour
 
         Voxelator.UpdateChunks();
         Init();
+
+        //obj models data reading
+        foreach (string currentPath in Directory.GetFiles(ModelsPath))
+        {
+            using (BinaryReader reader = new BinaryReader(File.OpenRead(currentPath)))
+            {
+                string modelPath;
+                if (reader.TryRead(out modelPath))
+                {
+                    Vector3 modelPosition = Voxelator.Center;
+                    float modelSize = 1;
+                    if (reader.TryRead(out modelPosition))
+                        reader.TryRead(out modelSize);
+
+                    ObjModelManager.Import(modelPath, modelPosition, modelSize);
+                }
+            }
+        }
 
         return true;
     }
@@ -174,14 +195,12 @@ public class Project : MonoBehaviour
         Directory.CreateDirectory(DataPath);
         Directory.CreateDirectory(VoxelsPath);
         Directory.CreateDirectory(VerticesPath);
+        Directory.CreateDirectory(ModelsPath);
 
-        using (StreamManager stream = new StreamManager($@"{ProjectPath}\{MainFileName}"))
+        using (BinaryWriter writer = new BinaryWriter(File.Create($@"{ProjectPath}\{MainFileName}")))
         {
-            if(stream.OpenWrite())
-            {
-                stream.Write(BitConverterWrapper.GetBytes(Voxelator.FieldSize));
-                stream.Write(BitConverter.GetBytes(Voxelator.IncrementOption));
-            }
+            writer.Write(Voxelator.FieldSize);
+            writer.Write(Voxelator.IncrementOption);
         }
     }
 
@@ -201,6 +220,7 @@ public class Project : MonoBehaviour
     {
         if(Voxelator.VoxelChunkManager != null) Voxelator.VoxelChunkManager.UpdateChunkEvent -= OnUpdateVoxelChunk;
         if (Voxelator.VertexChunkManager != null) Voxelator.VertexChunkManager.UpdateChunkEvent -= OnUpdateVertexChunk;
+        ObjModelManager.UpdateModelEvent -= OnUpdateObjModel;
 
         if(_savingThread != null) _savingThread.Abort();
     }
@@ -223,7 +243,7 @@ public class Project : MonoBehaviour
         _voxelChunksList.Remove(node);
 
         _voxelChunksQueue.Enqueue(chunk);
-        OnUpdateChunk();
+        OnSave();
     }
 
     private static async void OnUpdateVertexChunk(Chunk<VertexUnit> chunk)
@@ -238,20 +258,36 @@ public class Project : MonoBehaviour
         _vertexChunksList.Remove(node);
 
         _vertexChunksQueue.Enqueue(chunk);
-        OnUpdateChunk();
+        OnSave();
     }
 
-    private static async void OnUpdateChunk()
+    private static async void OnUpdateObjModel(ObjModel model)
+    {
+        if (_objModelsList.Contains(model)) return;
+
+        Saved.Value = false;
+
+        LinkedListNode<ObjModel> node = new LinkedListNode<ObjModel>(model);
+        _objModelsList.AddFirst(node);
+        await Task.Delay(1000);
+        _objModelsList.Remove(node);
+
+        _objModelsQueue.Enqueue(model);
+        OnSave();
+    }
+
+    private static async void OnSave()
     {
         if (!_savedAsync) return;
 
         Saved.Value = false;
-        Saved.Value = false;
-
         _savedAsync = false;
+
         await Task.Run(() =>
         {
-            while (!_savedAsync && _voxelChunksList.Count != 0 && _vertexChunksList.Count != 0) { }
+            //while (!_savedAsync && _voxelChunksList.Count != 0 && _vertexChunksList.Count != 0) { }
+            //while (!_savedAsync && _voxelChunksQueue.Count != 0 && _vertexChunksQueue.Count != 0) { }
+            while (!_savedAsync) { }
         });
 
         Saved.Value = true;
@@ -260,7 +296,7 @@ public class Project : MonoBehaviour
     private static void Saving()
     {
         //abstract writing function 
-        void write<C, U>(string path, string chunkName, ChunkManager<C, U> chunkManageer, ConcurrentQueue< Chunk<U>> chunks, Action<int, U, StreamManager> writeAction) where C : Chunk<U> where U : Unit
+        void write<C, U>(string path, string chunkName, ChunkManager<C, U> chunkManageer, ConcurrentQueue< Chunk<U>> chunks, Action<int, U, BinaryWriter> writeAction) where C : Chunk<U> where U : Unit
         {
             if (!chunks.IsEmpty)
             {
@@ -268,29 +304,14 @@ public class Project : MonoBehaviour
                 if (chunks.TryDequeue(out chunk))
                 {
                     int chunkIndex = chunkManageer.GetChunkIndex(chunk.Position);
-                    //using (BinaryWriter writer = new BinaryWriter(File.Open($@"{path}\{chunkName}{chunkIndex}", FileMode.Create), Encoding.UTF8))
-                    //{
-                    //    for (int i = 0; i < chunk.Units.Length; i++)
-                    //    {
-                    //        if (chunk.Units[i] != null)
-                    //        {
-                    //            byte[] bytes = BitConverter.GetBytes(VoxelatorArray.GetIndex(chunkManageer.FieldSize, chunk.Units[i].Position));
-                    //            writer.BaseStream.Write(bytes, 0, bytes.Length);
-                    //            writeAction(i, chunk.Units[i], writer);
-                    //        }
-                    //    }
-                    //}
-                    using (StreamManager stream = new StreamManager($@"{path}\{chunkName}{chunkIndex}"))
+                    using (BinaryWriter writer = new BinaryWriter(File.Open($@"{path}\{chunkName}{chunkIndex}", FileMode.Create)))
                     {
-                        if(stream.OpenWrite())
+                        for (int i = 0; i < chunk.Units.Length; i++)
                         {
-                            for (int i = 0; i < chunk.Units.Length; i++)
+                            if (chunk.Units[i] != null)
                             {
-                                if (chunk.Units[i] != null)
-                                {
-                                    stream.Write(BitConverter.GetBytes(VoxelatorArray.GetIndex(chunkManageer.FieldSize, chunk.Units[i].Position)));
-                                    writeAction(i, chunk.Units[i], stream);
-                                }
+                                writer.Write(VoxelatorArray.GetIndex(chunkManageer.FieldSize, chunk.Units[i].Position));
+                                writeAction(i, chunk.Units[i], writer);
                             }
                         }
                     }
@@ -303,18 +324,35 @@ public class Project : MonoBehaviour
         {
             if (!_savedAsync)
             {
-                write(VoxelsPath, VoxelChunkName, Voxelator.VoxelChunkManager, _voxelChunksQueue, (index, voxel, stream) =>
+                //voxel saving
+                write(VoxelsPath, VoxelChunkName, Voxelator.VoxelChunkManager, _voxelChunksQueue, (index, voxel, writer) =>
                 {
-                    stream.Write(BitConverterWrapper.GetBytes(voxel.Color));
+                    writer.Write(BitConverterWrapper.GetBytes(voxel.Color));
                 });
 
-                write(VerticesPath, VertexChunkName, Voxelator.VertexChunkManager, _vertexChunksQueue, (index, vertex, stream) =>
+                //vertex saving
+                write(VerticesPath, VertexChunkName, Voxelator.VertexChunkManager, _vertexChunksQueue, (index, vertex, writer) =>
                 {
                     byte[] bytes = BitConverterWrapper.GetBytes((vertex.GetOffset() * Voxelator.IncrementOption).ToVector3Int().ToVector3Byte());
-                    stream.Write(bytes);
+                    writer.Write(bytes);
                 });
 
-                if (_voxelChunksQueue.IsEmpty && _vertexChunksQueue.IsEmpty)
+                //obj model saving
+                if (!_objModelsQueue.IsEmpty)
+                {
+                    ObjModel model;
+                    if (_objModelsQueue.TryDequeue(out model))
+                    {
+                        using (BinaryWriter writer = new BinaryWriter(File.Create($@"{ModelsPath}\{Path.GetFileNameWithoutExtension(model.Path)}")))
+                        {
+                            writer.Write(model.Path);
+                            writer.Write(model.Position);
+                            writer.Write(model.Size);
+                        }
+                    }
+                }
+
+                if (_voxelChunksQueue.IsEmpty && _vertexChunksQueue.IsEmpty && _objModelsQueue.IsEmpty)
                     _savedAsync = true;
             }
 
