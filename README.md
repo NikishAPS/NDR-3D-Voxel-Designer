@@ -2,16 +2,27 @@
 
 DU-Build-Planner is a three-dimensional voxel editor with advanced features.
 
-![New project](https://user-images.githubusercontent.com/50108069/164998502-baa60cbe-890c-4bf4-8ac0-552ef2d0662e.png)
+Features
+-------------
 
-Create and move voxels
-![Voxels](https://user-images.githubusercontent.com/50108069/165378945-9e9a3f7a-7392-4dea-a14f-d1665149e7da.png)
+- Creating and moving voxels
+- Setting any colors for each voxel
+- Editing the shape of the voxels as you wish
+- Using a mirror for symmetrical editing
+- Upload three-dimensional models in the format .obj
+- Automatic real-time saving
 
-Edit the form as you wish
-![Edit](https://user-images.githubusercontent.com/50108069/165379412-a3a125c0-c0cf-42f1-a84d-959b9904a8f0.png)
-![Tree](https://user-images.githubusercontent.com/50108069/164998511-3521bc21-93d4-444b-a8af-317aeacc0d79.png)
+Launching
+-------------
+- Download the sources from this repository
+- Open the project folder in Unity (version 2019.3 and later)
+- Choose File -> Build Settings
+- In the list of platforms, choose Windows, Mac, Linux and click Build
+- Set the path to create binary files
+- Open the "NDR 3D Voxel Designer.exe" file
 
-Upload three-dimensional models in the format .obj
-![Obj](https://user-images.githubusercontent.com/50108069/164998519-5b420c46-98c1-40c4-a58f-5a68751dc420.png)
+You may also download the compiled version to the Windows executable: https://disk.yandex.ru/d/0T9j1cQBRfkLuw
 
-Download executable file for Windows: https://disk.yandex.ru/d/0T9j1cQBRfkLuw
+
+![NDR-3D-Voxel-Designer-Demo](https://user-images.githubusercontent.com/50108069/186388680-e4fe8b0b-0163-4473-b805-9a5ea4184d9b.gif)
+![NDR-3D-Voxel-Designer-Mirror-Demo](https://user-images.githubusercontent.com/50108069/186388695-153bc9de-bef9-4833-aad8-7c0ffd08a7dc.gif)
